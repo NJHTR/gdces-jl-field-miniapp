@@ -4543,3 +4543,152 @@ page {
   flex-direction: column;
   gap: 10rpx;
 }
+
+/* ============================================================
+   气泡元信息 + 引用块 + 引用条
+   ============================================================ */
+
+/* 元信息：气泡下方一行小字，右对齐（我的话）/左对齐（助手的话） */
+.meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 8rpx;
+  padding: 0 6rpx;
+  align-self: flex-end;
+}
+
+.meta.left {
+  align-self: flex-start;
+}
+
+.meta-t {
+  font-size: 19rpx;
+  font-weight: 500;
+  color: #a3adbb;
+}
+
+.meta-dot {
+  font-size: 19rpx;
+  color: #c3cbd6;
+}
+
+/* 同步状态：待上传是橙色，已上传是灰 */
+.meta-s {
+  font-size: 19rpx;
+  font-weight: 600;
+  color: #a3adbb;
+}
+
+.meta-s.wait {
+  color: #e08a00;
+}
+
+/* 引用块：气泡里那一段灰底竖线 */
+.qblock {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  margin-bottom: 12rpx;
+  padding: 10rpx 14rpx;
+  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.16);
+  border-left: 4rpx solid rgba(255, 255, 255, 0.6);
+}
+
+.bubble.agent .qblock {
+  background: rgba(120, 134, 155, 0.1);
+  border-left-color: rgba(120, 134, 155, 0.45);
+}
+
+.qblock-who {
+  font-size: 19rpx;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.bubble.agent .qblock-who {
+  color: #8a94a6;
+}
+
+.qblock-t {
+  font-size: 22rpx;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bubble.agent .qblock-t {
+  color: #5b6473;
+}
+
+/* 输入框上方的引用条 */
+.quotebar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+  padding: 10rpx 14rpx;
+  border-radius: 16rpx;
+  background: rgba(120, 134, 155, 0.1);
+}
+
+.qb-line {
+  flex: none;
+  width: 4rpx;
+  height: 34rpx;
+  border-radius: 2rpx;
+  background: #0a6dff;
+}
+
+.qb-t {
+  flex: 1;
+  min-width: 0;
+  font-size: 21rpx;
+  color: #5b6473;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.qb-x {
+  flex: none;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qb-x-t {
+  font-size: 20rpx;
+  color: #8a94a6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .meta-t,
+  .meta-dot,
+  .meta-s {
+    color: #6f7f94;
+  }
+
+  .meta-s.wait {
+    color: #f0a83c;
+  }
+
+  .qblock {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .quotebar {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .qb-t {
+    color: #c9d4e3;
+  }
+}

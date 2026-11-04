@@ -81,6 +81,7 @@ Page({
     menuY: 0,
     menuId: "",
     menuVoice: false,
+    quoting: null,
     soundOn: true,
     imFocus: false,
     recBars: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
@@ -1296,6 +1297,47 @@ Page({
     return this.data.msgs.filter((m) => m.id === this.data.menuId)[0] || null;
   },
 
+  /** 引用某一条：气泡上长按 → 引用 */
+  onMenuQuote() {
+    const msg = this._menuMsg();
+    this.setData({ menuOpen: false, imMode: "text" });
+    if (!msg) return;
+    const who = msg.type === "agent" ? "助手" : "我";
+    const text = (msg.text || (msg.photos ? "[" + msg.photos.length + " 张照片]" : "语音")).slice(0, 40);
+    fb.tap();
+    this.setData({ quoting: { id: msg.id, who, text } });
+    this.setMode("input");
+    wx.nextTick(() => this.setData({ imFocus: true }));
+  },
+
+  onCancelQuote() {
+    fb.tap();
+    this.setData({ quoting: null });
+  },
+
+  /** 转发：小程序里不能直接把消息转发到群，先复制成一段可粘贴的文字 */
+  onMenuForward() {
+    const msg = this._menuMsg();
+    this.setData({ menuOpen: false });
+    if (!msg) return;
+
+    const lines = [];
+    if (msg.from || msg.voice) lines.push("【" + (msg.voice ? "语音 " + msg.dur : "图片") + "】");
+    if (msg.text) lines.push(msg.text);
+    const body = lines.join("\n") || "（无文字内容）";
+
+    wx.setClipboardData({
+      data: body,
+      success: () => {
+        wx.showModal({
+          title: "已复制",
+          content: "这条内容已复制，可以粘贴到群里。图片需要单独发送。",
+          showCancel: false,
+          confirmText: "好",
+        });
+      },
+    });
+  },
   onMenuCopy() {
     const msg = this._menuMsg();
     this.setData({ menuOpen: false });
@@ -1614,6 +1656,11 @@ Page({
     } catch (err) {}
 
     fb.tick();
+    const now = new Date();
+    const pad = (n) => (n < 10 ? "0" + n : "" + n);
+    const hhmm = pad(now.getHours()) + ":" + pad(now.getMinutes());
+    const quoting = this.data.quoting;
+
     const msgs = this.data.msgs.concat([
       {
         id: "t" + Date.now(),
@@ -1623,11 +1670,22 @@ Page({
         voice: audios.length > 0,
         dur: audios[0] ? audios[0].dur : "",
         audioCount: audios.length,
+        time: hhmm,
+        sync: false,          // 先乐观显示"待上传"，上传成功再改
+        quote: quoting ? { who: quoting.who, text: quoting.text } : null,
       },
     ]);
+    this.setData({ quoting: null });
+    const myId = msgs[msgs.length - 1].id;
     this.setData({ msgs }, () => {
       this.refreshViews(this.data.query);
       this.scrollToBottom();
+
+      // 上传完成（接后端后换成真实结果回调）
+      setTimeout(() => {
+        const next = this.data.msgs.map((m) => (m.id === myId ? Object.assign({}, m, { sync: true }) : m));
+        this.setData({ msgs: next }, () => this.refreshViews(this.data.query));
+      }, 900);
     });
 
     setTimeout(() => {
@@ -1635,6 +1693,8 @@ Page({
         {
           id: "r" + Date.now(),
           type: "agent",
+          time: hhmm,
+          src: "引用你刚发的那条",
           text: "记下了。",
           sub: "需要我整理成文书时，去「记录」里就能看到。",
         },
@@ -1752,9 +1812,16 @@ Page({
       if (this._rec) this._rec.stop();
     } catch (e) {}
     const msgs = this.data.msgs.concat([msg]);
+    const myId = msgs[msgs.length - 1].id;
     this.setData({ msgs }, () => {
       this.refreshViews(this.data.query);
       this.scrollToBottom();
+
+      // 上传完成（接后端后换成真实结果回调）
+      setTimeout(() => {
+        const next = this.data.msgs.map((m) => (m.id === myId ? Object.assign({}, m, { sync: true }) : m));
+        this.setData({ msgs: next }, () => this.refreshViews(this.data.query));
+      }, 900);
     });
     wx.showToast({ title: "已记下", icon: "none" });
   },

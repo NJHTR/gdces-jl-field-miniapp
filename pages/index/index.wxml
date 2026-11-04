@@ -117,14 +117,37 @@
                 </view>
                 <text class="dur">{{item.dur}}</text>
               </view>
+              <view class="qblock" wx:if="{{item.quote}}">
+                <text class="qblock-who">{{item.quote.who}}</text>
+                <text class="qblock-t">{{item.quote.text}}</text>
+              </view>
               <view class="quote">{{item.text}}</view>
+            </view>
+
+            <!-- 元信息：时间 + 同步状态 + 来源 -->
+            <view class="meta">
+              <text class="meta-t">{{item.time}}</text>
+              <text class="meta-dot">·</text>
+              <text class="meta-s {{item.sync ? '' : 'wait'}}">{{item.sync ? '已上传' : '待上传'}}</text>
+              <text class="meta-dot" wx:if="{{item.from}}">·</text>
+              <text class="meta-s" wx:if="{{item.from}}">{{item.from}}</text>
             </view>
           </view>
 
           <view wx:elif="{{item.type === 'agent' && !item.hidden}}" class="row agent" style="width:{{rowW}}px;">
             <view class="bubble agent" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
+              <view class="qblock" wx:if="{{item.quote}}">
+                <text class="qblock-who">{{item.quote.who}}</text>
+                <text class="qblock-t">{{item.quote.text}}</text>
+              </view>
               <view class="quote">{{item.text}}</view>
               <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
+            </view>
+
+            <view class="meta left">
+              <text class="meta-t">{{item.time}}</text>
+              <text class="meta-dot" wx:if="{{item.src}}">·</text>
+              <text class="meta-s" wx:if="{{item.src}}">{{item.src}}</text>
             </view>
           </view>
         </block>
@@ -526,6 +549,13 @@
             </view>
             <!-- 文字态：文字 / 图片 / 语音 自由组合 -->
             <view class="composecol" wx:if="{{!recording && imMode === 'text'}}">
+              <!-- 引用条：正在回复哪一条 -->
+              <view class="quotebar" wx:if="{{quoting}}">
+                <view class="qb-line"></view>
+                <text class="qb-t">{{quoting.who}}：{{quoting.text}}</text>
+                <view class="qb-x" bindtap="onCancelQuote"><text class="qb-x-t">✕</text></view>
+              </view>
+
               <!-- 附件条：拍了几张、录了几段，都在这儿 -->
               <scroll-view class="attachrow" wx:if="{{attach.length}}" scroll-x show-scrollbar="{{false}}" enable-flex>
                 <view class="achip" wx:for="{{attach}}" wx:key="id" data-id="{{item.id}}">
