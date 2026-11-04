@@ -2,12 +2,14 @@
  * 两块地址，分别对应两种跑法：
  *
  * API_BASE —— 后端接口。留空 = 演示模式（不请求服务器，直接放行）。
+ *             现在指向本机 8081，是 SSH 隧道：
+ *             ssh -N -L 8081:127.0.0.1:8081 rokid-r640
+ *             微信开发者工具里要勾「不校验合法域名」。
  *
  * H5_BASE  —— 原型/H5 版本地址，web-view 直接加载它。
  *              必须带结尾斜杠，否则 nginx 的 location /lab/ 匹配不上。
  */
 module.exports = {
-  API_BASE: "",
-  // 试验版挂在你们已备案的正式域名下（和 /mobile/ 同一台源站，独立目录）
+  API_BASE: "http://127.0.0.1:8081",
   H5_BASE: "https://www.baize.gdces.cn/lab/",
 };
