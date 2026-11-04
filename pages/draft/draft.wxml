@@ -26,6 +26,22 @@
         </view>
       </view>
     </block>
+    <!-- 依据：这份文书凭什么这么写 -->
+    <view class="sec">依据</view>
+    <view class="basecard">
+      <view class="basehead" bindtap="onToggleBases">
+        <image class="basehead-i" src="/assets/icons/check-gray.png" mode="aspectFit" />
+        <text class="basehead-t">{{bases.length}} 条依据 · 记录 / 照片 / 规范 / 记忆</text>
+        <text class="basehead-more">{{basesOpen ? '收起' : '展开'}}</text>
+      </view>
+      <view class="baselist" wx:if="{{basesOpen}}">
+        <view class="baserow" wx:for="{{bases}}" wx:key="t">
+          <image class="basei" src="/assets/icons/{{item.ic}}-gray.png" mode="aspectFit" />
+          <text class="baset">{{item.t}}</text>
+        </view>
+      </view>
+    </view>
+
     <view class="tb-pad"></view>
   </scroll-view>
 

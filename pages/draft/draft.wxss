@@ -189,3 +189,77 @@ page {
   text-align: center;
   line-height: 1.55;
 }
+
+/* 依据：这份文书凭什么这么写 */
+.basecard {
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16rpx 36rpx -30rpx rgba(22, 38, 74, 0.45);
+  overflow: hidden;
+}
+
+.basehead {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+  padding: 22rpx 24rpx;
+}
+
+.basehead-i {
+  flex: none;
+  width: 28rpx;
+  height: 28rpx;
+  opacity: 0.7;
+}
+
+.basehead-t {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  color: #33405a;
+}
+
+.basehead-more {
+  flex: none;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #0a6dff;
+}
+
+.baselist {
+  padding: 0 24rpx 18rpx;
+}
+
+.baserow {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12rpx;
+  padding: 12rpx 0;
+  border-top: 1rpx solid rgba(120, 134, 155, 0.12);
+}
+
+.basei {
+  flex: none;
+  width: 26rpx;
+  height: 26rpx;
+  margin-top: 4rpx;
+  opacity: 0.7;
+}
+
+.baset {
+  flex: 1;
+  min-width: 0;
+  font-size: 22rpx;
+  line-height: 1.5;
+  color: #5b6473;
+}
+
+/* 依据卡要有实体感：白底 + 细边框 + 轻投影 */
+.basecard {
+  background: #ffffff;
+  border: 1rpx solid rgba(120, 134, 155, 0.16);
+  box-shadow: 0 14rpx 30rpx -26rpx rgba(22, 38, 74, 0.5);
+}

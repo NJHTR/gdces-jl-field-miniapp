@@ -3,6 +3,12 @@ const store = require("../../utils/store");
 const DOCS = {
   旁站记录: {
     sub: "3#5F 顶板 · 09:12–10:24",
+    bases: [
+      { ic: "doc", t: "现场记录 3 条：09:12 开始旁站、10:24 结束、坍落度实测 180mm" },
+      { ic: "cam", t: "现场照片 2 张：浇筑中 1 张、试块取样 1 张" },
+      { ic: "search", t: "规范 GB 50204-2015 §7.3 混凝土浇筑与养护" },
+      { ic: "pen", t: "你的记忆：旁站结论写「经检查符合要求」" },
+    ],
     groups: [
       {
         label: "基本信息",
@@ -30,6 +36,13 @@ const DOCS = {
   },
   监理通知单: {
     sub: "NO-017 · 4#楼外架",
+    bases: [
+      { ic: "doc", t: "现场记录 1 条：08:05 发现连墙件缺失 2 处" },
+      { ic: "cam", t: "现场照片 1 张：4#楼东侧外架缺失部位" },
+      { ic: "search", t: "规范 JGJ 130-2011 §6.4.3 连墙件设置间距" },
+      { ic: "warn", t: "历史比对：10-28 同部位曾因连墙件被下过通知单" },
+      { ic: "pen", t: "你的记忆：隐患描述要带部位和数量" },
+    ],
     groups: [
       {
         label: "基本信息",
@@ -54,6 +67,12 @@ const DOCS = {
   },
   监理日志: {
     sub: "11-03 · 汇总 6 条",
+    bases: [
+      { ic: "doc", t: "当天现场记录 6 条（08:05–17:40）" },
+      { ic: "cam", t: "现场照片 4 张" },
+      { ic: "warn", t: "当天开出通知单 1 份（NO-017）" },
+      { ic: "pen", t: "你的记忆：日报先写部位、再写问题" },
+    ],
     groups: [
       {
         label: "基本信息",
@@ -85,6 +104,8 @@ Page({
     title: "旁站记录",
     sub: "",
     groups: [],
+    bases: [],
+    basesOpen: false,
     missingCount: 0,
     hdrTop: 52,
     bottomPad: 48,
@@ -120,6 +141,8 @@ Page({
     conf.groups.forEach((g) => g.rows.forEach((r) => r.missing && missing++));
 
     this.setData({
+      bases: conf.bases || [],
+      basesOpen: false,
       title: kind,
       sub: decodeURIComponent(opt.obj || "") || conf.sub,
       groups: conf.groups,
@@ -134,6 +157,10 @@ Page({
   onFillAll() {
     // 原型占位：真实场景会逐个弹输入
     wx.showToast({ title: "逐项补齐：原型占位", icon: "none" });
+  },
+
+  onToggleBases() {
+    this.setData({ basesOpen: !this.data.basesOpen });
   },
 
   onGenerate() {
