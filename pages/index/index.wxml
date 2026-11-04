@@ -159,7 +159,7 @@
                   <image class="trace-i" src="/assets/icons/{{t.icon}}-gray.png" mode="aspectFit" />
                   <text class="trace-t">{{t.text}}</text>
                 </view>
-                <view class="trace-foot">用时 {{item.ms}}ms</view>
+                <view class="trace-foot">用时 {{item.msLabel || item.ms}}</view>
               </view>
             </view>
 
