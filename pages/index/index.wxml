@@ -144,6 +144,25 @@
               <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
             </view>
 
+            <!-- AI 操作轨迹：它读了什么、查了什么、花了多久 -->
+            <view class="trace" wx:if="{{item.trace && item.trace.length}}">
+              <view class="trace-head" data-id="{{item.id}}" catchtap="onTraceToggle">
+                <view class="trace-badge">
+                  <image class="trace-badge-i" src="/assets/icons/check-gray.png" mode="aspectFit" />
+                </view>
+                <text class="trace-sum">{{item.traceSum}}</text>
+                <text class="trace-more">{{item.traceOpen ? '收起' : '展开'}}</text>
+              </view>
+
+              <view class="trace-list" wx:if="{{item.traceOpen}}">
+                <view class="trace-row" wx:for="{{item.trace}}" wx:for-item="t" wx:key="text">
+                  <image class="trace-i" src="/assets/icons/{{t.icon}}-gray.png" mode="aspectFit" />
+                  <text class="trace-t">{{t.text}}</text>
+                </view>
+                <view class="trace-foot">用时 {{item.ms}}ms</view>
+              </view>
+            </view>
+
             <view class="meta left">
               <text class="meta-t">{{item.time}}</text>
               <text class="meta-dot" wx:if="{{item.src}}">·</text>

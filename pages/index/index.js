@@ -793,12 +793,14 @@ Page({
     const hit = (s) => !q || (s || "").indexOf(q) >= 0;
     const bwMax = this.data.bubbleMax || 275;
 
+    const openMap = this._traceOpen || {};
     const msgsView = this.data.msgs.map((m) => {
       if (m.type === "stamp") return Object.assign({}, m, { hidden: !!q });
       const text = (m.text || "") + (m.sub || "") + (m.cap || "");
       return Object.assign({}, m, {
         hidden: !!q && !hit(text),
         bw: this.bubbleWidth(m, bwMax),
+        traceOpen: !!openMap[m.id],
       });
     });
 
@@ -1268,6 +1270,15 @@ Page({
     });
   },
   /* ---------------- 气泡长按菜单 ---------------- */
+
+  /** 展开 / 收起某条回复的处理轨迹 */
+  onTraceToggle(e) {
+    const id = e.currentTarget.dataset.id;
+    fb.tap();
+    this._traceOpen = this._traceOpen || {};
+    this._traceOpen[id] = !this._traceOpen[id];
+    this.refreshViews(this.data.query);
+  },
 
   onMsgLong(e) {
     const id = e.currentTarget.dataset.id;
