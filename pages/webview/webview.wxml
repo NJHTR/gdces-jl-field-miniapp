@@ -1,0 +1,36 @@
+<!-- H5 版本：整个原型直接嵌进来，100% 一致 -->
+<web-view wx:if="{{url}}" src="{{url}}" bindmessage="onMessage" binderror="onError"></web-view>
+
+<!-- 没配地址时的说明页 -->
+<view class="setup" wx:else>
+  <view class="setup-card">
+    <view class="setup-title">还没配 H5 地址</view>
+    <view class="setup-sub">打开 <text class="code">utils/config.js</text>，填上 H5_BASE</view>
+
+    <view class="step">
+      <text class="step-n">1</text>
+      <view class="step-b">
+        <text class="step-t">把原型发布到 HTTPS 域名</text>
+        <text class="step-d">小程序 web-view 只认 HTTPS，且要在后台配成「业务域名」</text>
+      </view>
+    </view>
+
+    <view class="step">
+      <text class="step-n">2</text>
+      <view class="step-b">
+        <text class="step-t">开发者工具里先调试</text>
+        <text class="step-d">详情 → 本地设置 → 勾「不校验合法域名」，可以先用局域网地址</text>
+      </view>
+    </view>
+
+    <view class="step">
+      <text class="step-n">3</text>
+      <view class="step-b">
+        <text class="step-t">填 H5_BASE</text>
+        <text class="step-d">例如 https://jl.example.com（末尾不要带斜杠）</text>
+      </view>
+    </view>
+
+    <view class="setup-btn" bindtap="useLocal">本地调试怎么开</view>
+  </view>
+</view>

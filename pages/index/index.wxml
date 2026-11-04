@@ -1,0 +1,626 @@
+<wxs module="dock" src="./dock.wxs"></wxs>
+<view class="screen">
+  <view class="glow g1"></view>
+  <view class="glow g2"></view>
+  <view class="glow g3"></view>
+  <view class="wm" wx:if="{{tab !== 'field'}}">
+    <image class="wm-img" src="/assets/brand-mark.png" mode="aspectFit" />
+    <text class="wm-name">{{project.name}}</text>
+  </view>
+
+  <view class="app">
+    <!-- 顶部：只有「现场」是浮动项目胶囊，其它三页是标题 + 副标题 -->
+    <view class="hdr" style="padding-top: {{hdrTop}}px; padding-right: {{hdrRight}}px;" wx:if="{{tab === 'field'}}">
+      <view class="project" bindtap="onProjectTap" aria-label="当前项目，点击切换">
+        <view class="pico"><image class="pico-img" src="/assets/icons/bld-white.png" mode="aspectFit" style="width:30rpx;height:30rpx;" /></view>
+        <view class="pinfo">
+          <text class="pname">{{project.name}}</text>
+          <text class="psub">{{project.sub}}</text>
+        </view>
+        <view class="chev"></view>
+      </view>
+
+      <view class="iconbtn" bindtap="openSearch" aria-label="搜索">
+        <image class="hicon" src="/assets/icons/search-dark.png" mode="aspectFit" style="width:42rpx;height:42rpx;" />
+      </view>
+    </view>
+
+    <view class="page-hdr" style="padding-top: {{hdrTop}}px; padding-right: {{hdrRight}}px;" wx:else>
+      <view class="page-title">
+        <text class="pg-h">{{pageTitle}}</text>
+        <text class="pg-s">{{pageSub}}</text>
+      </view>
+      <view class="iconbtn" bindtap="openSearch" aria-label="搜索">
+        <image class="hicon" src="/assets/icons/search-dark.png" mode="aspectFit" style="width:42rpx;height:42rpx;" />
+      </view>
+    </view>
+
+    <!-- 内容（带转场） -->
+    <view class="content {{anim}}">
+      <view class="srchhd" wx:if="{{query}}">
+        <text class="srchhd-t">搜索“{{query}}”</text>
+        <text class="srchhd-n">{{searchCount}} 条</text>
+      </view>
+      <view class="srchempty" wx:if="{{query && searchCount === 0}}">
+        <image class="state-img sm" src="/assets/illus/mobile-search.png" mode="aspectFit" />
+        <text class="srchempty-t">没有找到相关内容</text>
+        <text class="srchempty-s">换个词试试，或者去「现场」直接问它</text>
+      </view>
+
+      <!-- 列表本来就没有内容时 -->
+      <view class="srchempty" wx:if="{{!query && listEmpty}}">
+        <image class="state-img sm" src="/assets/illus/empty.png" mode="aspectFit" />
+        <text class="srchempty-t">{{emptyText}}</text>
+        <text class="srchempty-s">{{emptySub}}</text>
+      </view>
+      <!-- 加载中：骨架屏（形状和真实卡片一致，避免跳动） -->
+      <block wx:if="{{pageState === 'loading'}}">
+        <view class="sk">
+          <view class="sk-row" wx:for="{{[1,2,3]}}" wx:key="*this">
+            <view class="sk-ico sk-shine"></view>
+            <view class="sk-body">
+              <view class="sk-line w70 sk-shine"></view>
+              <view class="sk-line w40 sk-shine"></view>
+            </view>
+          </view>
+          <view class="sk-row" wx:for="{{[1,2]}}" wx:key="*this">
+            <view class="sk-ico sk-shine"></view>
+            <view class="sk-body">
+              <view class="sk-line w55 sk-shine"></view>
+              <view class="sk-line w30 sk-shine"></view>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 加载失败：插画 + 重试 -->
+      <block wx:elif="{{pageState === 'error'}}">
+        <view class="statebox">
+          <image class="state-img" src="/assets/illus/going-offline.png" mode="aspectFit" />
+          <text class="state-t">{{loadErr}}</text>
+          <text class="state-s">记录还在本地，不会丢 · 网络回来就能同步</text>
+          <view class="state-btn" hover-class="hv" bindtap="onRetry">重试</view>
+        </view>
+      </block>
+
+      <block wx:else>
+      <scroll-view class="tl" scroll-y enable-flex show-scrollbar="{{false}}" scroll-into-view="{{tlAnchor}}" scroll-with-animation="{{true}}" style="padding-left:{{padX}}px;padding-right:{{padX}}px;" wx:if="{{tab === 'field'}}" refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
+        <block wx:for="{{msgsView}}" wx:key="id">
+          <view wx:if="{{item.type === 'stamp' && !item.hidden}}" class="stamp">{{item.text}}</view>
+
+          <view wx:elif="{{item.type === 'photos' && !item.hidden}}" class="row me" style="width:{{rowW}}px;">
+            <view class="photos">
+              <view wx:for="{{item.n}}" wx:for-item="p" wx:key="*this" class="ph ph{{p}}"></view>
+            </view>
+            <view class="cap">{{item.cap}}</view>
+          </view>
+
+          <view wx:elif="{{item.type === 'me' && !item.hidden}}" class="row me" style="width:{{rowW}}px;">
+            <!-- 我发的图：可多张 -->
+            <view class="mphotos" wx:if="{{item.photos && item.photos.length}}">
+              <image
+                wx:for="{{item.photos}}"
+                wx:for-item="p"
+                wx:key="*this"
+                class="mphoto"
+                src="{{p}}"
+                mode="aspectFill"
+                data-src="{{p}}"
+                catchtap="onPreviewPhoto"
+              />
+            </view>
+
+            <view class="bubble me" wx:if="{{item.text || item.voice}}" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
+              <view class="voice-line" wx:if="{{item.voice}}">
+                <view class="wave">
+                  <view wx:for="{{bars}}" wx:for-item="h" wx:key="*this" class="bar" style="height:{{h}}rpx"></view>
+                </view>
+                <text class="dur">{{item.dur}}</text>
+              </view>
+              <view class="quote">{{item.text}}</view>
+            </view>
+          </view>
+
+          <view wx:elif="{{item.type === 'agent' && !item.hidden}}" class="row agent" style="width:{{rowW}}px;">
+            <view class="bubble agent" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
+              <view class="quote">{{item.text}}</view>
+              <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
+            </view>
+          </view>
+        </block>
+        <view class="tb-pad" id="tl-bottom"></view>
+      </scroll-view>
+
+      <view class="inboxwrap" wx:elif="{{tab === 'inbox'}}">
+        <!-- 吸顶条：停在顶部，被下一段顶上去 -->
+        <picker mode="date" value="{{pickDate}}" bindchange="onPickDate" wx:if="{{!query}}">
+          <view class="stickybar {{stickyLift ? 'lift' : ''}}">
+            <view class="sb-l">
+              <text class="sb-d">{{stickyDate}}</text>
+              <text class="sb-w">{{stickyWeek}}</text>
+            </view>
+            <text class="sb-c">{{stickyCount}} 条 · 点这里跳日期</text>
+            <view class="sb-today" wx:if="{{showToday}}" catchtap="onBackToday">今天</view>
+          </view>
+        </picker>
+
+        <scroll-view
+          class="list inboxlist"
+          scroll-y
+          enable-flex
+          show-scrollbar="{{false}}"
+          scroll-into-view="{{jumpAnchor}}"
+          scroll-with-animation="{{true}}"
+          bindscroll="onListScroll"
+          refresher-enabled="{{true}}"
+          refresher-triggered="{{refreshing}}"
+          bindrefresherrefresh="onRefresh"
+        >
+        <view class="sec">共 7 条 · 待补 2 · 待签 3 · 已签 2</view>
+        <block wx:for="{{recordsView}}" wx:key="id">
+          <view class="dayhd {{index === stickyIdx ? 'hide' : ''}}" id="sec{{index}}">
+            <text class="dayhd-d">{{item.date}}</text>
+            <text class="dayhd-w">{{item.week}}</text>
+            <text class="dayhd-c">{{item.count}} 条</text>
+          </view>
+          <block wx:for="{{item.items}}" wx:for-item="it" wx:key="id">
+            <view class="rcell">
+              <!-- 右滑露出签收 -->
+              <view class="rsign {{it.state === '已签' ? 'view' : ''}}" data-id="{{it.id}}" bindtap="onSignRow">
+                <view class="rsign-in">
+                  <image
+                    class="rsign-ic"
+                    mode="aspectFit"
+                    src="{{it.state === '已签' ? '/assets/icons/doc-gray.png' : '/assets/icons/check-green.png'}}"
+                    style="width:30rpx;height:30rpx;"
+                  />
+                  <text class="rsign-t">{{it.state === '已签' ? '查看' : '签收'}}</text>
+                </view>
+              </view>
+              <view
+                class="card rslide"
+                style="left: {{it.sx || 0}}px;"
+                data-kind="{{it.kind}}"
+                data-obj="{{it.obj}}"
+                data-id="{{it.id}}"
+                bindtap="onRecordTap"
+                bindtouchstart="onRowStart"
+                bindtouchmove="onRowMove"
+                bindtouchend="onRowEnd"
+                bindtouchcancel="onRowEnd"
+              >
+
+              <view class="card-body">
+                <view class="card-top">
+                  <text class="card-t">{{it.kind}} · {{it.obj}}</text>
+                  <text class="st st-{{it.st}}">{{it.state}}</text>
+                </view>
+                <text class="card-m">{{it.time}}<text class="proj-chip" wx:if="{{it.cross}}"> · {{it.project}}</text></text>
+                <view class="chips">
+                  <text wx:for="{{it.tags}}" wx:for-item="tg" wx:key="*this" class="chip">{{tg}}</text>
+                </view>
+              </view>
+              <view class="rlclip" wx:if="{{it.sx}}"></view>
+              <view class="rcovwrap">
+                <image class="rcov" src="/assets/covers/{{it.cov}}.jpg" mode="aspectFill" />
+                <view class="rfade"></view>
+              </view>
+            </view>
+            </view>
+          </block>
+        </block>
+        <view class="tb-pad"></view>
+      </scroll-view>
+        </view>
+
+      <scroll-view class="list" scroll-y enable-flex show-scrollbar="{{false}}" style="padding-left:{{padX}}px;padding-right:{{padX}}px;" wx:elif="{{tab === 'docs'}}" refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
+        <!-- 图纸与影像：融合卡（图和卡片一体） -->
+        <view class="sec">图纸与影像</view>
+        <block wx:for="{{docsView}}" wx:key="id">
+          <view wx:if="{{item.visual}}" class="dcard" data-name="{{item.name}}" data-id="{{item.id}}" bindtap="onDocTap" bindlongpress="onDocLong">
+            <view class="dcard-body">
+              <view class="dcard-top">
+                <text class="dname">{{item.name}}</text>
+                <text class="dstate st-{{item.tone}}">{{item.state}}</text>
+              </view>
+              <text class="dwhen">{{item.meta}}</text>
+            </view>
+            <view class="rcovwrap dcard-cov">
+              <image class="rcov" src="{{item.img}}" mode="aspectFill" />
+              <view class="rfade"></view>
+            </view>
+          </view>
+        </block>
+
+        <!-- 文书资料 -->
+        <view class="sec">文书资料</view>
+        <block wx:for="{{docsView}}" wx:key="id">
+          <view wx:if="{{!item.visual}}" class="dcard" data-name="{{item.name}}" data-id="{{item.id}}" bindtap="onDocTap" bindlongpress="onDocLong">
+            <view class="dcard-body">
+              <view class="dcard-top">
+                <text class="dname">{{item.name}}</text>
+                <text class="dstate st-{{item.tone}}">{{item.state}}</text>
+              </view>
+              <text class="dwhen">{{item.meta}}</text>
+            </view>
+            <view class="rcovwrap dcard-cov">
+              <image class="rcov" src="{{item.img}}" mode="aspectFill" />
+              <view class="rfade"></view>
+            </view>
+          </view>
+        </block>
+        <view class="tb-pad"></view>
+      </scroll-view>
+
+      <scroll-view class="list" scroll-y enable-flex show-scrollbar="{{false}}" style="padding-left:{{padX}}px;padding-right:{{padX}}px;" wx:else refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
+        <!-- 未登录：邀请登录 -->
+        <view class="login-card" wx:if="{{!logged}}" bindtap="onLoginTap">
+          <view class="lc-body">
+            <text class="lc-t">登录后，记录才进项目</text>
+            <text class="lc-s">微信一键登录 · 不用填手机号</text>
+          </view>
+          <view class="lc-btn">登录</view>
+        </view>
+
+        <!-- 已登录：身份卡（不写"已登录"，用身份本身说明） -->
+        <view class="idcard" wx:else>
+          <view class="idavatar">{{userInitial}}</view>
+          <view class="idbody">
+            <text class="idname">{{userName}}</text>
+            <text class="idsub">{{userRole}} · {{project.name}}</text>
+          </view>
+        </view>
+        <view class="seg">
+          <view class="seg-b {{meSeg === 'mine' ? 'on' : ''}}" data-seg="mine" bindtap="switchSeg">我的</view>
+          <view class="seg-b {{meSeg === 'project' ? 'on' : ''}}" data-seg="project" bindtap="switchSeg">项目的</view>
+        </view>
+        <block wx:if="{{meSeg === 'mine'}}">
+          <view class="prefgroup" wx:if="{{memosView.length}}">
+        <view wx:for="{{memosView}}" wx:key="id" class="memo" data-id="{{item.id}}" bindtap="onMemoTap">
+            <view class="memo-t">{{item.text}}</view>
+            <view class="memo-m">
+              <text class="memo-mt">{{item.meta}}</text>
+              <text class="memo-ok">✓ 生效中</text>
+            </view>
+          </view>
+        </view>
+        </block>
+        <block wx:else>
+          <view class="prefgroup" wx:if="{{projMemosView.length}}">
+        <view wx:for="{{projMemosView}}" wx:key="id" class="memo" data-id="{{item.id}}" bindtap="onMemoTap">
+            <view class="memo-t">{{item.text}}</view>
+            <view class="memo-m">
+              <text class="memo-mt">{{item.meta}}</text>
+              <text class="memo-ok">✓ 生效中</text>
+            </view>
+          </view>
+        </view>
+        </block>
+        <view class="sec">项目</view>
+        <view class="prefgroup">
+          <view class="prefrow" bindtap="onProjectEdit">
+            <view class="pref-body">
+              <text class="pref-t">{{project.name}}</text>
+              <text class="pref-s">工程概况 · 水印和文书都用它</text>
+            </view>
+            <image class="pref-arrow" src="/assets/icons/chev-dark.png" mode="aspectFit" style="width:28rpx;height:28rpx;" />
+          </view>
+        </view>
+
+        <view class="sec">偏好</view>
+        <view class="prefgroup">
+          <view class="prefrow">
+            <view class="pref-body">
+              <text class="pref-t">触感反馈</text>
+              <text class="pref-s">切换、吸附、录音时轻震</text>
+            </view>
+            <view class="tgl {{hapticOn ? 'on' : ''}}" bindtap="onToggleHaptic">
+              <view class="tgl-knob"></view>
+            </view>
+          </view>
+          <view class="prefrow">
+            <view class="pref-body">
+              <text class="pref-t">提示音</text>
+              <text class="pref-s">发送时一声轻"嗒" · 跟随静音键</text>
+            </view>
+            <view class="tgl {{soundOn ? 'on' : ''}}" bindtap="onToggleSound">
+              <view class="tgl-knob"></view>
+            </view>
+          </view>
+        </view>
+
+        <view class="logout" wx:if="{{logged}}" bindtap="onLogout">
+          <text class="logout-t">退出登录</text>
+        </view>
+
+        <view class="tb-pad"></view>
+      </scroll-view>
+      </block>
+    </view>
+
+    <!-- 首次使用：一次性提示（左滑 / 上拉） -->
+    <view class="coach" wx:if="{{coach}}" bindtap="onCoachClose">
+      <view class="coach-arrow"></view>
+      <text class="coach-t">左滑记录能签收 · 上拉底部能展开工具</text>
+      <text class="coach-x">知道了</text>
+    </view>
+    <!-- 气泡长按菜单 -->
+    <view class="msk" wx:if="{{menuOpen}}" bindtap="closeMenu" catchtouchmove="noop">
+      <view class="lmenu" style="left: {{menuX}}px; top: {{menuY}}px;">
+        <view class="lmenu-i" hover-class="hv" bindtap="onMenuCopy">
+          <image class="lmenu-img" src="/assets/icons/doc-dark.png" mode="aspectFit" style="width:32rpx;height:32rpx;" />
+          <text class="lmenu-t">复制</text>
+        </view>
+        <view class="lmenu-i" hover-class="hv" wx:if="{{menuVoice}}" bindtap="onMenuText">
+          <image class="lmenu-img" src="/assets/icons/pen-dark.png" mode="aspectFit" style="width:32rpx;height:32rpx;" />
+          <text class="lmenu-t">转成文字</text>
+        </view>
+        <view class="lmenu-i danger" hover-class="hv" bindtap="onMenuDelete">
+          <image class="lmenu-img" src="/assets/icons/warn-dark.png" mode="aspectFit" style="width:32rpx;height:32rpx;" />
+          <text class="lmenu-t">删除</text>
+        </view>
+      </view>
+    </view>
+    <!-- 底部：四种形态共用一个胶囊 -->
+    <view class="bottom {{dragging ? 'dragging' : ''}}" style="padding-bottom: {{bottomPad}}px; margin-bottom: {{kbHeight}}px;">
+      <!-- 最近搜索（只在搜索且没输入时） -->
+      <view class="recent" wx:if="{{dockMode === 'search' && !query}}">
+        <text class="recent-label">最近搜索</text>
+        <view class="recent-chips">
+          <view class="rchip" wx:for="{{recent[tab]}}" wx:key="*this" data-w="{{item}}" bindtap="onRecent">{{item}}</view>
+        </view>
+      </view>
+
+      <!-- 抽屉：外层裁切高度，内层保持原尺寸 -->
+      <view class="drawer {{drawerOpen ? 'open' : ''}} {{dragging ? 'dragging' : ''}} {{drawerClosing ? 'closing' : ''}}">
+        <view class="drawer-inner">
+          <block wx:if="{{tab === 'field'}}">
+            <text class="dp-label">工作区 · {{project.name}}</text>
+            <view class="ws-list">
+              <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/folder-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">结构施工图 v3</text><text class="wsm">12 份</text></view>
+              <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/folder-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">专项施工方案</text><text class="wsm">6 份</text></view>
+              <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/warn-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">监理通知单</text><text class="wsm">5 份</text></view>
+              <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/cam-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">现场影像</text><text class="wsm">{{photoCount}} 张</text></view>
+            <view class="wsrow" bindtap="onImportChatImage">
+              <image class="wsi-img" src="/assets/icons/folder-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
+              <text class="wsn">从聊天导入图片</text>
+              <text class="wsm">选群 → 选图</text>
+            </view>
+
+            <view class="wsrow" bindtap="onImportClipboard">
+              <image class="wsi-img" src="/assets/icons/pen-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
+              <text class="wsn">粘贴群里的一段话</text>
+              <text class="wsm">先复制，再点这里</text>
+            </view>
+            </view>
+          </block>
+
+          <block wx:elif="{{tab === 'inbox'}}">
+            <text class="dp-label">视图</text>
+            <view class="seg mini">
+              <view class="seg-b on">按日期</view>
+              <view class="seg-b">按状态</view>
+            </view>
+            <text class="dp-label">筛选</text>
+            <view class="seg mini">
+              <view class="seg-b on">全部</view>
+              <view class="seg-b">待补</view>
+              <view class="seg-b">待签</view>
+              <view class="seg-b">已签</view>
+            </view>
+          </block>
+
+          <block wx:elif="{{tab === 'docs'}}">
+            <view class="grid6">
+              <view class="gi" data-label="图纸" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/folder-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>图纸</text></view>
+              <view class="gi" data-label="图纸" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/folder-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>专项方案</text></view>
+              <view class="gi" data-label="图纸" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/grid-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>材料报验</text></view>
+              <view class="gi" data-label="图纸" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/pen-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>检测报告</text></view>
+              <view class="gi" data-label="图纸" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/check-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>验收资料</text></view>
+              <view class="gi" data-label="图纸" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/cam-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>现场影像</text></view>
+            </view>
+          </block>
+
+          <!-- 我的：抽屉里放"记忆操作"，不是文件分类 -->
+          <block wx:else>
+            <text class="dp-label">记忆 · 只影响我自己</text>
+            <view class="mact-list">
+              <view class="mact" hover-class="hv" data-act="write" bindtap="onMemoAction">
+                <image class="mact-img" src="/assets/icons/pen-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
+                <view class="mact-body">
+                  <text class="mact-t">手动写一条</text>
+                  <text class="mact-s">直接告诉它该记住什么</text>
+                </view>
+              </view>
+              <view class="mact" hover-class="hv" data-act="pick" bindtap="onMemoAction">
+                <image class="mact-img" src="/assets/icons/bubble-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
+                <view class="mact-body">
+                  <text class="mact-t">从对话里挑一句</text>
+                  <text class="mact-s">把今天说过的存成记忆</text>
+                </view>
+              </view>
+              <view class="mact" hover-class="hv" data-act="export" bindtap="onMemoAction">
+                <image class="mact-img" src="/assets/icons/doc-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
+                <view class="mact-body">
+                  <text class="mact-t">导出我的记忆</text>
+                  <text class="mact-s">生成一份清单</text>
+                </view>
+              </view>
+              <view class="mact" hover-class="hv" data-act="off" bindtap="onMemoAction">
+                <image class="mact-img" src="/assets/icons/warn-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
+                <view class="mact-body">
+                  <text class="mact-t">全部停用</text>
+                  <text class="mact-s">不影响已经生成的文书</text>
+                </view>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <!-- 录音提示：浮在条上方，不遮挡手指，也不参与触摸 -->
+      <view class="recpanel" wx:if="{{recording}}">
+        <text class="rp-side {{recMode === 'cancel' ? 'on danger' : ''}}">取消</text>
+        <view class="rp-mid">
+          <view class="rwave">
+            <view class="rbar" wx:for="{{recBars}}" wx:key="*this" style="animation-delay:{{index * 70 % 600}}ms"></view>
+          </view>
+          <text class="rp-time">{{recTime}}</text>
+        </view>
+        <text class="rp-side {{recMode === 'convert' ? 'on' : ''}}">转文字</text>
+      </view>
+      <!-- 点 / 横拖 / 上拉 -->
+      <view
+        class="dock"
+        data-mode="{{dockMode}}"
+        data-lensx="{{lensX}}"
+        data-lensw="{{lensW}}"
+        data-tabw="{{tabbarW}}"
+        data-maxh="{{drawerMaxPx}}"
+        data-curh="{{drawerH}}"
+        bindtouchstart="{{dock.touchstart}}"
+        bindtouchmove="{{dock.touchmove}}"
+        bindtouchend="{{dock.touchend}}"
+        bindtouchcancel="{{dock.touchend}}"
+      >
+
+        <view class="capsule {{dockMode === 'input' ? 'composing-mode' : ''}}" bindtouchstart="onGestureStart" bindtouchend="onGestureEnd" bindtouchcancel="onGestureEnd">
+          <!-- 搜索形态 -->
+          <view class="findbar" wx:if="{{dockMode === 'search'}}">
+            <image class="hicon" src="/assets/icons/search-dark.png" mode="aspectFit" style="width:42rpx;height:42rpx;" />
+            <input
+              class="findinput"
+              value="{{query}}"
+              focus="{{searchFocus}}"
+              adjust-position="{{false}}"
+              cursor-spacing="20"
+              bindblur="onInputBlur"
+              placeholder="{{searchHint}}"
+              placeholder-class="findph"
+              confirm-type="search"
+              bindinput="onQuery"
+            />
+            <view class="findclear" wx:if="{{query}}" bindtap="clearQuery">
+              <text class="findclear-t">✕</text>
+            </view>
+          </view>
+
+          <!-- 输入形态 -->
+          <view class="composing {{recording ? 'recording' : ''}} {{cancel ? 'cancel' : ''}}" wx:elif="{{dockMode === 'input'}}" bindtouchmove="onMicMove" bindtouchend="onMicEnd" bindtouchcancel="onMicEnd">
+            <!-- 语音态：一条整的。录音时只换内容，绝不卸载节点 -->
+            <view
+              class="holdbar {{recording ? 'isrec' : ''}}"
+              hover-class="holdbar-on"
+              hover-stay-time="60"
+              wx:if="{{imMode === 'voice'}}"
+              bindtouchstart="onMicStart"
+              bindtouchmove="onMicMove"
+              bindtouchend="onMicEnd"
+              bindtouchcancel="onMicEnd"
+            >
+              <!-- 结构固定：录音时只改文字和类名，绝不增删节点 -->
+              <view class="imtoggle {{recording ? 'gone' : ''}}" catchtouchstart="noop" catchtap="toggleImMode" aria-label="切换语音或键盘">
+                <image class="imtoggle-img" src="/assets/icons/kbd-dark.png" mode="aspectFit" style="width:38rpx;height:38rpx;" />
+              </view>
+              <text class="holdbar-t">{{recording ? (recMode === 'cancel' ? '松开取消' : (recMode === 'convert' ? '松开转文字' : '松开结束')) : '按住 说话'}}</text>
+            </view>
+            <!-- 文字态：文字 / 图片 / 语音 自由组合 -->
+            <view class="composecol" wx:if="{{!recording && imMode === 'text'}}">
+              <!-- 附件条：拍了几张、录了几段，都在这儿 -->
+              <scroll-view class="attachrow" wx:if="{{attach.length}}" scroll-x show-scrollbar="{{false}}" enable-flex>
+                <view class="achip" wx:for="{{attach}}" wx:key="id" data-id="{{item.id}}">
+                  <image wx:if="{{item.kind === 'photo'}}" class="achip-img" src="{{item.src}}" mode="aspectFill" />
+                  <view wx:else class="achip-audio">
+                    <view class="achip-wave">
+                      <view class="aw-bar" wx:for="{{[10,16,22,14,18,12,20]}}" wx:key="*this" style="height:{{item}}rpx"></view>
+                    </view>
+                    <text class="achip-dur">{{item.dur}}</text>
+                  </view>
+                  <view class="achip-x" data-id="{{item.id}}" catchtap="onRemoveAttach">
+                    <text class="achip-x-t">✕</text>
+                  </view>
+                </view>
+
+                <view class="achip-add" bindtap="onAddPhoto">
+                  <text class="achip-add-t">＋</text>
+                </view>
+              </scroll-view>
+
+              <!-- 一行只有三个东西：＋ / 输入 / 麦克风或发送 -->
+              <view class="holdbar textrow">
+                <view
+                  class="plusbtn {{attachRecording ? 'rec' : ''}}"
+                  bindtap="{{attachRecording ? 'onStopAttach' : 'onAddAttach'}}"
+                  aria-label="{{attachRecording ? '停止录音' : '添加图片或语音'}}"
+                >
+                  <view class="plusbars" wx:if="{{!attachRecording}}">
+                    <view class="pb-h"></view>
+                    <view class="pb-v"></view>
+                  </view>
+                  <view class="redsq" wx:else></view>
+                  <text class="rectime" wx:if="{{attachRecording}}">{{recDur}}</text>
+                </view>
+
+                <view class="fieldwrap">                  <textarea
+                    class="ctext"
+                    value="{{draft}}"
+                    focus="{{imFocus}}"
+                    auto-height
+                    maxlength="500"
+                    adjust-position="{{false}}"
+                    bindkeyboardheightchange="onKeyboard"
+                    bindblur="onInputBlur"
+                    placeholder="说点什么，或拍照"
+                    placeholder-class="cph"
+                    cursor-spacing="24"
+                    bindinput="onType"
+                  />
+                </view>
+
+                <!-- 右边一个位置，两种功能：有内容=发送，空=切语音 -->
+                <view class="send" wx:if="{{draft || attach.length}}" bindtap="onSend" aria-label="发送">
+                  <image class="send-img" src="/assets/icons/arrowup-white.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
+                </view>
+                <view class="micmode" wx:else catchtap="toggleImMode" aria-label="切到语音">
+                  <image class="micmode-img" src="/assets/icons/mic-dark.png" mode="aspectFit" style="width:38rpx;height:38rpx;" />
+                </view>
+              </view>
+              </view>
+            </view>
+
+          <!-- 导航形态 -->
+          <view class="tabbar" wx:else>
+            <view class="lens" style="left: {{lensX}}px; width: {{lensW}}px; transition: {{lensAnim}};"></view>
+            <view class="tab {{tab === 'field' ? 'on' : ''}}" data-tab="field" bindtap="switchTab" aria-label="现场">
+              <image class="tic-img" src="{{tab === 'field' ? '/assets/icons/bubble-blue.png' : '/assets/icons/bubble-gray.png'}}" mode="aspectFit" style="width:42rpx;height:42rpx;" />
+              <text>现场</text>
+              <view class="draftdot" wx:if="{{draft && tab !== 'field'}}"></view>
+            </view>
+            <view class="tab {{tab === 'inbox' ? 'on' : ''}}" data-tab="inbox" bindtap="switchTab" aria-label="记录">
+              <image class="tic-img" src="{{tab === 'inbox' ? '/assets/icons/doc-blue.png' : '/assets/icons/doc-gray.png'}}" mode="aspectFit" style="width:42rpx;height:42rpx;" />
+              <text>记录</text>
+              <view class="pin">3</view>
+            </view>
+            <view class="tab {{tab === 'docs' ? 'on' : ''}}" data-tab="docs" bindtap="switchTab" aria-label="资料">
+              <image class="tic-img" src="{{tab === 'docs' ? '/assets/icons/folder-blue.png' : '/assets/icons/folder-gray.png'}}" mode="aspectFit" style="width:42rpx;height:42rpx;" />
+              <text>资料</text>
+            </view>
+            <view class="tab {{tab === 'me' ? 'on' : ''}}" data-tab="me" bindtap="switchTab" aria-label="我的">
+              <image class="tic-img" src="{{tab === 'me' ? '/assets/icons/user-blue.png' : '/assets/icons/user-gray.png'}}" mode="aspectFit" style="width:42rpx;height:42rpx;" />
+              <text>我的</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="fab" bindtap="onFab" aria-label="新建记录">
+          <image
+            class="fic-img"
+            mode="aspectFit"
+            src="/assets/icons/{{fab === 'bubble' ? 'bubble' : (fab === 'plus' ? 'plus' : (fab === 'down' ? 'down' : 'close'))}}-dark.png"
+          />
+      </view>
+    </view>
+  </view>
+</view>
+
+</view>

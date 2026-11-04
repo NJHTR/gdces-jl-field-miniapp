@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "监理现场助手",
+  "navigationBarBackgroundColor": "#f8fafd",
+  "navigationBarTextStyle": "black",
+  "navigationStyle": "default",
+  "renderer": "webview",
+  "usingComponents": {}
+}

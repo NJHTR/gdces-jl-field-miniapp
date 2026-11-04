@@ -1,0 +1,217 @@
+page {
+  height: 100%;
+  background: #f7f9fc;
+}
+
+.page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 220rpx 56rpx 90rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 背景柔光 */
+.glow {
+  position: absolute;
+  border-radius: 50%;
+}
+.glow-a {
+  width: 560rpx;
+  height: 560rpx;
+  left: -160rpx;
+  top: -180rpx;
+  background: radial-gradient(circle, rgba(96, 148, 255, 0.28), rgba(96, 148, 255, 0));
+}
+.glow-b {
+  width: 520rpx;
+  height: 520rpx;
+  right: -180rpx;
+  bottom: -140rpx;
+  background: radial-gradient(circle, rgba(70, 224, 171, 0.22), rgba(70, 224, 171, 0));
+}
+
+/* 水印 */
+.wm {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 320rpx;
+  height: 260rpx;
+  margin-left: -160rpx;
+  opacity: 0.06;
+}
+
+/* 品牌 */
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo {
+  width: 420rpx;
+  height: 56rpx;
+  margin-bottom: 72rpx;
+}
+
+.title {
+  font-size: 52rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: #11131a;
+}
+
+.sub {
+  margin-top: 18rpx;
+  font-size: 26rpx;
+  letter-spacing: 1rpx;
+  color: #8a94a6;
+}
+
+/* 操作区 */
+.bottom {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wxbtn {
+  width: 100%;
+  height: 104rpx;
+  line-height: 104rpx;
+  border-radius: 52rpx;
+  border: none;
+  background: linear-gradient(160deg, #2b96ff, #0a6dff 55%, #0053d8);
+  box-shadow: 0 18rpx 36rpx -18rpx rgba(0, 86, 216, 0.9);
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.wxbtn::after {
+  border: none;
+}
+
+.wxbtn-text {
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.agree {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 34rpx;
+  padding: 0 8rpx;
+}
+
+.check {
+  flex: none;
+  width: 34rpx;
+  height: 34rpx;
+  margin-right: 14rpx;
+  border-radius: 50%;
+  border: 2rpx solid #c3ccda;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.check.on {
+  border-color: #0a6dff;
+  background: #0a6dff;
+}
+
+.tick {
+  color: #ffffff;
+  font-size: 22rpx;
+  line-height: 1;
+}
+
+.agree-text {
+  flex: 1;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: #8a94a6;
+}
+
+.link {
+  color: #0a6dff;
+}
+
+.tip {
+  margin-top: 40rpx;
+  font-size: 22rpx;
+  letter-spacing: 1rpx;
+  color: #a8b2c1;
+}
+
+/* 关闭（从主页进来时） */
+.close {
+  position: absolute;
+  right: 40rpx;
+  top: 90rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 10rpx 24rpx -18rpx rgba(22, 38, 74, 0.5);
+}
+
+.close-x {
+  font-size: 26rpx;
+  color: #33405a;
+}
+
+/* 协议行：勾选圈和整句并排，句子内部自然折行 */
+.agree {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 34rpx;
+  padding: 0 8rpx;
+  box-sizing: border-box;
+}
+
+.agree .check {
+  flex: none;
+  margin-top: 2rpx;
+}
+
+.agree-text {
+  flex: 1;
+  min-width: 0;
+  display: inline;
+  font-size: 22rpx;
+  line-height: 1.55;
+  color: #8a94a6;
+  white-space: normal;
+  word-break: break-all;
+}
+
+.agree-text .link {
+  color: #0a6dff;
+}
+
+/* 关闭按钮下移到微信胶囊下面，避免被压 */
+.close {
+  top: 200rpx;
+}
+
+/* 底部再让一点，避开 Home 条 */
+.page {
+  padding-bottom: 120rpx;
+}

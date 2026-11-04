@@ -1,0 +1,37 @@
+<view class="page">
+  <view class="phdr" style="padding-top: {{hdrTop}}px;">
+    <view class="back" bindtap="onBack" aria-label="返回">
+      <image class="back-img" src="/assets/icons/back-dark.png" mode="aspectFit" style="width:36rpx;height:36rpx;" />
+    </view>
+    <view class="ptitle">
+      <text class="pt">项目信息</text>
+      <text class="ps">水印和文书都用这里的字段</text>
+    </view>
+  </view>
+
+  <scroll-view class="pbody" scroll-y>
+    <block wx:for="{{groups}}" wx:key="label" wx:for-item="g" wx:for-index="gi">
+      <view class="sec">{{g.label}}</view>
+      <view class="fgroup">
+        <view class="frow" wx:for="{{g.rows}}" wx:key="k" wx:for-item="r" wx:for-index="ri">
+          <text class="fk">{{r.t}}</text>
+          <input
+            class="fv"
+            value="{{r.v}}"
+            placeholder="{{r.ph}}"
+            placeholder-class="fph"
+            data-k="{{r.k}}"
+            data-gi="{{gi}}"
+            data-ri="{{ri}}"
+            bindinput="onEdit"
+          />
+        </view>
+      </view>
+    </block>
+    <view class="tb-pad"></view>
+  </scroll-view>
+
+  <view class="pfoot">
+    <view class="save" bindtap="onSave" aria-label="保存项目信息">保存</view>
+  </view>
+</view>

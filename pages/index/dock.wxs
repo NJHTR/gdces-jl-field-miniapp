@@ -1,0 +1,119 @@
+// 底部导航手势：WXS 直接改样式，不走 setData，所以跟手无延迟
+// 注意：WXS 只支持 ES5 语法
+var startX = 0;
+var startY = 0;
+var axis = "";
+var lensBase = 0;
+var lensW = 0;
+var tabW = 0;
+var maxH = 0;
+var active = false;
+
+var collapse = false;
+var startH = 0;
+
+function touchstart(e, oi) {
+  var ds = e.currentTarget.dataset || {};
+  collapse = ds.mode === "expanded";
+  if (ds.mode !== "default" && !collapse) {
+    active = false;
+    return;
+  }
+  active = true;
+  startH = (ds.curh || 0) * 1;
+  var t = e.touches[0];
+  startX = t.clientX;
+  startY = t.clientY;
+  axis = "";
+  lensBase = (ds.lensx || 0) * 1;
+  lensW = (ds.lensw || 0) * 1;
+  tabW = (ds.tabw || 0) * 1;
+  maxH = (ds.maxh || 0) * 1;
+
+  var lens = oi.selectComponent(".lens");
+  if (lens) lens.setStyle({ transition: "none" });
+}
+
+function touchmove(e, oi) {
+  if (!active) return;
+  var t = e.touches[0];
+  var dx = t.clientX - startX;
+  var dy = startY - t.clientY;
+
+  if (axis === "") {
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+    axis = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
+  }
+
+  if (axis === "h") {
+    var x = lensBase + dx;
+
+    // 边界：只能滑到两端，再往外走 15% 后按 0.2 衰减（橡皮筋）
+    var maxX = tabW - lensW;
+    var slack = lensW * 0.15;
+    if (maxX < 0) maxX = 0;
+    if (x < -slack) {
+      x = -slack + (x + slack) * 0.2;
+    } else if (x > maxX + slack) {
+      x = maxX + slack + (x - maxX - slack) * 0.2;
+    }
+
+    var stretch = 1 + Math.min(0.14, Math.abs(dx) / 300);
+    var lens = oi.selectComponent(".lens");
+    if (lens) {
+      lens.setStyle({ left: x + "px", transition: "none" });
+    }
+    return;
+  }
+
+  // 展开态：向下拖收起（dy 为负表示向下）
+  if (collapse) {
+    var hh = startH + dy;
+    if (hh < 0) hh = hh * 0.2;
+    if (hh > startH) hh = startH;
+
+    var d = oi.selectComponent(".drawer");
+    if (d) d.setStyle({ height: hh + "px", transition: "none" });
+    var body = oi.selectComponent(".drawer-inner");
+    if (body) body.setStyle({ opacity: Math.max(0.35, hh / (startH || 1)) });
+    return;
+  }
+
+  // 纵向：抽屉跟手长出来，越界按 0.22 衰减
+  var h = dy;
+  if (h > maxH) h = maxH + (h - maxH) * 0.22;
+  if (h < 0) h = 0;
+
+  var drawer = oi.selectComponent(".drawer");
+  if (drawer) drawer.setStyle({ height: h + "px", transition: "none" });
+
+  var inner = oi.selectComponent(".drawer-inner");
+  if (inner) inner.setStyle({ opacity: h / (maxH * 0.75) });
+}
+
+function touchend(e, oi) {
+  if (!active) return;
+  active = false;
+  var t = e.changedTouches[0];
+  var dx = t.clientX - startX;
+  var dy = startY - t.clientY;
+  var a = axis;
+  axis = "";
+
+  // 关键：把镜片的行内 transform 也清掉，否则它会盖住 setData 的新位置
+  var lens = oi.selectComponent(".lens");
+  if (lens) lens.setStyle({ left: "", transition: "" });
+
+  var drawer = oi.selectComponent(".drawer");
+  if (drawer) drawer.setStyle({ height: "", transition: "" });
+  var inner = oi.selectComponent(".drawer-inner");
+  if (inner) inner.setStyle({ opacity: "" });
+
+  // 吸附逻辑交给 JS 的 touch 事件（同一份 dx 更准），这里不再重复调用
+}
+
+module.exports = {
+  touchstart: touchstart,
+  touchmove: touchmove,
+  touchend: touchend
+};

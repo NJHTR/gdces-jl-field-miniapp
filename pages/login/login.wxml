@@ -1,0 +1,35 @@
+<view class="page">
+  <!-- 背景光斑 -->
+  <view class="glow glow-a"></view>
+  <view class="glow glow-b"></view>
+  <image class="wm" src="/assets/brand-mark.png" mode="aspectFit" />
+
+  <!-- 从主页进来时可以关掉 -->
+  <view class="close" wx:if="{{canBack}}" bindtap="onClose">
+    <text class="close-x">✕</text>
+  </view>
+
+  <!-- 品牌区 -->
+  <view class="hero">
+    <image class="logo" src="/assets/brand-logo.png" mode="aspectFit" />
+    <view class="title">监理现场助手</view>
+    <view class="sub">{{action === 'record' ? '登录后就能开始记录' : '说一句话，文书自己长出来'}}</view>
+  </view>
+
+  <!-- 操作区 -->
+  <view class="bottom">
+    <button class="wxbtn" loading="{{loading}}" bindtap="onLogin" aria-label="微信一键登录">
+      <text class="wxbtn-text">{{loading ? '登录中…' : '微信一键登录'}}</text>
+    </button>
+
+    <!-- 协议：整句放在一个 text 里，才能自然换行不拆行 -->
+    <view class="agree">
+      <view class="check {{agreed ? 'on' : ''}}" bindtap="toggleAgree" aria-label="同意协议">
+        <text class="tick" wx:if="{{agreed}}">✓</text>
+      </view>
+      <text class="agree-text" catchtap="openAgreement">我已阅读并同意<text class="link" catchtap="openAgreement">《用户协议》</text>与<text class="link" catchtap="openAgreement">《隐私政策》</text></text>
+    </view>
+
+    <view class="tip" wx:if="{{demo}}">演示模式 · 不会真的请求服务器</view>
+  </view>
+</view>

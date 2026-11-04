@@ -1,0 +1,193 @@
+page {
+  height: 100%;
+  background: #0f1319;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chdr {
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 20rpx 28rpx 16rpx;
+  gap: 16rpx;
+}
+
+.back {
+  flex: none;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.back-img {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.ct {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.ph {
+  flex: none;
+  width: 72rpx;
+}
+
+/* 取景区 */
+.shot {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  margin: 12rpx 24rpx 0;
+  border-radius: 28rpx;
+  overflow: hidden;
+  background: #1b2028;
+}
+
+.shot-img {
+  width: 100%;
+  height: 100%;
+}
+
+.shot-empty {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.se-t {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 水印 */
+.wm {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 22rpx 24rpx 24rpx;
+  background: linear-gradient(to top, rgba(6, 10, 16, 0.82), rgba(6, 10, 16, 0));
+}
+
+.wm-bar {
+  width: 56rpx;
+  height: 4rpx;
+  border-radius: 2rpx;
+  background: #2b96ff;
+  margin-bottom: 14rpx;
+}
+
+.wm-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.wm-p {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.wm-l {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.wm-row {
+  margin-top: 10rpx;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.wm-w {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.wm-t {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 底部 */
+.cfoot {
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  padding: 20rpx 24rpx 60rpx;
+}
+
+.cbtn {
+  flex: 1;
+  height: 92rpx;
+  border-radius: 46rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #2b96ff, #0060df);
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.cbtn.ghost {
+  flex: none;
+  width: 180rpx;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.cbtn:active {
+  opacity: 0.9;
+}
+
+/* 离屏画布：不能 display:none，否则拿不到节点 */
+.offcanvas {
+  position: fixed;
+  left: -9999rpx;
+  top: 0;
+  width: 300px;
+  height: 300px;
+}
+
+.se-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 48rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1rpx solid rgba(255, 255, 255, 0.18);
+}
+
+.se-s {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.62);
+}

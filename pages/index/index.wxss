@@ -1,0 +1,4545 @@
+page {
+  height: 100%;
+  background: #eef2f8;
+}
+
+.screen {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f8fafd, #eef2f8);
+}
+
+/* 背景柔光（低透明度，兼容性优先） */
+.glow {
+  display: none;
+}
+.g1 {
+  width: 560rpx;
+  height: 560rpx;
+  left: -180rpx;
+  top: -200rpx;
+  background: rgba(96, 148, 255, 0.14);
+}
+.g2 {
+  width: 460rpx;
+  height: 460rpx;
+  right: -160rpx;
+  top: 60rpx;
+  background: rgba(255, 134, 189, 0.1);
+}
+.g3 {
+  width: 520rpx;
+  height: 520rpx;
+  right: -140rpx;
+  bottom: -160rpx;
+  background: rgba(70, 224, 171, 0.1);
+}
+
+/* 水印 */
+.wm {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 300rpx;
+  height: 240rpx;
+  margin-left: -150rpx;
+  opacity: 0.06;
+  z-index: 0;
+}
+
+.app {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ===== 顶部浮动胶囊 ===== */
+.hdr {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 120rpx 28rpx 20rpx;
+}
+
+.project {
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  padding: 0 22rpx 0 12rpx;
+  border-radius: 44rpx;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1rpx solid rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 16rpx 36rpx -24rpx rgba(22, 38, 74, 0.55);
+}
+
+.pico {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #4aa3ff, #0060df);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.5);
+}
+
+.pico-t {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.pinfo {
+  display: flex;
+  flex-direction: column;
+  margin-left: 16rpx;
+  margin-right: 14rpx;
+}
+
+.pname {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #11131a;
+  line-height: 1.2;
+}
+
+.psub {
+  font-size: 20rpx;
+  color: #8a94a6;
+  line-height: 1.3;
+  margin-top: 2rpx;
+}
+
+.chev {
+  width: 14rpx;
+  height: 14rpx;
+  border-right: 3rpx solid #9aa4b4;
+  border-bottom: 3rpx solid #9aa4b4;
+  transform: rotate(45deg);
+  margin-top: -6rpx;
+}
+
+.iconbtn {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1rpx solid rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 16rpx 36rpx -26rpx rgba(22, 38, 74, 0.5);
+}
+
+.iconbtn-t {
+  font-size: 22rpx;
+  color: #0a6dff;
+  font-weight: 600;
+}
+
+/* 放大镜 */
+.mag {
+  position: relative;
+  width: 34rpx;
+  height: 34rpx;
+}
+.mag-c {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  border: 3rpx solid #33405a;
+}
+.mag-h {
+  position: absolute;
+  right: 2rpx;
+  bottom: 2rpx;
+  width: 12rpx;
+  height: 3rpx;
+  border-radius: 2rpx;
+  background: #33405a;
+  transform: rotate(45deg);
+}
+
+/* ===== 时间线 ===== */
+.tl {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 28rpx;
+}
+
+.stamp {
+  text-align: center;
+  font-size: 22rpx;
+  color: #8a94a6;
+  margin: 28rpx 0 16rpx;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 20rpx;
+}
+.row.me {
+  align-items: flex-end;
+}
+.row.agent {
+  align-items: flex-start;
+}
+
+.bubble {
+  max-width: 520rpx;
+  padding: 20rpx 26rpx;
+  border-radius: 40rpx;
+  box-sizing: border-box;
+}
+
+.bubble.me {
+  background: linear-gradient(158deg, #2b96ff, #0a6dff 52%, #0053d8);
+  border-bottom-right-radius: 14rpx;
+  box-shadow: 0 16rpx 32rpx -20rpx rgba(0, 84, 214, 0.9), inset 0 1rpx 0 rgba(255, 255, 255, 0.4);
+}
+
+.bubble.agent {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  border-bottom-left-radius: 14rpx;
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 16rpx 34rpx -26rpx rgba(22, 38, 74, 0.45);
+}
+
+.quote {
+  font-size: 28rpx;
+  line-height: 1.45;
+  color: #11131a;
+  display: block;
+  white-space: normal;
+  word-break: break-all;
+}
+
+.bubble.me .quote {
+  color: #ffffff;
+}
+
+.sub {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  line-height: 1.45;
+  color: #33405a;
+}
+
+/* 语音 */
+.voice-line {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+.wave {
+  display: flex;
+  align-items: center;
+  margin-right: 14rpx;
+}
+.bar {
+  width: 5rpx;
+  border-radius: 3rpx;
+  background: rgba(255, 255, 255, 0.9);
+  margin-right: 4rpx;
+}
+.dur {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 照片 */
+.photos {
+  display: flex;
+  max-width: 100%;
+  margin-bottom: 8rpx;
+}
+.ph {
+  width: 168rpx;
+  height: 168rpx;
+  border-radius: 24rpx;
+  margin-left: 12rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.6);
+}
+.ph1 {
+  background: linear-gradient(150deg, #b9c3cc, #59636e);
+  margin-left: 0;
+}
+.ph2 {
+  background: linear-gradient(150deg, #c9bfae, #6d6357);
+}
+.ph3 {
+  background: linear-gradient(150deg, #aab6bd, #4e5a64);
+}
+.ph4 {
+  background: linear-gradient(150deg, #c6cbc4, #626a61);
+}
+.ph5 {
+  background: linear-gradient(150deg, #bcc7d2, #5c6773);
+}
+
+.cap {
+  font-size: 22rpx;
+  color: #33405a;
+}
+
+.tb-pad {
+  height: 220rpx;
+}
+
+/* ===== 列表通用 ===== */
+.list {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 28rpx;
+}
+
+.sec {
+  font-size: 22rpx;
+  color: #8a94a6;
+  margin: 20rpx 4rpx 12rpx;
+}
+
+.dayhd {
+  display: flex;
+  align-items: baseline;
+  margin: 26rpx 4rpx 12rpx;
+}
+.dayhd-d {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #11131a;
+}
+.dayhd-w {
+  font-size: 22rpx;
+  color: #8a94a6;
+  margin-left: 12rpx;
+}
+.dayhd-c {
+  font-size: 20rpx;
+  color: #a8b2c1;
+  margin-left: auto;
+}
+
+/* 记录卡片 */
+.card {
+  display: flex;
+  align-items: flex-start;
+  padding: 24rpx;
+  margin-bottom: 18rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 18rpx 40rpx -30rpx rgba(22, 38, 74, 0.5);
+}
+
+.tile {
+  flex: none;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tone-wait {
+  background: linear-gradient(155deg, #ffc25c, #ff9500);
+}
+.tone-sign {
+  background: linear-gradient(155deg, #4aa3ff, #0a6dff);
+}
+.tone-ok {
+  background: linear-gradient(155deg, #4ede84, #1fb457);
+}
+
+.tile-doc {
+  display: flex;
+  flex-direction: column;
+}
+.td-l {
+  width: 26rpx;
+  height: 4rpx;
+  border-radius: 2rpx;
+  background: rgba(255, 255, 255, 0.9);
+  margin-top: 6rpx;
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+  margin-left: 20rpx;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+}
+
+.card-t {
+  flex: 1;
+  min-width: 0;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #11131a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.card-m {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #33405a;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 12rpx;
+}
+.chip {
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #8a4b00;
+  background: rgba(255, 233, 197, 0.95);
+  border-radius: 999rpx;
+  padding: 4rpx 14rpx;
+  margin-right: 10rpx;
+  margin-top: 2rpx;
+}
+
+.st {
+  flex: none;
+  font-size: 20rpx;
+  font-weight: 700;
+  padding: 3rpx 12rpx;
+  border-radius: 999rpx;
+}
+.st-wait {
+  color: #8a4b00;
+  background: rgba(255, 233, 197, 0.95);
+}
+.st-sign {
+  color: #0060df;
+  background: rgba(220, 236, 255, 0.95);
+}
+.st-ok {
+  color: #0f6b36;
+  background: rgba(226, 250, 236, 0.95);
+}
+
+/* 资料 */
+.dgroup {
+  border-radius: 32rpx;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 18rpx 40rpx -30rpx rgba(22, 38, 74, 0.5);
+  margin-bottom: 10rpx;
+}
+
+.drow {
+  display: flex;
+  align-items: center;
+  height: 108rpx;
+  padding: 0 24rpx;
+  border-top: 1rpx solid rgba(120, 134, 155, 0.12);
+}
+.drow:first-child {
+  border-top: none;
+}
+
+.dico {
+  flex: none;
+  width: 36rpx;
+  display: flex;
+  flex-direction: column;
+  margin-right: 18rpx;
+}
+.dico .td-l {
+  width: 30rpx;
+  background: rgba(10, 109, 255, 0.7);
+}
+
+.dthumb {
+  flex: none;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 20rpx;
+  margin-right: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #e2ecff, #f2f7ff);
+  border: 1rpx solid rgba(255, 255, 255, 0.9);
+}
+.dthumb-t {
+  font-size: 20rpx;
+  color: rgba(40, 60, 100, 0.5);
+}
+
+.dname {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #11131a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dwhen {
+  font-size: 22rpx;
+  color: #8a94a6;
+  margin-left: 12rpx;
+}
+
+.dstate {
+  flex: none;
+  margin-left: 16rpx;
+  font-size: 20rpx;
+  font-weight: 600;
+}
+.dstate.st-wait {
+  color: #a35c00;
+  background: none;
+  padding: 0;
+}
+.dstate.st-ok {
+  color: #0f6b36;
+  background: none;
+  padding: 0;
+}
+.dstate.st-sign {
+  color: #0060df;
+  background: none;
+  padding: 0;
+}
+
+/* 我的 */
+.seg {
+  display: flex;
+  height: 72rpx;
+  padding: 6rpx;
+  border-radius: 24rpx;
+  background: rgba(120, 134, 155, 0.14);
+  margin: 8rpx 0 20rpx;
+}
+.seg-b {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #33405a;
+}
+.seg-b.on {
+  background: rgba(255, 255, 255, 0.96);
+  color: #11131a;
+  box-shadow: 0 2rpx 8rpx rgba(28, 44, 78, 0.14);
+}
+
+.memo {
+  padding: 26rpx 24rpx;
+  margin-bottom: 16rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 16rpx 36rpx -30rpx rgba(22, 38, 74, 0.45);
+}
+.memo-t {
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: #11131a;
+}
+.memo-m {
+  display: flex;
+  align-items: center;
+  margin-top: 12rpx;
+}
+.memo-mt {
+  flex: 1;
+  font-size: 22rpx;
+  color: #8a94a6;
+}
+.memo-ok {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #0f6b36;
+}
+
+/* ===== 底部 ===== */
+.bottom {
+  flex: none;
+  padding: 12rpx 24rpx 40rpx;
+}
+
+.composer {
+  display: flex;
+  align-items: center;
+  height: 104rpx;
+  padding: 0 16rpx;
+  border-radius: 52rpx;
+  margin-bottom: 18rpx;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1rpx solid rgba(255, 255, 255, 0.92);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 20rpx 44rpx -30rpx rgba(22, 38, 74, 0.55);
+}
+
+.cam {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cam-body {
+  position: relative;
+  width: 36rpx;
+  height: 28rpx;
+  border-radius: 8rpx;
+  border: 3rpx solid #38455c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cam-lens {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  border: 3rpx solid #38455c;
+}
+
+.hint {
+  flex: 1;
+  font-size: 26rpx;
+  color: #8a94a6;
+  margin-left: 8rpx;
+}
+
+.mic {
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 42rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #62b4ff, #1a86ff 42%, #0062e0 78%, #0047ad);
+  box-shadow: 0 16rpx 32rpx -20rpx rgba(0, 84, 214, 0.9), inset 0 2rpx 0 rgba(255, 255, 255, 0.5);
+}
+.mic {
+  position: relative;
+}
+.mic-body {
+  position: absolute;
+  top: 20rpx;
+  left: 50%;
+  margin-left: -8rpx;
+  width: 16rpx;
+  height: 26rpx;
+  border-radius: 8rpx;
+  background: #ffffff;
+}
+.mic-arc {
+  position: absolute;
+  top: 38rpx;
+  left: 50%;
+  margin-left: -14rpx;
+  width: 28rpx;
+  height: 16rpx;
+  border: 3rpx solid #ffffff;
+  border-top: none;
+  border-radius: 0 0 16rpx 16rpx;
+  box-sizing: border-box;
+}
+.mic-stem {
+  position: absolute;
+  top: 56rpx;
+  left: 50%;
+  margin-left: -1rpx;
+  width: 3rpx;
+  height: 8rpx;
+  background: #ffffff;
+}
+
+.dock {
+  display: flex;
+  align-items: center;
+}
+
+.tabbar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  height: 120rpx;
+  padding: 0 12rpx;
+  border-radius: 60rpx;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 22rpx 48rpx -30rpx rgba(22, 38, 74, 0.55);
+}
+
+.tab {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  border-radius: 24rpx;
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #6b7789;
+}
+
+.tab.on {
+  color: #0060df;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6rpx 16rpx -10rpx rgba(28, 44, 78, 0.5);
+}
+
+.tic {
+  width: 30rpx;
+  height: 30rpx;
+  margin-bottom: 6rpx;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ic-chat {
+  border: 2.5rpx solid #6b7789;
+  border-radius: 9rpx;
+  background: transparent;
+}
+.ic-dot {
+  width: 7rpx;
+  height: 7rpx;
+  border-radius: 50%;
+  background: #6b7789;
+}
+
+.ic-doc {
+  border: 2.5rpx solid #6b7789;
+  border-radius: 5rpx;
+  background: transparent;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 6rpx;
+}
+.ic-line {
+  width: 14rpx;
+  height: 2.5rpx;
+  border-radius: 2rpx;
+  background: #6b7789;
+  margin-top: 4rpx;
+}
+.ic-line.short {
+  width: 10rpx;
+}
+
+.ic-folder {
+  border: 2.5rpx solid #6b7789;
+  border-radius: 4rpx;
+  background: transparent;
+  margin-top: 5rpx;
+}
+.ic-foldertab {
+  position: absolute;
+  left: -2.5rpx;
+  top: -8rpx;
+  width: 14rpx;
+  height: 8rpx;
+  border: 2.5rpx solid #6b7789;
+  border-bottom: none;
+  border-radius: 3rpx 3rpx 0 0;
+  background: transparent;
+}
+
+.ic-user {
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.ic-head {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  border: 2.5rpx solid #6b7789;
+  background: transparent;
+  margin-top: 1rpx;
+}
+.ic-shoulder {
+  width: 22rpx;
+  height: 10rpx;
+  border: 2.5rpx solid #6b7789;
+  border-bottom: none;
+  border-radius: 12rpx 12rpx 0 0;
+  background: transparent;
+  margin-top: 3rpx;
+}
+
+.tab.on .ic-chat,
+.tab.on .ic-doc,
+.tab.on .ic-folder,
+.tab.on .ic-head,
+.tab.on .ic-shoulder,
+.tab.on .ic-foldertab {
+  border-color: #0060df;
+}
+.tab.on .ic-dot,
+.tab.on .ic-line {
+  background: #0060df;
+}
+
+.pin {
+  position: absolute;
+  top: 4rpx;
+  left: 50%;
+  margin-left: 10rpx;
+  min-width: 26rpx;
+  height: 26rpx;
+  line-height: 26rpx;
+  padding: 0 6rpx;
+  border-radius: 13rpx;
+  background: #ff3b30;
+  color: #ffffff;
+  font-size: 20rpx;
+  font-weight: 700;
+  text-align: center;
+}
+
+.fab {
+  flex: none;
+  width: 108rpx;
+  height: 108rpx;
+  margin-left: 18rpx;
+  border-radius: 54rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 22rpx 48rpx -30rpx rgba(22, 38, 74, 0.55);
+}
+
+.fab-t {
+  font-size: 40rpx;
+  color: #33405a;
+  line-height: 1;
+}
+
+/* 兜底：任何超宽内容都不许撑开滚动区 */
+.row {
+  overflow: hidden;
+}
+
+.quote {
+  max-width: 100%;
+}
+
+.bubble {
+  overflow: hidden;
+}
+
+.photos {
+  overflow: hidden;
+}
+
+/* ============================================================
+   交互层：转场 / 抽屉 / 搜索形态
+   ============================================================ */
+
+/* 内容区：转场只动内容，不动头部和底部 */
+.content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.in-left {
+  animation: inLeft 0.26s cubic-bezier(0.32, 0.72, 0.24, 1);
+}
+.in-right {
+  animation: inRight 0.26s cubic-bezier(0.32, 0.72, 0.24, 1);
+}
+
+@keyframes inLeft {
+  from {
+    opacity: 0;
+    transform: translateX(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes inRight {
+  from {
+    opacity: 0;
+    transform: translateX(-26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 上拉抽屉：外层裁切，内层保持原尺寸（不压扁文字） */
+.drawer {
+  overflow: hidden;
+  border-radius: 32rpx;
+  margin-bottom: 0;
+  transition: height 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.drawer.dragging {
+  transition: none;
+}
+
+.drawer-inner {
+  display: flex;
+  flex-direction: column;
+  padding: 22rpx 24rpx 26rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1rpx solid rgba(255, 255, 255, 0.96);
+  box-shadow: 0 20rpx 44rpx -30rpx rgba(22, 38, 74, 0.5), inset 0 1rpx 0 #ffffff;
+}
+
+.dp-label {
+  font-size: 22rpx;
+  font-weight: 700;
+  letter-spacing: 1.2rpx;
+  color: #8a94a6;
+  margin-bottom: 12rpx;
+}
+
+/* 工作区文件 */
+.ws-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.wsrow {
+  display: flex;
+  align-items: center;
+  height: 72rpx;
+}
+
+.wsi {
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 9rpx;
+  background: rgba(10, 109, 255, 0.12);
+  border: 1rpx solid rgba(10, 109, 255, 0.18);
+  margin-right: 16rpx;
+}
+
+.wsn {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #11131a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.wsm {
+  font-size: 22rpx;
+  color: #8a94a6;
+  margin-left: 12rpx;
+}
+
+/* 抽屉里的分段器 */
+.seg.mini {
+  height: 64rpx;
+  margin-bottom: 18rpx;
+}
+.seg.mini .seg-b {
+  font-size: 22rpx;
+}
+
+/* 六宫格 */
+.grid6 {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.gi {
+  width: 33.33%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14rpx 0;
+  font-size: 22rpx;
+  color: #33405a;
+}
+
+.gi-t {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 14rpx;
+  background: rgba(120, 134, 155, 0.14);
+  margin-bottom: 8rpx;
+}
+
+/* 最近搜索 */
+.recent {
+  padding: 20rpx 24rpx 22rpx;
+  margin-bottom: 16rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1rpx solid rgba(255, 255, 255, 0.96);
+  box-shadow: 0 20rpx 44rpx -30rpx rgba(22, 38, 74, 0.5), inset 0 1rpx 0 #ffffff;
+  animation: recentIn 0.24s cubic-bezier(0.32, 0.72, 0.24, 1);
+}
+
+@keyframes recentIn {
+  from {
+    opacity: 0;
+    transform: translateY(10rpx);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.recent-label {
+  display: block;
+  font-size: 22rpx;
+  font-weight: 700;
+  letter-spacing: 1.2rpx;
+  color: #8a94a6;
+  margin-bottom: 14rpx;
+}
+
+.recent-chips {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.rchip {
+  padding: 10rpx 22rpx;
+  margin-right: 12rpx;
+  margin-bottom: 8rpx;
+  border-radius: 999rpx;
+  background: rgba(120, 134, 155, 0.12);
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #3c4759;
+}
+
+/* 搜索栏 */
+.findbar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 120rpx;
+  padding: 0 24rpx;
+  border-radius: 60rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 22rpx 48rpx -30rpx rgba(22, 38, 74, 0.55);
+}
+
+.findinput {
+  flex: 1;
+  min-width: 0;
+  height: 80rpx;
+  margin-left: 16rpx;
+  font-size: 26rpx;
+  color: #11131a;
+}
+
+.findph {
+  color: #8a94a6;
+}
+
+.findclear {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(120, 134, 155, 0.14);
+}
+
+.findclear-t {
+  font-size: 22rpx;
+  color: #33405a;
+}
+
+/* input 去原生边框 */
+.findinput {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+/* 抽屉收起时不留缝 */
+.drawer {
+  margin-bottom: 12rpx;
+}
+
+/* 水印：图形 + 项目名，压在下方空白 */
+.wm {
+  position: absolute;
+  left: 50%;
+  top: auto;
+  bottom: 210rpx;
+  width: 300rpx;
+  margin-left: -150rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 0;
+}
+.wm-img {
+  width: 210rpx;
+  height: 170rpx;
+  opacity: 0.085;
+}
+.wm-name {
+  margin-top: 18rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  color: #24304a;
+  opacity: 0.26;
+}
+
+/* 覆盖旧规则里的透明度（否则 8.5% × 6% 几乎不可见） */
+.wm { opacity: 1; height: auto; }
+
+/* 水印上移，落在底部两条栏之上的空白 */
+.wm { bottom: 300rpx; }
+.wm-img { width: 190rpx; height: 156rpx; }
+
+/* ============================================================
+   宽度兜底：Skyline 里百分比/max-width 会被 min-content 顶掉
+   所以全部改成显式 rpx（750rpx 恒等于屏幕宽）
+   ============================================================ */
+
+.content {
+  width: 750rpx;
+  overflow: hidden;
+}
+
+.tl,
+.list {
+  width: 750rpx;
+  box-sizing: border-box;
+  padding: 0 28rpx;
+}
+
+.row {
+  width: 694rpx;
+  box-sizing: border-box;
+}
+
+.bubble {
+  max-width: 520rpx;
+  min-width: 0;
+  flex: none;
+}
+
+.quote {
+  width: 100%;
+}
+
+.photos {
+  max-width: 694rpx;
+}
+
+/* ============================================================
+   底部导航：胶囊四形态 + 滑动镜片（照原型复刻）
+   ============================================================ */
+
+.dock {
+  display: flex;
+  align-items: center;
+}
+
+.bottom.dragging .dock {
+  transform: translateY(4rpx);
+}
+
+.capsule {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 124rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 14rpx;
+  border-radius: 62rpx;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 22rpx 48rpx -30rpx rgba(22, 38, 74, 0.55);
+  overflow: hidden;
+}
+
+/* 导航形态：镜片 + 四个 tab */
+.tabbar {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100rpx;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.lens {
+  position: absolute;
+  top: 12rpx;
+  bottom: 12rpx;
+  left: 0;
+  border-radius: 50rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.62));
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 16rpx 36rpx -20rpx rgba(28, 44, 78, 0.55);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tab {
+  z-index: 1;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* 选中态的白底交给镜片，tab 本身不再画 */
+.tab.on {
+  background: transparent;
+  box-shadow: none;
+  color: #0060df;
+}
+
+/* 输入形态 */
+.composing {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.hint {
+  flex: 1;
+  font-size: 26rpx;
+  color: #8a94a6;
+}
+
+.composing .mic {
+  flex: none;
+}
+
+/* 右钮图标 */
+.fic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fic-t {
+  font-size: 40rpx;
+  color: #33405a;
+  line-height: 1;
+}
+
+.fic-bubble {
+  width: 34rpx;
+  height: 30rpx;
+  border: 3rpx solid #33405a;
+  border-radius: 10rpx;
+}
+
+.fic-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: #33405a;
+}
+
+.fic-down {
+  width: 22rpx;
+  height: 22rpx;
+  border-right: 3rpx solid #33405a;
+  border-bottom: 3rpx solid #33405a;
+  transform: rotate(45deg) translate(-4rpx, -4rpx);
+  margin-top: -8rpx;
+}
+
+/* ============================================================
+   收起：genie（缩到右下角 + 模糊）
+   ============================================================ */
+
+.drawer.closing {
+  animation: genieOut 0.2s cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+  transform-origin: calc(100% - 60rpx) 100%;
+}
+
+@keyframes genieOut {
+  0% {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(32rpx, 96rpx) scale(0.4, 0.08);
+    filter: blur(8rpx);
+  }
+}
+
+/* ============================================================
+   录音态
+   ============================================================ */
+
+.rec {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-right: 8rpx;
+}
+
+.rdot {
+  flex: none;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: #ff3b30;
+  margin-right: 14rpx;
+  animation: recPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes recPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+
+.rtime {
+  flex: none;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #d92c20;
+  margin-right: 16rpx;
+}
+
+.rwave {
+  flex: 1;
+  min-width: 0;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rpx;
+}
+
+.rbar {
+  width: 6rpx;
+  height: 12rpx;
+  border-radius: 3rpx;
+  background: #ff6a5e;
+  animation: waveBar 0.72s ease-in-out infinite;
+}
+
+@keyframes waveBar {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1.6);
+  }
+}
+
+.rhint {
+  flex: none;
+  font-size: 22rpx;
+  color: #8a94a6;
+  margin-left: 16rpx;
+}
+
+/* 取消态：整条变红 */
+.composing.cancel .rhint {
+  color: #d92c20;
+  font-weight: 600;
+}
+
+.composing.cancel .rbar,
+.composing.cancel .rdot {
+  background: #d92c20;
+}
+
+/* 波形再高一点，动起来更明显 */
+.rwave { height: 56rpx; }
+.rbar { height: 20rpx; width: 7rpx; }
+
+/* 真图标：直接用原型 SVG 转出的 PNG */
+.hicon {
+  width: 42rpx;
+  height: 42rpx;
+}
+
+.tic-img {
+  width: 42rpx;
+  height: 42rpx;
+  margin-bottom: 6rpx;
+}
+
+.fic-img {
+  width: 44rpx;
+  height: 44rpx;
+}
+
+.cam-img {
+  width: 42rpx;
+  height: 42rpx;
+}
+
+.mic-img {
+  width: 42rpx;
+  height: 42rpx;
+}
+
+.mic-filled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================================
+   与原型逐项对齐（数值来自 styles.css）
+   ============================================================ */
+
+/* 头部：原型 4px 14px 10px，顶部安全区由 JS 注入 */
+.hdr {
+  gap: 16rpx;
+  padding: 8rpx 28rpx 20rpx;
+}
+
+/* 项目胶囊：高 46px，内边距 0 14 0 12，间距 9 */
+.project {
+  height: 92rpx;
+  padding: 0 28rpx 0 24rpx;
+  gap: 18rpx;
+  border-radius: 46rpx;
+}
+
+/* 图标底座：26×26，圆角 9px（不是圆形！） */
+.pico {
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 18rpx;
+}
+
+.pico-img {
+  width: 30rpx;
+  height: 30rpx;
+}
+
+.pname {
+  font-size: 28rpx;
+}
+
+/* 气泡：max-width 82%，padding 11 14，字号 14.5，行高 1.46 */
+.bubble {
+  max-width: 82%;
+  padding: 22rpx 28rpx;
+  border-radius: 44rpx;
+}
+
+.quote {
+  font-size: 28rpx;
+  line-height: 1.46;
+  letter-spacing: 0.2rpx;
+}
+
+.sub {
+  font-size: 24rpx;
+  line-height: 1.46;
+}
+
+/* 照片：96×96，圆角 16px */
+.ph {
+  width: 192rpx;
+  height: 192rpx;
+  border-radius: 32rpx;
+  box-shadow: 0 12rpx 32rpx -16rpx rgba(28, 44, 78, 0.5);
+}
+
+/* 时间戳：margin 4 0 1，字号 11，字重 600 */
+.stamp {
+  margin: 8rpx 0 2rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  letter-spacing: 0.6rpx;
+}
+
+.row {
+  margin-bottom: 24rpx;
+}
+
+/* 项目胶囊撑满（原型 flex:1），搜索钮自动靠右 */
+.project {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 底部渐隐遮罩：让列表滚到底时不是硬边 */
+.bottom {
+  background: linear-gradient(
+    180deg,
+    rgba(237, 241, 248, 0) 0%,
+    rgba(237, 241, 248, 0.6) 34%,
+    rgba(237, 241, 248, 0.94) 72%
+  );
+  padding-top: 16rpx;
+}
+
+/* 麦克风按压：原型 scale(.86) + 弹性回弹 */
+.mic {
+  transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mic-hover {
+  transform: scale(0.86);
+  transition: transform 0.18s ease-out;
+}
+
+/* 选中镜片：撑满 tab 高度（原型是 top/bottom 6px，tab 高 50） */
+.lens {
+  top: 2rpx;
+  bottom: 2rpx;
+  border-radius: 48rpx;
+}
+
+/* 底部两条栏上下留白 */
+.dock {
+  margin-top: 4rpx;
+}
+
+.capsule {
+  height: 128rpx;
+}
+
+.tabbar {
+  height: 104rpx;
+}
+
+.tab {
+  height: 100rpx;
+}
+
+/* ============================================================
+   记录卡片：对齐原型（色块按文书类型，42px / 圆角 13）
+   ============================================================ */
+
+.card {
+  gap: 24rpx;
+  padding: 28rpx;
+}
+
+.tile {
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.5), 0 8rpx 20rpx -8rpx rgba(28, 44, 78, 0.45);
+}
+
+.tint-b {
+  background: linear-gradient(155deg, #4aa3ff, #0a6dff);
+}
+.tint-y {
+  background: linear-gradient(155deg, #ffc25c, #ff9500);
+}
+.tint-g {
+  background: linear-gradient(155deg, #4ede84, #1fb457);
+}
+
+.tile-img {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.card-body {
+  margin-left: 0;
+}
+
+/* 跨项目时才出现的项目名 */
+.proj-chip {
+  color: #0060df;
+  font-weight: 600;
+}
+
+/* 水印再往下，别钻到卡片里 */
+.wm {
+  bottom: 190rpx;
+}
+
+/* ============================================================
+   页面标题头（记录 / 资料 / 我的）
+   ============================================================ */
+
+.page-hdr {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 4rpx 28rpx 24rpx;
+}
+
+.page-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pg-h {
+  font-size: 42rpx;
+  font-weight: 700;
+  letter-spacing: -0.6rpx;
+  color: #11131a;
+  line-height: 1.2;
+}
+
+.pg-s {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #8a94a6;
+  line-height: 1.3;
+}
+
+/* 资料行 / 六宫格的真图标 */
+.dico-img {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 18rpx;
+}
+
+.dthumb {
+  width: 76rpx;
+  height: 76rpx;
+}
+
+.dthumb-img {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.gi-t {
+  display: none;
+}
+
+.gi-img {
+  width: 40rpx;
+  height: 40rpx;
+  margin-bottom: 8rpx;
+}
+
+.wsi-img {
+  width: 34rpx;
+  height: 34rpx;
+  margin-right: 16rpx;
+}
+
+/* 头部右侧给微信胶囊留位（行内注入），这里只保证默认不贴边 */
+.hdr,
+.page-hdr {
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   顶部胶囊：对齐原型最终版（styles.css:1745）
+   flex:none / 高 40 / max-width 78% / 内边距 0 13 0 6 / gap 8
+   ============================================================ */
+
+.hdr {
+  padding: 12rpx 28rpx 20rpx;
+}
+
+.project {
+  flex: none;
+  width: auto;
+  max-width: 78%;
+  height: 80rpx;
+  padding: 0 26rpx 0 12rpx;
+  gap: 16rpx;
+  border-radius: 40rpx;
+}
+
+.pico {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+}
+
+.pico-img {
+  width: 30rpx;
+  height: 30rpx;
+}
+
+.pname {
+  font-size: 26rpx;
+  letter-spacing: -0.2rpx;
+}
+
+.psub {
+  font-size: 20rpx;
+  margin-top: 0;
+}
+
+/* 图标按钮保持 40，靠 margin-left:auto 推到右边 */
+.iconbtn {
+  margin-left: auto;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+}
+
+/* ============================================================
+   时间线左右各留 20px：给滚动条和手指留余地
+   ============================================================ */
+
+.tl,
+.list {
+  padding-left: 40rpx;
+  padding-right: 40rpx;
+}
+
+.row {
+  width: 670rpx;
+}
+
+.stamp {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* 列表页的卡片刻度跟着收 */
+.card,
+.dgroup,
+.memo,
+.sec,
+.dayhd {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.photos {
+  max-width: 670rpx;
+}
+
+/* ============================================================
+   搜索：是"胶囊内容被替换"，不是再叠一个框
+   ============================================================ */
+
+.findbar {
+  height: auto;
+  padding: 0 12rpx;
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.findbar .hicon {
+  flex: none;
+}
+
+.findinput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 28rpx;
+  color: #11131a;
+  padding: 0;
+}
+
+.findclear {
+  flex: none;
+  width: 52rpx;
+  height: 52rpx;
+}
+
+/* ============================================================
+   字号对齐原型（14.5 / 12 / 10.5 / 11.5 …）
+   ============================================================ */
+
+/* 记录卡片 */
+.card-t {
+  font-size: 28rpx;   /* 15px */
+  font-weight: 600;
+  letter-spacing: -0.2rpx;
+}
+
+.card-m {
+  font-size: 24rpx;   /* 12px */
+}
+
+.st {
+  font-size: 22rpx;   /* 10.5px */
+  font-weight: 700;
+  letter-spacing: 0.4rpx;
+  padding: 4rpx 14rpx;
+}
+
+.chip {
+  font-size: 22rpx;   /* 11.5px */
+  font-weight: 600;
+}
+
+/* 资料行 */
+.dname {
+  font-size: 28rpx;   /* 14.5px */
+  font-weight: 600;
+  letter-spacing: -0.2rpx;
+}
+
+/* 气泡副文 */
+.sub {
+  font-size: 26rpx;   /* 13px */
+  font-weight: 600;
+}
+
+/* 时间戳 / 说明文字 */
+.cap {
+  font-size: 22rpx;
+}
+
+.sec {
+  font-size: 22rpx;
+}
+
+.dayhd-d {
+  font-size: 28rpx;
+}
+
+.dayhd-w {
+  font-size: 22rpx;
+}
+
+/* 记忆条目 */
+.memo-t {
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+.memo-mt {
+  font-size: 22rpx;
+}
+
+/* ============================================================
+   字体层级系统（数值全部取自原型 styles.css）
+   四级：标题 21 / 正文 14.5 / 元信息 12 / 微标签 11
+   三级底色：ink #11131a → ink-2 #33405a → ink-3 #8a94a6
+   ============================================================ */
+
+/* 一级：页面标题 */
+.pg-h {
+  font-size: 42rpx;      /* 21px */
+  font-weight: 700;
+  letter-spacing: -0.6rpx;
+  color: #11131a;
+}
+
+/* 二级：页面副标题 */
+.pg-s {
+  font-size: 24rpx;      /* 12px */
+  font-weight: 500;
+  color: #8a94a6;
+}
+
+/* 二级：卡片 / 列表标题 */
+.card-t,
+.dname {
+  font-size: 28rpx;      /* 14.5px */
+  font-weight: 600;
+  letter-spacing: -0.2rpx;
+  color: #11131a;
+}
+
+/* 三级：正文 */
+.quote {
+  font-size: 28rpx;      /* 14.5px */
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0.2rpx;
+  color: #11131a;
+}
+
+/* 三级：次要正文（气泡副文、记忆正文） */
+.sub,
+.memo-t {
+  font-size: 26rpx;      /* 13px */
+  font-weight: 400;      /* 原型是 400，不是 600 */
+  line-height: 1.5;
+  color: #33405a;
+}
+
+.memo-t {
+  color: #11131a;
+  font-size: 26rpx;      /* 13.5px */
+}
+
+/* 四级：元信息 */
+.card-m {
+  font-size: 24rpx;      /* 12px */
+  font-weight: 400;
+  color: #33405a;
+}
+
+.dwhen {
+  font-size: 22rpx;      /* 11.5px */
+  font-weight: 500;
+  color: #8a94a6;
+}
+
+.memo-mt,
+.cap {
+  font-size: 22rpx;      /* 11px */
+  font-weight: 500;
+  color: #8a94a6;
+}
+
+/* 四级：时间戳 */
+.stamp {
+  font-size: 22rpx;      /* 11px */
+  font-weight: 600;
+  letter-spacing: 0.6rpx;
+  color: #8a94a6;
+}
+
+/* 微标签：分组标题 / 最近搜索 / 抽屉标签 */
+.sec,
+.dp-label,
+.recent-label {
+  font-size: 22rpx;      /* 10.5px */
+  font-weight: 700;
+  letter-spacing: 1.4rpx;
+  color: #8a94a6;
+}
+
+/* 状态胶囊 */
+.st {
+  font-size: 22rpx;      /* 10.5px */
+  font-weight: 700;
+  letter-spacing: 0.4rpx;
+}
+
+/* 标签 chip */
+.chip {
+  font-size: 22rpx;      /* 11.5px */
+  font-weight: 600;
+  letter-spacing: 0.4rpx;
+  color: #33405a;
+}
+
+/* tab 文字 */
+.tab {
+  font-size: 20rpx;      /* 10.5px */
+  font-weight: 600;
+  letter-spacing: 0.4rpx;
+}
+
+/* 分段控件 / 搜索词 */
+.seg-b,
+.rchip {
+  font-size: 24rpx;      /* 12.5px */
+  font-weight: 600;
+}
+
+/* 抽屉里的文字 */
+.wsn {
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.wsm,
+.gi text {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #8a94a6;
+}
+
+/* ============================================================
+   气泡文字溢出修复
+   原因：.quote 被设了 width:100%，但气泡是 max-width 收缩宽度，
+   两者互相打架 → 文字按 row 宽度排版，超出气泡右边界。
+   ============================================================ */
+
+.quote {
+  width: auto;
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-all;
+}
+
+.bubble {
+  box-sizing: border-box;
+  max-width: 82%;
+  overflow: visible;
+}
+
+/* 语音条也不许撑宽气泡 */
+.voice-line {
+  width: auto;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.wave {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+/* text 在 Skyline 里必须 block 才会换行 */
+.quote {
+  display: block;
+  box-sizing: border-box;
+}
+
+.bubble {
+}
+
+/* 多行正文：用 view 承载，Skyline 里 text 不会自动换行 */
+.quote,
+.sub,
+.memo-t {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.quote {
+  white-space: normal;
+  word-break: break-all;
+}
+
+.sub {
+  white-space: normal;
+  word-break: break-all;
+  margin-top: 8rpx;
+}
+
+/* 气泡兜底裁切（万一还有残余溢出，也不会糊到屏幕上） */
+.bubble {
+  overflow: hidden;
+}
+
+/* 气泡宽度改由 JS 计算后行内给出（px），这里只留上限兜底 */
+.bubble {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   抽屉：位置与开合方式对齐原型
+   原型：展开时高度由内容决定（没有写死），开合用 genie 动画
+   ============================================================ */
+
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+  padding: 16rpx 24rpx 0;   /* 左右 12px，和原型一致 */
+}
+
+.drawer {
+  height: 0;
+  overflow: hidden;
+  margin: 0;                /* 间距交给 .bottom 的 gap */
+  transition: height 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.drawer.open {
+  height: auto;
+  transition: none;
+  animation: drawerGenieIn 0.44s cubic-bezier(0.3, 1.18, 0.4, 1);
+  transform-origin: calc(100% - 60rpx) 100%;
+}
+
+.drawer.closing {
+  animation: drawerGenieOut 0.2s cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+  transform-origin: calc(100% - 60rpx) 100%;
+}
+
+@keyframes drawerGenieIn {
+  0% {
+    opacity: 0;
+    transform: translate(28rpx, 88rpx) scale(0.38, 0.1);
+    filter: blur(10rpx);
+  }
+  55% {
+    opacity: 1;
+    transform: translate(0, -12rpx) scale(1.04, 1.06);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes drawerGenieOut {
+  0% {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(32rpx, 96rpx) scale(0.4, 0.08);
+    filter: blur(8rpx);
+  }
+}
+
+/* 拖动中不要过渡，交给 WXS 直接改高度 */
+.drawer.dragging {
+  transition: none;
+  animation: none;
+}
+
+.composer {
+  margin: 0;
+}
+
+.dock {
+  margin: 0;
+}
+
+/* ============================================================
+   镜片：不再用 top/bottom 拉伸（Skyline 下 absolute+拉伸不稳定）
+   改成显式高度 + 纯算术水平位置，并让 tabbar 裁切兜底
+   ============================================================ */
+
+.tabbar {
+  position: relative;
+  overflow: hidden;
+  border-radius: 52rpx;
+}
+
+.lens {
+  position: absolute;
+  left: 0;
+  top: 4rpx;
+  bottom: auto;
+  height: 96rpx;
+  border-radius: 48rpx;
+  will-change: transform;
+}
+
+/* 手势内层容器：撑满，不影响原有排列 */
+.dock-sink {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+/* 镜片改用 left 定位（Skyline 里 style 属性上的 transform 不刷新） */
+.lens {
+  left: 0;
+  transition: left 0.46s cubic-bezier(0.34, 1.56, 0.64, 1),
+    width 0.46s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: left;
+}
+
+/* 我的页：登录入口（取代头部那个别扭的小圆钮） */
+.login-card {
+  display: flex;
+  align-items: center;
+  padding: 26rpx 24rpx;
+  margin-bottom: 22rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(150deg, rgba(43, 150, 255, 0.14), rgba(10, 109, 255, 0.06));
+  border: 1rpx solid rgba(10, 109, 255, 0.18);
+}
+
+.lc-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lc-t {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #11131a;
+}
+
+.lc-s {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #33405a;
+}
+
+.lc-btn {
+  flex: none;
+  margin-left: 20rpx;
+  padding: 12rpx 28rpx;
+  border-radius: 999rpx;
+  background: #0a6dff;
+  color: #ffffff;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+/* ============================================================
+   输入态：文字输入 + 按住说话（iMessage 的做法）
+   有字 → 麦克风变发送；没字 → 发送变麦克风
+   ============================================================ */
+
+.ctext {
+  flex: 1;
+  min-width: 0;
+  height: 72rpx;
+  font-size: 26rpx;
+  color: #11131a;
+  background: transparent;
+  border: none;
+  padding: 0 8rpx;
+}
+
+.cph {
+  color: #8a94a6;
+}
+
+.send {
+  flex: none;
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 42rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #62b4ff, #1a86ff 42%, #0062e0 78%, #0047ad);
+  box-shadow: 0 16rpx 32rpx -20rpx rgba(0, 84, 214, 0.9), inset 0 2rpx 0 rgba(255, 255, 255, 0.5);
+}
+
+
+.send-t {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  margin-top: -4rpx;
+}
+
+/* 输入态下相机留一点间距 */
+.composing .cam {
+  margin-right: 4rpx;
+}
+
+/* 发送键：正经的箭头上箭头，不用文字拼 */
+.send-img {
+  width: 38rpx;
+  height: 38rpx;
+}
+
+
+/* ============================================================
+   录音浮层：全屏提示，左右滑到取消 / 转文字（微信的做法）
+   ============================================================ */
+
+.recmask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 120rpx;
+  background: rgba(12, 16, 24, 0.45);
+}
+
+.rm-bubble {
+  width: 480rpx;
+  padding: 28rpx 30rpx;
+  border-radius: 32rpx;
+  background: #07c160;
+  box-shadow: 0 24rpx 60rpx -24rpx rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 56rpx;
+}
+
+.rm-wave {
+  display: flex;
+  align-items: center;
+  height: 60rpx;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.rm-bar {
+  width: 5rpx;
+  height: 18rpx;
+  border-radius: 3rpx;
+  background: rgba(255, 255, 255, 0.95);
+  animation: waveBar 0.72s ease-in-out infinite;
+}
+
+.rm-time {
+  margin-top: 14rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.rm-zones {
+  display: flex;
+  width: 620rpx;
+  justify-content: space-between;
+  margin-bottom: 34rpx;
+}
+
+.rz {
+  width: 280rpx;
+  height: 108rpx;
+  border-radius: 54rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1rpx solid rgba(255, 255, 255, 0.22);
+}
+
+.rz.on {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.rz.on.danger {
+  background: #ff3b30;
+}
+
+.rz-t {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.rz.on .rz-t {
+  color: #11131a;
+}
+
+.rz.on.danger .rz-t {
+  color: #ffffff;
+}
+
+.rm-hint {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.4rpx;
+}
+
+/* ============================================================
+   输入区：微信形态（左：语音/键盘切换，中：按住说话 或 输入框）
+   ============================================================ */
+
+.imtoggle {
+  flex: none;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 38rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imtoggle-img {
+  width: 42rpx;
+  height: 42rpx;
+}
+
+
+/* 按住说话：一条大条，好按（工地戴手套也能按中） */
+.holdbar {
+  flex: 1;
+  min-width: 0;
+  height: 84rpx;
+  margin: 0 8rpx;
+  border-radius: 42rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(120, 134, 155, 0.12);
+  border: 1rpx solid rgba(120, 134, 155, 0.16);
+}
+
+
+.holdbar-t {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #33405a;
+}
+
+/* ============================================================
+   按住说话：玻璃白条，不是系统灰条
+   按下去变蓝、文案变"松开 结束" —— 让人知道正在录
+   ============================================================ */
+
+.composing {
+  gap: 12rpx;
+}
+
+.imtoggle {
+  width: 72rpx;
+  height: 72rpx;
+  background: transparent;
+  border: none;
+}
+
+
+.holdbar {
+  flex: 1;
+  min-width: 0;
+  height: 88rpx;
+  margin: 0;
+  border-radius: 44rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 8rpx 22rpx -16rpx rgba(22, 38, 74, 0.5);
+  transition: transform 0.18s ease, background 0.16s ease;
+}
+
+.holdbar-mic {
+  width: 34rpx;
+  height: 34rpx;
+}
+
+.holdbar-t {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #33405a;
+  letter-spacing: 0.4rpx;
+}
+
+/* 按下：整条变蓝，像"正在录音"的实体按钮 */
+.holdbar-on {
+  background: linear-gradient(160deg, #2b96ff, #0060df);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 16rpx 32rpx -18rpx rgba(0, 84, 214, 0.8);
+  transform: scale(0.985);
+}
+
+.holdbar-on .holdbar-t {
+  color: #ffffff;
+}
+
+/* 底部：左右再收一点点，避开圆角屏的弧 */
+.bottom {
+  padding-left: 28rpx;
+  padding-right: 28rpx;
+}
+
+/* 底部左右 16px：圆角屏上 FAB 不会贴到弧线 */
+.bottom {
+  padding-left: 32rpx;
+  padding-right: 32rpx;
+}
+
+/* FAB 与胶囊之间留出呼吸，不和圆角抢位置 */
+.dock {
+  gap: 20rpx;
+}
+
+/* ============================================================
+   输入条合成一条：只有一个圆角矩形
+   ============================================================ */
+
+.composing {
+  gap: 0;
+}
+
+.holdbar {
+  justify-content: flex-start;
+  padding: 0 12rpx 0 8rpx;
+}
+
+.imtoggle {
+  width: 72rpx;
+  height: 72rpx;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.holdbar .holdbar-t {
+  flex: 1;
+  text-align: center;
+  /* 光学居中：左边有图标，文字要往右偏一点才"看起来"居中 */
+  padding-right: 60rpx;
+}
+
+/* 文字态：图标 + 输入框 + 发送 同一条 */
+.textrow {
+  flex: 1;
+  min-width: 0;
+  height: 88rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 44rpx;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 8rpx 22rpx -16rpx rgba(22, 38, 74, 0.5);
+  padding-right: 8rpx;
+}
+
+.ctext {
+  flex: 1;
+  min-width: 0;
+  height: 72rpx;
+  padding: 0 4rpx;
+}
+
+.send {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  flex: none;
+}
+
+/* ============================================================
+   输入条不再自带外壳 —— 外壳由 .capsule 提供
+   否则就是"胶囊里再套一个胶囊"，看起来像叠加而不是替换
+   ============================================================ */
+
+.holdbar,
+.textrow {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.holdbar {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.textrow {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+/* 按下反馈仍然保留，但只改颜色不动尺寸 */
+.holdbar-on {
+  background: linear-gradient(160deg, #2b96ff, #0060df);
+  border-radius: 40rpx;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 我的页抽屉：记忆操作列表 */
+.mact-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mact {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 18rpx 8rpx;
+}
+
+
+.mact-img {
+  flex: none;
+  width: 34rpx;
+  height: 34rpx;
+  margin-right: 20rpx;
+}
+
+.mact-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mact-t {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #11131a;
+}
+
+.mact-s {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #8a94a6;
+}
+
+/* ============================================================
+   我的页 · 偏好开关（自绘，避开 Skyline 对内置 switch 的差异）
+   ============================================================ */
+
+.prefgroup {
+  border-radius: 28rpx;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 16rpx 36rpx -30rpx rgba(22, 38, 74, 0.45);
+}
+
+.prefrow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 22rpx 24rpx;
+}
+
+.prefrow + .prefrow {
+  border-top: 1rpx solid rgba(120, 134, 155, 0.12);
+}
+
+.pref-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pref-t {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #11131a;
+}
+
+.pref-s {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #8a94a6;
+}
+
+/* 开关本体 */
+.tgl {
+  flex: none;
+  width: 92rpx;
+  height: 52rpx;
+  border-radius: 26rpx;
+  margin-left: 24rpx;
+  background: rgba(120, 134, 155, 0.28);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4rpx;
+  box-sizing: border-box;
+  transition: background 0.26s ease;
+}
+
+.tgl.on {
+  background: #34c759;
+}
+
+.tgl-knob {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 22rpx;
+  background: #ffffff;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.18);
+  transition: margin-left 0.26s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+.tgl.on .tgl-knob {
+  margin-left: 40rpx;
+}
+
+/* ============================================================
+   去掉所有"按压缩放/抖动"类的视觉反馈
+   反馈只走触感（vibrateShort）和声音，不晃界面
+   ============================================================ */
+
+
+/* 开关滑块改成普通缓动，不要过冲 */
+.tgl-knob {
+  transition: margin-left 0.26s ease;
+}
+
+/* 录音时的按键态只改颜色，不缩放 */
+.holdbar-on {
+  background: linear-gradient(160deg, #2b96ff, #0060df);
+  border-radius: 40rpx;
+}
+
+/* ============================================================
+   录音态：全部在条内完成（没有浮层，触摸目标全程不丢失）
+   ============================================================ */
+
+.holdbar.isrec {
+  justify-content: space-between;
+  padding: 0 10rpx;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.rzside {
+  flex: none;
+  height: 68rpx;
+  padding: 0 22rpx;
+  border-radius: 34rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(120, 134, 155, 0.14);
+}
+
+.rzside.on {
+  background: #ffffff;
+  box-shadow: 0 4rpx 12rpx -6rpx rgba(22, 38, 74, 0.5);
+}
+
+.rzside.on.danger {
+  background: #ff3b30;
+}
+
+.rzside-t {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #33405a;
+}
+
+.rzside.on .rzside-t {
+  color: #11131a;
+}
+
+.rzside.on.danger .rzside-t {
+  color: #ffffff;
+}
+
+.rmid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12rpx;
+}
+
+.rmid .rdot {
+  margin-right: 10rpx;
+}
+
+.rmid .rtime {
+  margin-right: 12rpx;
+}
+
+.rmid .rwave {
+  flex: 1;
+  min-width: 0;
+  height: 44rpx;
+}
+
+.rmid .rbar {
+  width: 5rpx;
+  height: 16rpx;
+}
+
+/* 现场页有未发送的草稿时，tab 上显示一个小点 */
+.draftdot {
+  position: absolute;
+  top: 8rpx;
+  left: 50%;
+  margin-left: 8rpx;
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 6rpx;
+  background: #0a6dff;
+  box-shadow: 0 0 0 4rpx rgba(255, 255, 255, 0.9);
+}
+
+/* ============================================================
+   录音提示：浮在条上方的一张小卡
+   手指在下方的条上，这里只做"看"的部分
+   ============================================================ */
+
+.bottom {
+  position: relative;
+}
+
+.recpanel {
+  position: absolute;
+  left: 32rpx;
+  right: 32rpx;
+  bottom: 100%;
+  margin-bottom: 16rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 24rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1rpx solid rgba(255, 255, 255, 0.96);
+  box-shadow: 0 20rpx 44rpx -26rpx rgba(22, 38, 74, 0.5);
+}
+
+.rp-side {
+  flex: none;
+  width: 110rpx;
+  text-align: center;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #8a94a6;
+}
+
+.rp-side.on {
+  color: #11131a;
+}
+
+.rp-side.on.danger {
+  color: #ff3b30;
+}
+
+.rp-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 14rpx;
+}
+
+.rp-mid .rwave {
+  width: 240rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rp-mid .rbar {
+  width: 5rpx;
+  height: 14rpx;
+  border-radius: 3rpx;
+  background: #ff6a5e;
+  animation: waveBar 0.72s ease-in-out infinite;
+}
+
+.rp-time {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #d92c20;
+}
+
+/* 录音中的条：只变底色，不再放第二套 UI */
+.holdbar.isrec {
+  justify-content: center;
+  padding: 0 24rpx;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.recording-t {
+  color: #33405a;
+}
+
+/* 录音时图标隐去（不销毁节点，触摸链才不断） */
+.imtoggle.gone {
+  width: 0;
+  margin: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+/* 录音时条里的文字居中 */
+.holdbar.isrec {
+  justify-content: center;
+}
+
+/* ============================================================
+   搜索：明确告诉你"在搜什么、搜到几条"
+   ============================================================ */
+
+.srchhd {
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  padding: 4rpx 40rpx 14rpx;
+}
+
+.srchhd-t {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #33405a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.srchhd-n {
+  flex: none;
+  margin-left: 16rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #8a94a6;
+}
+
+.srchempty {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 40rpx 0;
+}
+
+.srchempty-t {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #33405a;
+}
+
+.srchempty-s {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #8a94a6;
+}
+
+/* ============================================================
+   水印：对齐原型最终版
+   图 112px 宽、透明度 8.5%、距底 112px
+   项目名 11px / 字距 .34em / 透明度 26%
+   ============================================================ */
+
+.wm {
+  bottom: 224rpx;
+  width: 320rpx;
+  margin-left: -160rpx;
+}
+
+.wm-img {
+  width: 224rpx;
+  height: 177rpx;
+  opacity: 0.085;
+}
+
+.wm-name {
+  margin-top: 20rpx;
+  font-size: 22rpx;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  color: #24304a;
+  opacity: 0.26;
+}
+
+/* ============================================================
+   我的页：已登录的身份卡（用身份说明状态，不写"已登录"）
+   ============================================================ */
+
+.idcard {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 26rpx 24rpx;
+  margin-bottom: 22rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1rpx 0 #ffffff, 0 16rpx 36rpx -30rpx rgba(22, 38, 74, 0.45);
+}
+
+.idavatar {
+  flex: none;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #62b4ff, #1a86ff 45%, #0062e0);
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 700;
+  box-shadow: inset 0 2rpx 0 rgba(255, 255, 255, 0.5);
+}
+
+.idbody {
+  flex: 1;
+  min-width: 0;
+  margin-left: 22rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.idname {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #11131a;
+}
+
+.idsub {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #8a94a6;
+}
+
+/* 退出登录 */
+.logout {
+  margin-top: 24rpx;
+  padding: 24rpx 24rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1rpx solid rgba(255, 255, 255, 0.9);
+}
+
+.logout-t {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #d92c20;
+}
+
+.pref-arrow {
+  flex: none;
+  width: 28rpx;
+  height: 28rpx;
+  margin-left: 12rpx;
+  opacity: 0.5;
+}
+
+/* 输入框里的"粘贴"提示条 */
+.pastechip {
+  flex: none;
+  max-width: 320rpx;
+  height: 60rpx;
+  padding: 0 20rpx;
+  margin-right: 8rpx;
+  border-radius: 30rpx;
+  display: flex;
+  align-items: center;
+  background: rgba(10, 109, 255, 0.1);
+  overflow: hidden;
+}
+
+.pastechip-t {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #0a6dff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   四态：骨架屏 / 失败 / 空 / 正常
+   插画来自 unDraw（开源，可商用），已统一成品牌蓝三阶
+   ============================================================ */
+
+.sk {
+  padding: 8rpx 40rpx 0;
+}
+
+.sk-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 26rpx 24rpx;
+  margin-bottom: 18rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid rgba(255, 255, 255, 0.9);
+}
+
+.sk-ico {
+  flex: none;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 20rpx;
+  margin-right: 22rpx;
+}
+
+.sk-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sk-line {
+  height: 22rpx;
+  border-radius: 11rpx;
+  margin-bottom: 14rpx;
+}
+
+.sk-line.w70 { width: 70%; }
+.sk-line.w40 { width: 40%; margin-bottom: 0; }
+.sk-line.w55 { width: 55%; }
+.sk-line.w30 { width: 30%; margin-bottom: 0; }
+
+/* 流光：从左扫到右 */
+.sk-shine {
+  background: linear-gradient(100deg, rgba(214, 226, 242, 0.85) 20%, rgba(238, 244, 252, 0.95) 42%, rgba(214, 226, 242, 0.85) 64%);
+  background-size: 300% 100%;
+  animation: shimmer 1.35s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 140% 0; }
+  100% { background-position: -40% 0; }
+}
+
+/* 失败 / 空状态 */
+.statebox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 56rpx 0;
+}
+
+.state-img {
+  width: 380rpx;
+  height: 380rpx;
+  opacity: 0.95;
+}
+
+.state-t {
+  margin-top: 6rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2b3a55;
+}
+
+.state-s {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #8a94a6;
+  text-align: center;
+  line-height: 1.55;
+}
+
+.state-btn {
+  margin-top: 28rpx;
+  padding: 20rpx 52rpx;
+  border-radius: 40rpx;
+  background: linear-gradient(160deg, #2b96ff, #0060df);
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 600;
+  box-shadow: 0 14rpx 28rpx -18rpx rgba(0, 84, 214, 0.9);
+}
+
+
+/* 搜索/空列表用的插画小一号 */
+.state-img.sm {
+  width: 300rpx;
+  height: 300rpx;
+  margin-bottom: 4rpx;
+}
+
+.srchempty {
+  padding-top: 30rpx;
+}
+
+/* ============================================================
+   气泡长按菜单
+   ============================================================ */
+
+.msk {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 300;
+  background: rgba(12, 16, 24, 0.28);
+}
+
+.lmenu {
+  position: absolute;
+  width: 220rpx;
+  padding: 10rpx 0;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1rpx solid rgba(255, 255, 255, 0.98);
+  box-shadow: 0 28rpx 60rpx -28rpx rgba(22, 38, 74, 0.6);
+  overflow: hidden;
+}
+
+.lmenu-i {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 20rpx 24rpx;
+}
+
+
+.lmenu-img {
+  flex: none;
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 16rpx;
+  opacity: 0.8;
+}
+
+.lmenu-t {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #11131a;
+}
+
+.lmenu-i.danger .lmenu-t {
+  color: #d92c20;
+}
+
+/* ============================================================
+   记录行：右滑露出签收
+   ============================================================ */
+
+.rcell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28rpx;
+}
+
+
+.rsign-t {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.card.rslide {
+  position: relative;
+  left: 0;
+  transition: left 0.26s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+/* ============================================================
+   深色模式：只覆盖"面"的颜色，不改结构
+   ============================================================ */
+
+@media (prefers-color-scheme: dark) {
+  page {
+    background: #0d1219;
+  }
+
+  .screen {
+    background: #0d1219;
+  }
+
+  .card,
+  .prefgroup,
+  .idcard,
+  .login-card,
+  .mact,
+  .srchhd,
+  .sk-row,
+  .lmenu,
+  .statebox {
+    background: rgba(28, 36, 48, 0.92);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .hdr,
+  .page-hdr {
+    color: #eaf1fb;
+  }
+
+  .page-title h2,
+  .card-t,
+  .pref-t,
+  .mact-t,
+  .idname,
+  .state-t,
+  .empty-t {
+    color: #eaf1fb;
+  }
+
+  .page-title p,
+  .card-m,
+  .pref-s,
+  .mact-s,
+  .idsub,
+  .state-s {
+    color: #8b9bb0;
+  }
+
+  .bubble.agent {
+    background: rgba(34, 43, 58, 0.96);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .bubble.agent .quote,
+  .bubble.agent .sub {
+    color: #dfe8f5;
+  }
+
+  .capsule,
+  .holdbar,
+  .textrow {
+    background: rgba(34, 43, 58, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .holdbar-t,
+  .ctext {
+    color: #eaf1fb;
+  }
+
+  .cph {
+    color: #6f7f94;
+  }
+
+  .lens {
+    background: rgba(92, 122, 170, 0.55);
+  }
+
+  .tab .tic + text,
+  .tab text {
+    color: #8b9bb0;
+  }
+
+  .tab.on text {
+    color: #eaf1fb;
+  }
+
+  .stamp {
+    color: #6f7f94;
+  }
+
+  .wm-name {
+    color: #dfe8f5;
+  }
+
+  .bottom {
+    background: linear-gradient(to top, #0d1219 18%, rgba(13, 18, 25, 0.94) 62%, rgba(13, 18, 25, 0));
+  }
+}
+
+/* ============================================================
+   记录卡片：右侧封面（柔底 + 3D 小场景），不是光秃秃一个图标
+   ============================================================ */
+
+.rcov {
+  flex: none;
+  width: 172rpx;
+  height: 120rpx;
+  margin-left: 16rpx;
+  border-radius: 18rpx;
+  background: #eaf2fe;
+}
+
+/* 卡片必须不透明：否则左滑时底下的"签收"会透出来 */
+.card.rslide {
+  background: #ffffff;
+}
+
+/* 签收按钮：待签=绿，已签=中性蓝灰，一眼能分清 */
+
+
+@media (prefers-color-scheme: dark) {
+  .card.rslide {
+    background: #1c2430;
+  }
+
+  .rcov {
+    background: #202a38;
+  }
+}
+
+/* 左滑改为「缩窄」而不是「整卡左移」：
+   文字用省略号收尾，不会被屏幕左边切掉 */
+.card.rslide {
+  position: relative;
+  left: 0;
+  transition: margin-right 0.26s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+
+.rsign-t {
+  font-size: 24rpx;
+}
+
+.card-body .card-t {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   融合卡片：图占到卡片右半，左缘渐隐进白底
+   —— 不是一个圆角小方块贴在旁边，而是卡片自己"长出"一张图
+   ============================================================ */
+
+.card.rslide {
+  padding-right: 0;
+  overflow: hidden;
+  align-items: stretch;
+  min-height: 168rpx;
+}
+
+.card.rslide .card-body {
+  padding: 22rpx 12rpx 22rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.rcovwrap {
+  position: relative;
+  flex: none;
+  width: 260rpx;
+  margin-left: 12rpx;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.rcov {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  margin: 0;
+  background: #eef4fb;
+}
+
+/* 左缘渐隐：用的不是 mask（Skyline 不支持），而是一层同色渐变盖在图上 */
+.rfade {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 96rpx;
+  background: linear-gradient(to right, #ffffff 0%, rgba(255, 255, 255, 0.75) 42%, rgba(255, 255, 255, 0) 100%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .rfade {
+    background: linear-gradient(to right, #1c2430 0%, rgba(28, 36, 48, 0.75) 42%, rgba(28, 36, 48, 0) 100%);
+  }
+}
+
+/* 按压缩放都去掉了（Skyline 不支持 :active），
+   只保留一条通用的 hover 反馈，需要的地方用 hover-class="hv" */
+.hv {
+  opacity: 0.84;
+}
+
+/* ============================================================
+   左滑动作：浮起的小圆角按钮，不是一条实色色块
+   ============================================================ */
+
+
+.rsign-in {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  background: #e7f8ed;
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.9);
+}
+
+.rsign-ic {
+  width: 30rpx;
+  height: 30rpx;
+}
+
+.rsign-t {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #0f8a3c;
+  letter-spacing: 0.4rpx;
+}
+
+/* 已签：蓝色系，动作是"翻看"而不是"确认" */
+.rsign.view .rsign-in {
+  background: #e8f0ff;
+}
+
+.rsign.view .rsign-t {
+  color: #0a6ddf;
+}
+
+/* 卡片被推开时加一点右侧投影，做出层次 */
+.card.rslide {
+  box-shadow: 8rpx 0 20rpx -12rpx rgba(22, 38, 74, 0.28), 0 10rpx 22rpx -18rpx rgba(22, 38, 74, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  .rsign-in {
+    background: rgba(28, 180, 96, 0.18);
+  }
+
+  .rsign.view .rsign-in {
+    background: rgba(43, 150, 255, 0.18);
+  }
+
+  .rsign-t {
+    color: #4ade80;
+  }
+
+  .rsign.view .rsign-t {
+    color: #7fb6ff;
+  }
+}
+
+/* ============================================================
+   整卡滑动：卡片整体左移，裁切发生在屏幕边缘（不是卡片自己变窄）
+   ============================================================ */
+
+.inboxlist {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.inboxlist .sec,
+.inboxlist .dayhd {
+  padding-left: 40rpx;
+  padding-right: 40rpx;
+}
+
+.rcell {
+  border-radius: 0;
+  margin: 0 0 18rpx;
+}
+
+.card.rslide {
+  margin: 0 40rpx;
+  padding-right: 0;
+  transition: left 0.26s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+/* 动作按钮贴右边缘，和卡片右边距对齐 */
+
+/* 左缘渐隐：卡片滑走后，用一层和页面同色的渐变吃掉"被切掉"的硬边 */
+.rlclip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 56rpx;
+  z-index: 3;
+  background: linear-gradient(to right, #f2f5fa 0%, rgba(242, 245, 250, 0.82) 46%, rgba(242, 245, 250, 0) 100%);
+  border-radius: 28rpx 0 0 28rpx;
+}
+
+@media (prefers-color-scheme: dark) {
+  .rlclip {
+    background: linear-gradient(to right, #0d1219 0%, rgba(13, 18, 25, 0.82) 46%, rgba(13, 18, 25, 0) 100%);
+  }
+}
+
+/* ============================================================
+   吸顶日期条（pinned section header）
+   滚动时停在顶部，下一段上来把它顶走
+   ============================================================ */
+
+.inboxwrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.stickybar {
+  flex: none;
+  height: 84rpx;
+  margin: 0 40rpx 8rpx;
+  padding: 0 20rpx;
+  border-radius: 22rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12rpx 26rpx -20rpx rgba(22, 38, 74, 0.5);
+  transition: transform 0.18s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.18s ease;
+}
+
+/* 被下一段顶上去的那一下 */
+.stickybar.lift {
+  transform: translateY(-10rpx);
+  opacity: 0.86;
+}
+
+.sb-l {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10rpx;
+}
+
+.sb-d {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #11131a;
+  letter-spacing: 0.2rpx;
+}
+
+.sb-w {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #8a94a6;
+}
+
+.sb-c {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  font-size: 20rpx;
+  color: #a3adbb;
+}
+
+.sb-today {
+  flex: none;
+  margin-left: 16rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(10, 109, 255, 0.1);
+  color: #0a6dff;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+@media (prefers-color-scheme: dark) {
+  .stickybar {
+    background: rgba(34, 43, 58, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .sb-d {
+    color: #eaf1fb;
+  }
+
+  .sb-today {
+    background: rgba(43, 150, 255, 0.2);
+    color: #7fb6ff;
+  }
+}
+
+/* 被吸顶条"吸收"的那一段日期头：隐藏但保留高度，避免内容跳动 */
+.dayhd.hide {
+  opacity: 0;
+}
+
+/* 「查看」是中性动作：不用品牌蓝，用中性灰白
+   —— 蓝色在这个 app 里留给"主要操作"（发送、登录），别抢语义 */
+.rsign.view .rsign-in {
+  background: #f2f4f8;
+  border: 1rpx solid rgba(120, 134, 155, 0.16);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.9);
+}
+
+.rsign.view .rsign-t {
+  color: #33405a;
+}
+
+@media (prefers-color-scheme: dark) {
+  .rsign.view .rsign-in {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .rsign.view .rsign-t {
+    color: #c9d4e3;
+  }
+}
+
+/* 左滑动作容器：绝对定位在卡片右侧下方，本身不画任何底色 */
+
+.rsign.view {
+  background: transparent;
+}
+/* ============================================================
+   左滑动作：不做一个"贴纸"，而是做一张和卡片同高同圆角的动作卡
+   —— 卡片滑开，后面本来就站着一张卡，而不是缝隙里塞了个按钮
+   ============================================================ */
+
+.rsign {
+  position: absolute;
+  right: 40rpx;
+  top: 0;
+  bottom: 0;
+  width: 148rpx;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  border-radius: 28rpx;
+  background: #e7f8ed;
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.9), 0 10rpx 22rpx -18rpx rgba(22, 38, 74, 0.5);
+}
+
+.rsign.view {
+  background: #f2f4f8;
+}
+
+/* 动作卡里的图标和文字直接居中，不再套一层小方块 */
+.rsign-in {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  gap: 8rpx;
+}
+
+.rsign.view .rsign-in {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.rsign-ic {
+  width: 34rpx;
+  height: 34rpx;
+}
+
+.rsign-t {
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+@media (prefers-color-scheme: dark) {
+  .rsign {
+    background: rgba(28, 180, 96, 0.16);
+  }
+
+  .rsign.view {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .rsign-in,
+  .rsign.view .rsign-in {
+    background: transparent;
+  }
+}
+/* 资料行：实拍缩略图（和记录页的封面语言一致） */
+.dthumb-img {
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 22rpx;
+  background: #eef4fb;
+}
+
+/* ============================================================
+   组合输入：附件条 + 自动增高的文字 + 录音/拍照
+   ============================================================ */
+
+.composecol {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.attachrow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+  padding: 4rpx 8rpx;
+}
+
+.achip {
+  position: relative;
+  flex: none;
+  width: 120rpx;
+  height: 120rpx;
+  margin-right: 14rpx;
+  border-radius: 22rpx;
+  overflow: hidden;
+  background: #eef4fb;
+  border: 1rpx solid rgba(255, 255, 255, 0.9);
+}
+
+.achip-img {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+.achip-audio {
+  width: 120rpx;
+  height: 120rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  background: #e8f0ff;
+}
+
+.achip-wave {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4rpx;
+  height: 30rpx;
+}
+
+.aw-bar {
+  width: 4rpx;
+  border-radius: 2rpx;
+  background: #0a6dff;
+}
+
+.achip-dur {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #0a6dff;
+}
+
+.achip-x {
+  position: absolute;
+  right: 4rpx;
+  top: 4rpx;
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 17rpx;
+  background: rgba(12, 16, 24, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.achip-x-t {
+  font-size: 20rpx;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.achip-add {
+  flex: none;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(120, 134, 155, 0.1);
+  border: 1rpx dashed rgba(120, 134, 155, 0.4);
+}
+
+.achip-add-t {
+  font-size: 40rpx;
+  color: #8a94a6;
+  line-height: 1;
+}
+
+/* 文字框：自动增高，最多 5 行后内部滚动 */
+.ctext {
+  flex: 1;
+  min-width: 0;
+  min-height: 72rpx;
+  max-height: 300rpx;
+  padding: 16rpx 8rpx;
+  font-size: 26rpx;
+  line-height: 1.4;
+  color: #11131a;
+  background: transparent;
+}
+
+/* 录音 / 拍照小按钮 */
+.micbtn {
+  position: relative;
+  flex: none;
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 32rpx;
+}
+
+.micbtn-img {
+  width: 36rpx;
+  height: 36rpx;
+  opacity: 0.75;
+}
+
+.micbtn-dot {
+  position: absolute;
+  right: 8rpx;
+  top: 8rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 7rpx;
+  background: #ff3b30;
+}
+
+/* 我发的多图 */
+.mphotos {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8rpx;
+  margin-bottom: 8rpx;
+  max-width: 100%;
+}
+
+.mphoto {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 18rpx;
+  background: #dde6f2;
+}
+
+/* ============================================================
+   资料页：融合卡（和记录页同一套语言）
+   文字在左，图从右半长出来，左缘渐隐
+   ============================================================ */
+
+.dcard {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 168rpx;
+  margin-bottom: 18rpx;
+  border-radius: 28rpx;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 16rpx 36rpx -30rpx rgba(22, 38, 74, 0.45);
+}
+
+.dcard:active {
+  opacity: 0.96;
+}
+
+.dcard-body {
+  flex: 1;
+  min-width: 0;
+  padding: 24rpx 8rpx 24rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.dcard-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.dcard .dname {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #11131a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dcard .dstate {
+  flex: none;
+  font-size: 20rpx;
+  font-weight: 700;
+  padding: 6rpx 14rpx;
+  border-radius: 10rpx;
+}
+
+.dcard .dwhen {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #8a94a6;
+}
+
+.dcard-cov {
+  width: 220rpx;
+}
+
+.dcard-cov .rcov {
+  width: 100%;
+  height: 100%;
+}
+
+.dcard-cov .rfade {
+  width: 80rpx;
+}
+
+@media (prefers-color-scheme: dark) {
+  .dcard {
+    background: #1c2430;
+  }
+
+  .dcard .dname {
+    color: #eaf1fb;
+  }
+}
+
+/* 记忆条目：从"每条一张浮卡"改成"一组里的行"，减少阴影噪音 */
+.memo {
+  padding: 26rpx 24rpx;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.memo + .memo {
+  border-top: 1rpx solid rgba(120, 134, 155, 0.12);
+}
+
+.memo:first-child {
+  border-top-left-radius: 28rpx;
+  border-top-right-radius: 28rpx;
+}
+
+.memo:last-child {
+  border-bottom-left-radius: 28rpx;
+  border-bottom-right-radius: 28rpx;
+}
+
+/* 首次使用的提示：底部上方一条，一次性 */
+.coach {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: 260rpx;
+  z-index: 220;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 24rpx;
+  background: rgba(20, 26, 36, 0.92);
+  box-shadow: 0 24rpx 50rpx -28rpx rgba(0, 0, 0, 0.6);
+}
+
+.coach-t {
+  flex: 1;
+  min-width: 0;
+  font-size: 22rpx;
+  font-weight: 500;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.coach-x {
+  flex: none;
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 21rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* 录一段：红色圆点，和"麦克风（切语音模式）"明确区分 */
+.refbtn {
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.refdot {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 16rpx;
+  background: #ff3b30;
+  box-shadow: 0 0 0 6rpx rgba(255, 59, 48, 0.16);
+}
+
+.refbtn.on .refdot {
+  width: 26rpx;
+  height: 26rpx;
+  border-radius: 6rpx;
+  background: #ff3b30;
+  box-shadow: 0 0 0 10rpx rgba(255, 59, 48, 0.14);
+}
+
+/* ============================================================
+   组合输入：一行三个东西
+   ＋（附件） / 输入框 / 麦克风或发送
+   ============================================================ */
+
+.plusbtn {
+  flex: none;
+  height: 64rpx;
+  min-width: 64rpx;
+  padding: 0 6rpx;
+  border-radius: 32rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.plus-t {
+  font-size: 40rpx;
+  font-weight: 300;
+  line-height: 1;
+  color: #5b6473;
+  margin-top: -4rpx;
+}
+
+.plusbtn.rec {
+  padding: 0 18rpx 0 12rpx;
+  background: rgba(255, 59, 48, 0.1);
+}
+
+.redsq {
+  width: 22rpx;
+  height: 22rpx;
+  border-radius: 6rpx;
+  background: #ff3b30;
+}
+
+.rectime {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #ff3b30;
+  font-variant-numeric: tabular-nums;
+}
+
+.micmode {
+  flex: none;
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.micmode-img {
+  width: 38rpx;
+  height: 38rpx;
+  opacity: 0.7;
+}
+
+/* ============================================================
+   输入框垂直居中修正
+   问题：textarea 自带默认行高和内边距，min-height 撑高后文字贴顶。
+   解法：行高固定 1.4，上下内边距按 (行高 88 - 文字行高) / 2 算。
+   ============================================================ */
+
+.ctext {
+  flex: 1;
+  min-width: 0;
+  min-height: 88rpx;
+  max-height: 300rpx;
+  /* 88 - 26*1.4(≈36) = 52，上下各 26 */
+  padding: 26rpx 8rpx;
+  margin: 0;
+  font-size: 26rpx;
+  line-height: 1.4;
+  color: #11131a;
+  background: transparent;
+  box-sizing: content-box;
+  vertical-align: middle;
+}
+
+/* 搜索框：和胶囊中线对齐 */
+.findinput {
+  height: 100%;
+  min-height: 76rpx;
+  padding: 0;
+  margin: 0;
+  line-height: 76rpx;
+  font-size: 26rpx;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   输入区垂直居中（第二轮修正）
+   实际行高 = 胶囊 128rpx，文字块 36rpx，上下各留 46rpx 才对
+   ============================================================ */
+
+/* 输入态时胶囊高度改为内容驱动，多行时才变高 */
+.capsule.composing-mode {
+  height: auto;
+  min-height: 128rpx;
+  padding: 12rpx 14rpx;
+  box-sizing: border-box;
+}
+
+.composing {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.holdbar.textrow {
+  height: auto;
+  min-height: 104rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 8rpx;
+}
+
+.ctext {
+  min-height: 0;
+  max-height: 260rpx;
+  padding: 20rpx 8rpx;
+  margin: 0;
+  font-size: 26rpx;
+  line-height: 1.4;
+  box-sizing: content-box;
+}
+
+/* ============================================================
+   输入框最终版
+   关键：app.json 里 defaultContentBox = true，所有元素默认 content-box。
+   所以必须显式 border-box + width:0，否则 padding 会把宽度撑出容器。
+   ============================================================ */
+
+.ctext {
+  flex: 1;
+  min-width: 0;
+  width: 0;                    /* flex 基准清零，靠 flex-grow 拿宽度 */
+  box-sizing: border-box;      /* 抵消 defaultContentBox */
+  min-height: 76rpx;
+  max-height: 260rpx;
+  padding: 20rpx 12rpx;
+  margin: 0;
+  font-size: 26rpx;
+  line-height: 36rpx;          /* 显式行高，多行也是 36rpx 一行 */
+  color: #11131a;
+  background: transparent;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.cph {
+  color: #8a94a6;
+  line-height: 36rpx;
+}
+
+.holdbar.textrow {
+  height: auto;
+  min-height: 116rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 6rpx;
+  box-sizing: border-box;
+}
+
+/* 搜索框同样处理 */
+.findbar {
+  box-sizing: border-box;
+}
+
+.findinput {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  height: 76rpx;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  line-height: 76rpx;
+  font-size: 26rpx;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   输入区：加号重画 + 高度变化时的锚定规则
+
+   设计依据（iMessage）：
+   · 单行时，按钮和文字在同一条中线上
+   · 多行时，按钮沉到底部（跟随最后一行），
+     因为拇指在底部，按钮不该随着文字往上跑
+   ============================================================ */
+
+.holdbar.textrow {
+  /* 关键：底部对齐。单行时靠内边距凑出视觉居中，多行时自然沉底 */
+  align-items: flex-end;
+  min-height: 116rpx;
+  padding: 6rpx 6rpx 12rpx;
+  box-sizing: border-box;
+}
+
+/* 文字框：上内边距略大于下内边距，让第一行和按钮中线对齐 */
+.ctext {
+  padding: 22rpx 12rpx 18rpx;
+  line-height: 36rpx;
+  min-height: 76rpx;
+  max-height: 260rpx;
+}
+
+/* 加号：56rpx 圆形浅底 + 两条 3rpx 圆角杠，几何居中 */
+.plusbtn {
+  flex: none;
+  width: 56rpx;
+  height: 56rpx;
+  min-width: 56rpx;
+  padding: 0;
+  border-radius: 28rpx;
+  background: rgba(120, 134, 155, 0.14);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plusbars {
+  position: relative;
+  width: 22rpx;
+  height: 22rpx;
+}
+
+.pb-h {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 22rpx;
+  height: 3rpx;
+  margin-top: -1.5rpx;
+  border-radius: 2rpx;
+  background: #5b6473;
+}
+
+.pb-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 3rpx;
+  height: 22rpx;
+  margin-left: -1.5rpx;
+  border-radius: 2rpx;
+  background: #5b6473;
+}
+
+.plusbtn.rec {
+  width: auto;
+  min-width: 0;
+  padding: 0 16rpx 0 12rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 59, 48, 0.1);
+  gap: 8rpx;
+}
+
+/* 右측按钮沉底后，和文字最后一行对齐 */
+.send,
+.micmode {
+  flex: none;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 32rpx;
+}
+
+.send {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 32rpx;
+}
+
+.send-img {
+  width: 34rpx;
+  height: 34rpx;
+}
+
+@media (prefers-color-scheme: dark) {
+  .plusbtn {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .pb-h,
+  .pb-v {
+    background: #c9d4e3;
+  }
+}
+
+/* ============================================================
+   输入区：最终裁定版（放在文件最末，覆盖前面所有零散规则）
+
+   事实依据：
+   1) app.json 里 defaultContentBox = true → 所有元素默认 content-box
+   2) textarea 是原生组件，width:0 + flex:1 不会展开 → 必须外层 view 撑宽
+   3) 前面有 7 条 .holdbar/.textrow/.ctext 的散装规则互相覆盖
+   ============================================================ */
+
+/* 外层撑宽：普通 view 可靠参与 flex */
+.fieldwrap {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* 文字框：宽度吃满外层，高度由内容决定 */
+.ctext {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 40rpx;
+  max-height: 240rpx;
+  padding: 10rpx 0;
+  margin: 0;
+  font-size: 26rpx;
+  line-height: 40rpx;
+  color: #11131a;
+  background: transparent;
+  border: none;
+}
+
+.cph {
+  color: #8a94a6;
+  font-size: 26rpx;
+  line-height: 40rpx;
+}
+
+/* 一行：底部对齐，多行时按钮跟着最后一行 */
+.holdbar.textrow {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8rpx;
+  width: 100%;
+  height: auto;
+  min-height: 64rpx;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+.plusbtn {
+  flex: none;
+  width: 56rpx;
+  height: 56rpx;
+  min-width: 56rpx;
+  padding: 0;
+  border-radius: 28rpx;
+  background: rgba(120, 134, 155, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.send,
+.micmode {
+  flex: none;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 28rpx;
+  box-sizing: border-box;
+}
+
+.send {
+  background: linear-gradient(160deg, #2b96ff, #0060df);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 18rpx -12rpx rgba(0, 84, 214, 0.9);
+}
+
+.micmode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 胶囊：输入态时按内容高度，留出上下呼吸 */
+.capsule.composing-mode {
+  height: auto;
+  min-height: 112rpx;
+  padding: 16rpx 18rpx;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.composing {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.composecol {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}

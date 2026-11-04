@@ -1,0 +1,41 @@
+<view class="page">
+  <view class="chdr" style="padding-top: {{hdrTop}}px;">
+    <view class="back" bindtap="onBack" aria-label="返回">
+      <image class="back-img" src="/assets/icons/back-dark.png" mode="aspectFit" style="width:36rpx;height:36rpx;" />
+    </view>
+    <text class="ct">现场拍照</text>
+    <view class="ph"></view>
+  </view>
+
+  <view class="shot">
+    <image wx:if="{{src}}" class="shot-img" src="{{src}}" mode="aspectFill" />
+
+    <!-- 水印：项目 / 位置 / 天气 / 时间 -->
+    <view class="wm" wx:if="{{src}}">
+      <view class="wm-bar"></view>
+      <view class="wm-body">
+        <text class="wm-p">{{wm.project}}</text>
+        <text class="wm-l">{{wm.place}}</text>
+        <view class="wm-row">
+          <text class="wm-w">{{wm.weather}}</text>
+          <text class="wm-t">{{wm.time}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="shot-empty" wx:else bindtap="onRetake">
+      <view class="se-box">
+        <text class="se-t">{{tried ? '没拍到照片' : '正在打开相机…'}}</text>
+        <text class="se-s" wx:if="{{tried}}">点这里重新打开相机</text>
+      </view>
+    </view>
+  </view>
+
+'  <!-- 离屏画布：把水印真正画进图片 -->
+  <canvas type="2d" id="wmc" class="offcanvas"></canvas>
+
+  <view class="cfoot">'
+    <view class="cbtn ghost" bindtap="onRetake" aria-label="重拍">重拍</view>
+    <view class="cbtn" bindtap="onSave" aria-label="保存到现场影像">保存到现场影像</view>
+  </view>
+</view>
