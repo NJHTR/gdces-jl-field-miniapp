@@ -4,10 +4,27 @@ const DOCS = {
   旁站记录: {
     sub: "3#5F 顶板 · 09:12–10:24",
     bases: [
-      { ic: "doc", t: "现场记录 3 条：09:12 开始旁站、10:24 结束、坍落度实测 180mm" },
-      { ic: "cam", t: "现场照片 2 张：浇筑中 1 张、试块取样 1 张" },
-      { ic: "search", t: "规范 GB 50204-2015 §7.3 混凝土浇筑与养护" },
-      { ic: "pen", t: "你的记忆：旁站结论写「经检查符合要求」" },
+      {
+        ic: "doc", kind: "rec", t: "现场记录 3 条：09:12 开始旁站、10:24 结束、坍落度实测 180mm",
+        body:
+          "09:12  三号楼五层顶板浇筑旁站，开始。\n" +
+          "09:40  坍落度实测 180mm，符合要求。\n" +
+          "10:24  浇筑完成，方量待补，试块 2 组。",
+      },
+      {
+        ic: "cam", kind: "photo", t: "现场照片 2 张：浇筑中 1 张、试块取样 1 张",
+        img: "/assets/covers/rebar-tie.jpg",
+      },
+      {
+        ic: "search", kind: "rule", t: "规范 GB 50204-2015 §7.3 混凝土浇筑与养护",
+        body:
+          "7.3.1 混凝土浇筑前，应对模板、支架、钢筋和预埋件进行检查，并作好记录。\n" +
+          "7.3.2 混凝土应连续浇筑，当必须间歇时，间歇时间宜缩短，并应在前层混凝土初凝前将次层混凝土浇筑完毕。\n" +
+          "7.3.3 混凝土浇筑后，应在 12h 内覆盖并保湿养护。",
+      },
+      {
+        ic: "pen", kind: "memo", t: "你的记忆：旁站结论写「经检查符合要求」", body: "「经检查符合要求」——已使用 23 次，来自你的习惯。",
+      },
     ],
     groups: [
       {
@@ -37,11 +54,30 @@ const DOCS = {
   监理通知单: {
     sub: "NO-017 · 4#楼外架",
     bases: [
-      { ic: "doc", t: "现场记录 1 条：08:05 发现连墙件缺失 2 处" },
-      { ic: "cam", t: "现场照片 1 张：4#楼东侧外架缺失部位" },
-      { ic: "search", t: "规范 JGJ 130-2011 §6.4.3 连墙件设置间距" },
-      { ic: "warn", t: "历史比对：10-28 同部位曾因连墙件被下过通知单" },
-      { ic: "pen", t: "你的记忆：隐患描述要带部位和数量" },
+      {
+        ic: "doc", kind: "rec", t: "现场记录 1 条：08:05 发现连墙件缺失 2 处",
+        body: "08:05  语音记录：四号楼东侧外架，连墙件少了两根，让整改。\n转写：四号楼东侧外架，连墙件少了两根，让整改。",
+      },
+      {
+        ic: "cam", kind: "photo", t: "现场照片 1 张：4#楼东侧外架缺失部位",
+        img: "/assets/covers/doc-review.jpg",
+      },
+      {
+        ic: "search", kind: "rule", t: "规范 JGJ 130-2011 §6.4.3 连墙件设置间距",
+        body:
+          "6.4.3 连墙件的布置应符合下列规定：\n" +
+          "1  宜靠近主节点设置，偏离主节点的距离不应大于 300mm；\n" +
+          "2  应从底层第一步纵向水平杆处开始设置；\n" +
+          "3  宜优先采用菱形布置，也可采用方形、矩形布置；\n" +
+          "4  一字形、开口型脚手架的两端必须设置连墙件。",
+      },
+      {
+        ic: "warn", kind: "rec", t: "历史比对：10-28 同部位曾因连墙件被下过通知单",
+        body: "10-28  监理通知单 NO-014：4#楼东侧外架连墙件缺失 3 处，限期 3 天整改。\n11-01  复查：已补齐。\n11-01  本次再次发现缺失 2 处（同一部位重复发生）。",
+      },
+      {
+        ic: "pen", kind: "memo", t: "你的记忆：隐患描述要带部位和数量", body: "「隐患描述要带部位和数量」——已使用 11 次，来自你的习惯。",
+      },
     ],
     groups: [
       {
@@ -68,10 +104,17 @@ const DOCS = {
   监理日志: {
     sub: "11-03 · 汇总 6 条",
     bases: [
-      { ic: "doc", t: "当天现场记录 6 条（08:05–17:40）" },
-      { ic: "cam", t: "现场照片 4 张" },
-      { ic: "warn", t: "当天开出通知单 1 份（NO-017）" },
-      { ic: "pen", t: "你的记忆：日报先写部位、再写问题" },
+      {
+        ic: "doc", kind: "rec", t: "当天现场记录 6 条（08:05–17:40）",
+        body:
+          "08:05  外架连墙件缺失 2 处\n08:40  3#5F 顶板钢筋验收\n09:12  顶板浇筑旁站开始\n10:24  浇筑完成\n15:20  整改照片回传\n17:40  巡查：无异常",
+      },
+      { ic: "cam", kind: "photo", t: "现场照片 4 张", img: "/assets/covers/concrete-pour.jpg" },
+      {
+        ic: "warn", kind: "rec", t: "当天开出通知单 1 份（NO-017）",
+        body: "NO-017  受检单位：中建八局外架班组\n事由：4#楼东侧外架连墙件缺失 2 处\n状态：未闭环",
+      },
+      { ic: "pen", kind: "memo", t: "你的记忆：日报先写部位、再写问题", body: "「日报先写部位、再写问题」——已使用 8 次，来自你的习惯。" },
     ],
     groups: [
       {
@@ -106,6 +149,9 @@ Page({
     groups: [],
     bases: [],
     basesOpen: false,
+    viewerOpen: false,
+    viewerTitle: "",
+    viewerBody: "",
     missingCount: 0,
     hdrTop: 52,
     bottomPad: 48,
@@ -157,6 +203,34 @@ Page({
   onFillAll() {
     // 原型占位：真实场景会逐个弹输入
     wx.showToast({ title: "逐项补齐：原型占位", icon: "none" });
+  },
+
+  /** 点依据 → 看原文（照片直接看大图） */
+  onBasisTap(e) {
+    const idx = Number(e.currentTarget.dataset.idx);
+    const b = this.data.bases[idx];
+    if (!b) return;
+    try {
+      wx.vibrateShort({ type: "light" });
+    } catch (err) {}
+
+    if (b.kind === "photo" && b.img) {
+      wx.previewImage({ current: b.img, urls: [b.img] });
+      return;
+    }
+
+    this.setData({
+      viewerOpen: true,
+      viewerTitle: b.kind === "rule" ? "规范原文" : b.kind === "memo" ? "你的记忆" : "原始记录",
+      viewerBody: b.body || b.t,
+    });
+  },
+
+  /** 占位：阻止点击穿透到遮罩 */
+  noop() {},
+
+  onViewerClose() {
+    this.setData({ viewerOpen: false });
   },
 
   onToggleBases() {

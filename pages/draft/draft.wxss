@@ -263,3 +263,98 @@ page {
   border: 1rpx solid rgba(120, 134, 155, 0.16);
   box-shadow: 0 14rpx 30rpx -26rpx rgba(22, 38, 74, 0.5);
 }
+
+/* 依据行：可点，右侧箭头 */
+.basearrow {
+  flex: none;
+  font-size: 26rpx;
+  color: #c3cbd6;
+  margin-left: 8rpx;
+}
+
+.baserow:active {
+  opacity: 0.9;
+}
+
+/* 依据原文查看层 */
+.viewer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 300;
+  background: rgba(12, 16, 24, 0.42);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.viewer-card {
+  max-height: 78%;
+  border-radius: 32rpx 32rpx 0 0;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.viewer-head {
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 26rpx 28rpx 16rpx;
+}
+
+.viewer-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #11131a;
+}
+
+.viewer-x {
+  flex: none;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 28rpx;
+  background: rgba(120, 134, 155, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewer-x-t {
+  font-size: 24rpx;
+  color: #5b6473;
+}
+
+.viewer-body {
+  flex: 1;
+  min-height: 0;
+  padding: 0 28rpx 40rpx;
+}
+
+.viewer-text {
+  display: block;
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: #33405a;
+  white-space: pre-wrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .viewer-card {
+    background: #1c2430;
+  }
+
+  .viewer-title {
+    color: #eaf1fb;
+  }
+
+  .viewer-text {
+    color: #c9d4e3;
+  }
+}

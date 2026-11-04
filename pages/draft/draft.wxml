@@ -35,9 +35,10 @@
         <text class="basehead-more">{{basesOpen ? '收起' : '展开'}}</text>
       </view>
       <view class="baselist" wx:if="{{basesOpen}}">
-        <view class="baserow" wx:for="{{bases}}" wx:key="t">
+        <view class="baserow" wx:for="{{bases}}" wx:key="t" data-idx="{{index}}" bindtap="onBasisTap">
           <image class="basei" src="/assets/icons/{{item.ic}}-gray.png" mode="aspectFit" />
           <text class="baset">{{item.t}}</text>
+          <text class="basearrow">›</text>
         </view>
       </view>
     </view>
@@ -48,5 +49,18 @@
   <view class="dfoot" style="padding-bottom: {{bottomPad}}px;">
     <view class="fbtn ghost" wx:if="{{missingCount}}" bindtap="onFillAll" aria-label="补齐缺项">补齐 {{missingCount}} 项</view>
     <view class="fbtn" bindtap="onGenerate" aria-label="生成文书">生成文书</view>
+  </view>
+</view>
+
+<!-- 依据原文查看层 -->
+<view class="viewer" wx:if="{{viewerOpen}}" catchtap="onViewerClose">
+  <view class="viewer-card" catchtap="noop">
+    <view class="viewer-head">
+      <text class="viewer-title">{{viewerTitle}}</text>
+      <view class="viewer-x" catchtap="onViewerClose"><text class="viewer-x-t">✕</text></view>
+    </view>
+    <scroll-view class="viewer-body" scroll-y>
+      <text class="viewer-text">{{viewerBody}}</text>
+    </scroll-view>
   </view>
 </view>
