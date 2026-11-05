@@ -539,6 +539,15 @@
         <text class="rp-side {{recMode === 'convert' ? 'on' : ''}}">转文字</text>
       </view>
       <!-- 点 / 横拖 / 上拉 -->
+      <!-- 全局状态条：不管消息列表滚到哪，都能看到它在干活 -->
+      <view class="busybar" wx:if="{{busy}}">
+        <view class="bb-spin"></view>
+        <view class="bb-body">
+          <text class="bb-title">{{busy.queueAhead > 0 ? '排队中 · 前面还有 ' + busy.queueAhead + ' 条' : '正在处理'}} · {{busy.elapsed}} 秒</text>
+          <text class="bb-step">{{busy.step}}</text>
+        </view>
+      </view>
+
       <view
         class="dock"
         data-mode="{{dockMode}}"

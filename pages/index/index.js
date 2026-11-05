@@ -41,6 +41,8 @@ Page({
 
     /* default | input | expanded | search */
     dockMode: "default",
+    // 正在处理的任务：全局状态条用它，不依赖消息列表有没有滚到底
+    busy: null,
     fab: "bubble",
     tabSwitch: false,
 
@@ -179,6 +181,8 @@ Page({
 
   onShow() {
     if (this.data.kbHeight !== 0) this.setData({ kbHeight: 0 });
+    // 切走再回来：没跑完的任务继续盯着
+    if (!this.data.busy) this._resumeInflight();
     this._bindKeyboard();
 
     // 现场影像的真实张数
@@ -668,6 +672,8 @@ Page({
         pageTitle: meta.t,
         pageSub: meta.s,
         dockMode: "default",
+    // 正在处理的任务：全局状态条用它，不依赖消息列表有没有滚到底
+    busy: null,
         drawerH: 0,
         drawerOpen: false,
         query: "",
@@ -1716,6 +1722,52 @@ Page({
     this._sendToServer({ text, photos, audios, hhmm });
   },
 
+  /** 状态条上的秒数，每秒跳一次 —— 这是"它还活着"的最强信号 */
+  _startBusyTicker() {
+    clearInterval(this._busyTimer);
+    this._busyTimer = setInterval(() => {
+      const b = this.data.busy;
+      if (!b) {
+        clearInterval(this._busyTimer);
+        return;
+      }
+      this.setData({ busy: Object.assign({}, b, { elapsed: Math.floor((Date.now() - b.startedAt) / 1000) }) });
+    }, 1000);
+  },
+
+  _saveInflight(v) {
+    try {
+      wx.setStorageSync("jl_inflight", v);
+    } catch (e) {}
+  },
+
+  _clearInflight() {
+    clearInterval(this._busyTimer);
+    try {
+      wx.removeStorageSync("jl_inflight");
+    } catch (e) {}
+    this.setData({ busy: null });
+  },
+
+  /** 从后台/别的页面回来：把没跑完的任务接上 */
+  _resumeInflight() {
+    let v = null;
+    try {
+      v = wx.getStorageSync("jl_inflight");
+    } catch (e) {}
+    if (!v || !v.taskId) return false;
+    if (Date.now() - (v.startedAt || 0) > 10 * 60 * 1000) {
+      this._clearInflight();
+      return false;
+    }
+    console.log("[resume] 接上任务", v.taskId);
+    this.setData({
+      busy: { taskId: v.taskId, startedAt: v.startedAt || Date.now(), elapsed: 0, step: "正在接上…" },
+    });
+    this._startBusyTicker();
+    this._pollTask(v.taskId, v.pendingId, 0);
+    return true;
+  },
   /** 项目 id：来自 bootstrap 的 project.id，缺省用默认项目 */
   _projectId() {
     const p = this.data.project || {};
@@ -1734,12 +1786,16 @@ Page({
     const pendingId = "p" + Date.now();
 
     const list = this.data.msgs.concat([
-      { id: pendingId, type: "agent", time: hhmm, pending: true, text: "" },
+      { id: pendingId, type: "agent", time: hhmm, pending: true, text: "", progress: [] },
     ]);
-    this.setData({ msgs: list }, () => {
+    const startedAt = Date.now();
+    this.setData({ msgs: list, busy: { taskId: null, startedAt, elapsed: 0, step: "正在发送…" } }, () => {
       this.refreshViews(this.data.query);
       this.scrollToBottom();
+      this._startBusyTicker();
     });
+    wx.showToast({ title: "已发送，正在处理", icon: "none", duration: 1200 });
+    console.log("[send] 发出", clientId);
 
     api
       .post("/api/v1/chat", {
@@ -1751,6 +1807,9 @@ Page({
       .then((d) => {
         const taskId = d && d.taskId;
         if (!taskId) throw new Error("服务器没有返回任务号");
+        console.log("[send] 任务", taskId, "开始轮询");
+        this.setData({ busy: Object.assign({}, this.data.busy, { taskId }) });
+        this._saveInflight({ taskId, pendingId, startedAt: Date.now() });
         this._pollTask(taskId, pendingId, 0);
       })
       .catch((err) => {
@@ -1793,6 +1852,17 @@ Page({
             });
             return;
           }
+          // 还在跑：状态条跟着动
+          const prog = (d && d.progress) || [];
+          const lastDone = prog.filter((x) => x.state === "done").pop();
+          this.setData({
+            busy: Object.assign({}, this.data.busy, {
+              step: lastDone ? lastDone.label : "正在读项目资料…",
+              queueAhead: (d && d.queueAhead) || 0,
+            }),
+          });
+          console.log("[poll]", taskId, st, prog.length, "步");
+
           // 还在跑：把已经做完的步骤实时显示出来
           this.setData({
             msgs: this.data.msgs.map((m) =>
@@ -1812,7 +1882,14 @@ Page({
 
   /** 把"正在处理"的气泡换成结果 */
   _finishPending(pendingId, patch) {
-    if (!patch.failed) fb.success();
+    if (!patch.failed) {
+      fb.success();
+      wx.showToast({ title: "已完成", icon: "none", duration: 1200 });
+    } else {
+      wx.showToast({ title: "处理失败", icon: "none", duration: 2000 });
+    }
+    this._pendingId = null;
+    this._clearInflight();
     const now = new Date();
     const pad = (n) => (n < 10 ? "0" + n : "" + n);
     const hhmm = pad(now.getHours()) + ":" + pad(now.getMinutes());
