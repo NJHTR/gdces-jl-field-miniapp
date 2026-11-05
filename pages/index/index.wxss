@@ -5585,3 +5585,56 @@ page {
 .plusbars {
   transform: translateY(-1rpx);
 }
+
+/* ============================================================
+   顶部项目胶囊：一个胶囊只说一件事
+   名称最重要 → 建设单位次要 → 地址进详情，不常驻
+   长名字一律单行省略，绝不换行
+   ============================================================ */
+.pinfo {
+  flex: 1;
+  min-width: 0;
+  margin-left: 16rpx;
+  margin-right: 10rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pname {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #11131a;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.psub {
+  font-size: 21rpx;
+  color: #8a94a6;
+  line-height: 1.2;
+  margin-top: 2rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 胶囊宽度跟着内容走，但留出搜索钮的位置，且不换行 */
+.project {
+  flex: none;
+  width: auto;
+  max-width: 72%;
+  height: 84rpx;
+  padding: 0 22rpx 0 10rpx;
+  gap: 14rpx;
+  border-radius: 42rpx;
+  box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pname {
+    color: #eaf1fb;
+  }
+}
