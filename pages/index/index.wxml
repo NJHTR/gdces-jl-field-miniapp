@@ -140,12 +140,16 @@
                 <text class="qblock-who">{{item.quote.who}}</text>
                 <text class="qblock-t">{{item.quote.text}}</text>
               </view>
-              <view class="quote">{{item.text}}</view>
-              <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
+              <view class="thinking" wx:if="{{item.pending}}">
+                <view class="tdot"></view><view class="tdot"></view><view class="tdot"></view>
+                <text class="thinking-t">正在查资料…</text>
+              </view>
+              <view class="quote" wx:else>{{item.text}}</view>
+              <view class="sub" wx:if="{{item.sub && !item.pending}}">{{item.sub}}</view>
             </view>
 
             <!-- AI 操作轨迹：它读了什么、查了什么、花了多久 -->
-            <view class="trace" wx:if="{{item.trace && item.trace.length}}">
+            <view class="trace" wx:if="{{!item.pending && item.trace && item.trace.length}}">
               <view class="trace-head" data-id="{{item.id}}" catchtap="onTraceToggle">
                 <view class="trace-badge">
                   <image class="trace-badge-i" src="/assets/icons/check-gray.png" mode="aspectFit" />

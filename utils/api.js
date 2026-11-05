@@ -15,7 +15,8 @@ function post(path, data) {
       header: { "content-type": "application/json" },
       success(res) {
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve(res.data);
+          const body = res.data || {};
+          resolve(body && typeof body.code === "number" && "data" in body ? body.data : body);
         } else {
           reject(new Error((res.data && res.data.message) || "登录失败"));
         }

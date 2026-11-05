@@ -198,6 +198,13 @@ Page({
       this.setData({ project: { name: p.name, sub: p.builder } });
     }
 
+    // 登录页返回：之前没数据就重新拉一次
+    const app0 = getApp();
+    if (app0 && app0.globalData && app0.globalData.token && !this._loadedOnce) {
+      this.loadAll();
+      return;
+    }
+
     // 每次回到页面都同步登录态（登录页返回后要立刻变）
     const app = getApp();
     const user = (app.globalData && app.globalData.user) || null;
@@ -292,11 +299,13 @@ Page({
     api
       .get("/api/v1/bootstrap")
       .then((d) => {
+        this._loadedOnce = true;
         this._baseDocs = (d && d.docs) || [];
         this._maybeCoach();
         this.setData(
           {
             msgs: (d && d.msgs) || [],
+            project: (d && d.project) || this.data.project,
             records: (d && d.records) || [],
             docs: this._baseDocs.slice(),
             memos: (d && d.memos) || [],
@@ -343,11 +352,13 @@ Page({
     api
       .get("/api/v1/bootstrap")
       .then((d) => {
+        this._loadedOnce = true;
         this._baseDocs = (d && d.docs) || [];
         this._maybeCoach();
         this.setData(
           {
             msgs: (d && d.msgs) || [],
+            project: (d && d.project) || this.data.project,
             records: (d && d.records) || [],
             docs: this._baseDocs.slice(),
             memos: (d && d.memos) || [],
@@ -799,7 +810,7 @@ Page({
       const text = (m.text || "") + (m.sub || "") + (m.cap || "");
       return Object.assign({}, m, {
         hidden: !!q && !hit(text),
-        bw: this.bubbleWidth(m, bwMax),
+        bw: m.pending ? Math.min(190, bwMax) : this.bubbleWidth(m, bwMax),
         traceOpen: !!openMap[m.id],
       });
     });
@@ -1699,19 +1710,125 @@ Page({
       }, 900);
     });
 
+    // 真发到服务器，让它去查资料、写文书
+    this._sendToServer({ text, photos, audios, hhmm });
+  },
+
+  /** 项目 id：来自 bootstrap 的 project.id，缺省用默认项目 */
+  _projectId() {
+    const p = this.data.project || {};
+    return p.id || "yun-gu-3qi";
+  },
+
+  _userId() {
+    const app = getApp();
+    const u = (app && app.globalData && app.globalData.user) || {};
+    return u.id || 1;
+  },
+
+  /** 发一条 → 挂一个"正在处理"的气泡 → 轮询任务 → 换成真回复 */
+  _sendToServer({ text, photos, audios, hhmm }) {
+    const clientId = "c" + Date.now() + Math.random().toString(36).slice(2, 8);
+    const pendingId = "p" + Date.now();
+
+    const list = this.data.msgs.concat([
+      { id: pendingId, type: "agent", time: hhmm, pending: true, text: "" },
+    ]);
+    this.setData({ msgs: list }, () => {
+      this.refreshViews(this.data.query);
+      this.scrollToBottom();
+    });
+
+    api
+      .post("/api/v1/chat", {
+        projectId: this._projectId(),
+        userId: this._userId(),
+        clientId,
+        text,
+      })
+      .then((d) => {
+        const taskId = d && d.taskId;
+        if (!taskId) throw new Error("服务器没有返回任务号");
+        this._pollTask(taskId, pendingId, 0);
+      })
+      .catch((err) => {
+        this._finishPending(pendingId, {
+          text: "没发出去：" + ((err && err.message) || "网络异常"),
+        });
+      });
+  },
+
+  /** 轮询任务：2 秒一次，最多 5 分钟 */
+  _pollTask(taskId, pendingId, tries) {
+    const MAX = 150;
+    if (tries >= MAX) {
+      this._finishPending(pendingId, { text: "等太久了，任务还在后台跑，过会儿下拉刷新看看。" });
+      return;
+    }
     setTimeout(() => {
-      const list = this.data.msgs.concat([
-        {
-          id: "r" + Date.now(),
-          type: "agent",
-          time: hhmm,
-          src: "引用你刚发的那条",
-          text: "记下了。",
-          sub: "需要我整理成文书时，去「记录」里就能看到。",
-        },
-      ]);
-      this.setData({ msgs: list }, () => this.refreshViews(this.data.query));
-    }, 900);
+      api
+        .get("/api/v1/tasks/" + taskId)
+        .then((d) => {
+          const st = (d && d.status) || "";
+          if (st === "done") {
+            const msgs = (d && d.messages) || [];
+            const asst = msgs.filter((m) => m.role === "assistant").pop();
+            this._finishPending(pendingId, {
+              text: (asst && asst.text) || "这轮没有产出内容。",
+              trace: (asst && asst.trace) || null,
+              traceSum: asst && asst.traceSum,
+              msLabel: asst && asst.msLabel,
+            });
+            this._maybeReloadDocs();
+            return;
+          }
+          if (st === "failed" || st === "cancelled") {
+            this._finishPending(pendingId, {
+              text: "处理失败：" + ((d && d.error) || st),
+            });
+            return;
+          }
+          this._pollTask(taskId, pendingId, tries + 1);
+        })
+        .catch(() => this._pollTask(taskId, pendingId, tries + 1));
+    }, 2000);
+  },
+
+  /** 把"正在处理"的气泡换成结果 */
+  _finishPending(pendingId, patch) {
+    const now = new Date();
+    const pad = (n) => (n < 10 ? "0" + n : "" + n);
+    const hhmm = pad(now.getHours()) + ":" + pad(now.getMinutes());
+    const msgs = this.data.msgs.map((m) => {
+      if (m.id !== pendingId) return m;
+      return Object.assign({}, m, { pending: false, time: hhmm }, patch);
+    });
+    this.setData({ msgs }, () => {
+      this.refreshViews(this.data.query);
+      this.scrollToBottom();
+    });
+  },
+
+  /** 生成文书后，资料页要跟着变 */
+  _maybeReloadDocs() {
+    api
+      .get("/api/v1/docs?projectId=" + this._projectId())
+      .then((d) => {
+        const list = (d && d.list) || [];
+        if (!list.length) return;
+        this._baseDocs = list.map((x) => ({
+          id: "f" + x.id,
+          kind: (x.kind || "文书").slice(0, 3),
+          name: x.kind + (x.obj ? " · " + x.obj : ""),
+          meta: (x.createdAt || "").slice(5, 16),
+          state: x.state,
+          tone: x.state === "已签" ? "ok" : "wait",
+          icon: "doc",
+          visual: false,
+        }));
+        this.setData({ docs: this._baseDocs.slice() }, () => this.refreshViews(this.data.query));
+      })
+      .catch(() => {});
   },
 
   onMicStart(e) {    const app = getApp();

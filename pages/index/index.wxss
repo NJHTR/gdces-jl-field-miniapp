@@ -4859,3 +4859,47 @@ page {
     border-color: rgba(255, 255, 255, 0.1);
   }
 }
+
+/* ============================================================
+   等待回复：三个跳动的点
+   ============================================================ */
+.thinking {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8rpx;
+  padding: 4rpx 0;
+}
+
+.tdot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 5rpx;
+  background: #8a94a6;
+  animation: tdot 1.2s infinite ease-in-out;
+}
+
+.tdot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.tdot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.thinking-t {
+  margin-left: 6rpx;
+  font-size: 24rpx;
+  color: #8a94a6;
+}
+
+@keyframes tdot {
+  0%, 60%, 100% {
+    opacity: 0.28;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-4rpx);
+  }
+}

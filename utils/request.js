@@ -85,7 +85,12 @@ function request(method, path, data) {
           return;
         }
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve(res.data);
+          // 后端统一返回 { code, message, data }，这里剥掉外壳，
+          // 调用方拿到的就是数据本身（和 mock 的形态一致）
+          const body = res.data || {};
+          const unwrapped =
+            body && typeof body.code === "number" && "data" in body ? body.data : body;
+          resolve(unwrapped);
           return;
         }
         reject(Object.assign(new Error((res.data && res.data.message) || "请求失败"), { code: res.statusCode }));
