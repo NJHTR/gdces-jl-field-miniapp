@@ -5495,3 +5495,75 @@ page {
     background: rgba(255, 255, 255, 0.06);
   }
 }
+
+/* ============================================================
+   语音态：只保留一层。胶囊本身就是那层白，
+   里面直接是「图标 + 灰条」，不再套灰轨道和白圆钮
+   ============================================================ */
+.voicerow {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  gap: 10rpx;
+  height: 100%;
+  align-items: center;
+}
+
+/* 键盘：就是一个图标，不要白底、不要投影 */
+.kbswitch {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.kbswitch-img {
+  width: 42rpx;
+  height: 42rpx;
+  opacity: 0.62;
+}
+
+.kbswitch-on {
+  background: transparent;
+}
+
+.kbswitch-on .kbswitch-img {
+  opacity: 1;
+}
+
+/* 说话条：浅灰输入区，和文字态的输入框同一个视觉语言 */
+.holdbar {
+  height: 84rpx;
+  border-radius: 42rpx;
+  background: rgba(120, 134, 155, 0.12);
+  box-shadow: none;
+}
+
+.holdbar-on {
+  background: rgba(120, 134, 155, 0.2);
+  border-radius: 42rpx;
+}
+
+.holdbar-on .holdbar-t {
+  color: #11131a;
+}
+
+.holdbar.isrec {
+  background: #0a6dff;
+  box-shadow: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .holdbar {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .holdbar-on {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .kbswitch-img {
+    opacity: 0.7;
+  }
+}
