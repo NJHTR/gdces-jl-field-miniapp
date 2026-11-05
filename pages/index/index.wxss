@@ -6370,3 +6370,76 @@ page {
     color: #ffcf8a;
   }
 }
+
+/* ============================================================
+   Markdown 渲染（模型会写 **加粗** / - 列表 / ### 标题）
+   ============================================================ */
+.mdbox {
+  display: flex;
+  flex-direction: column;
+}
+
+.md-p {
+  font-size: 30rpx;
+  line-height: 44rpx;
+  color: #1b2028;
+  margin-bottom: 10rpx;
+}
+
+.md-h {
+  font-weight: 700;
+  color: #1b2028;
+  margin: 8rpx 0 8rpx;
+}
+
+.md-h1 { font-size: 34rpx; }
+.md-h2 { font-size: 32rpx; }
+.md-h3 { font-size: 30rpx; }
+
+.md-ul {
+  display: flex;
+  flex-direction: column;
+  margin: 2rpx 0 10rpx;
+}
+
+.md-li {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-bottom: 6rpx;
+}
+
+.md-dot {
+  width: 34rpx;
+  flex: none;
+  font-size: 28rpx;
+  line-height: 44rpx;
+  color: #7d8798;
+  text-align: center;
+}
+
+.md-lit {
+  flex: 1;
+  font-size: 30rpx;
+  line-height: 44rpx;
+  color: #1b2028;
+}
+
+.md-b {
+  font-weight: 700;
+  color: #10151d;
+}
+
+.md-code {
+  font-family: Menlo, Consolas, monospace;
+  font-size: 26rpx;
+  color: #0a6dff;
+  background: rgba(10, 109, 255, 0.07);
+  border-radius: 6rpx;
+}
+
+.md-hr {
+  height: 1rpx;
+  background: rgba(16, 24, 40, 0.08);
+  margin: 10rpx 0;
+}

@@ -207,7 +207,40 @@
                 </view>
                 <!-- 一段话，重点在句子内部标出来 -->
                 <!-- Skyline 里 text 放在 view 下会变块级，必须都塞进同一个 text 父节点才走行内 -->
-                <text class="quote rich" wx:if="{{item.answer && item.answer.rich && item.answer.rich.length}}"><text
+                <!-- Markdown 块渲染：段落 / 列表 / 小标题 / 分隔线 -->
+      <view class="mdbox" wx:if="{{item.md && item.md.length}}">
+        <block wx:for="{{item.md}}" wx:for-item="b" wx:for-index="bi" wx:key="bi">
+          <view wx:if="{{b.t === 'p'}}" class="md-p">
+            <text><text wx:for="{{b.items[0].segs}}" wx:for-item="sg" wx:key="v"
+              class="{{sg.b ? 'md-b' : (sg.c ? 'md-code' : '')}}">{{sg.v}}</text></text>
+          </view>
+
+          <view wx:elif="{{b.t === 'h'}}" class="md-h md-h{{b.lv}}">
+            <text wx:for="{{b.items[0].segs}}" wx:for-item="sg" wx:key="v"
+              class="{{sg.b ? 'md-b' : ''}}">{{sg.v}}</text>
+          </view>
+
+          <view wx:elif="{{b.t === 'ul'}}" class="md-ul">
+            <view class="md-li" wx:for="{{b.items}}" wx:for-item="it" wx:key="index">
+              <text class="md-dot">·</text>
+              <text class="md-lit"><text wx:for="{{it.segs}}" wx:for-item="sg" wx:key="v"
+                class="{{sg.b ? 'md-b' : (sg.c ? 'md-code' : '')}}">{{sg.v}}</text></text>
+            </view>
+          </view>
+
+          <view wx:elif="{{b.t === 'ol'}}" class="md-ul">
+            <view class="md-li" wx:for="{{b.items}}" wx:for-item="it" wx:key="index">
+              <text class="md-dot">{{index + 1}}.</text>
+              <text class="md-lit"><text wx:for="{{it.segs}}" wx:for-item="sg" wx:key="v"
+                class="{{sg.b ? 'md-b' : (sg.c ? 'md-code' : '')}}">{{sg.v}}</text></text>
+            </view>
+          </view>
+
+          <view wx:elif="{{b.t === 'hr'}}" class="md-hr"></view>
+        </block>
+      </view>
+
+      <text class="quote rich" wx:elif="{{item.answer && item.answer.rich && item.answer.rich.length}}"><text
                     wx:for="{{item.answer.rich}}" wx:for-item="sg" wx:key="v"
                     class="{{sg.s === 'n' ? 'rt-num' : (sg.s === 'b' ? 'rt-bold' : (sg.s === 'r' ? 'rt-ref' : (sg.s === 'g' ? 'rt-gap' : '')))}}">{{sg.v}}</text></text>
 

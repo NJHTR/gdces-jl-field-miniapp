@@ -3,6 +3,7 @@ const store = require("../../utils/store");
 const api = require("../../utils/request");
 const uploader = require("../../utils/upload");
 const seed = require("../../utils/seed");
+const md = require("../../utils/md");
 
 
 const win = (() => {
@@ -841,7 +842,11 @@ Page({
     const msgsView = this.data.msgs.map((m) => {
       if (m.type === "stamp") return Object.assign({}, m, { hidden: !!q });
       const text = (m.text || "") + (m.sub || "") + (m.cap || "");
+      // 模型会用 Markdown（**加粗**、- 列表、### 小标题），按块渲染，
+      // 没有语法就还用原来的纯文本/富文本
+      const mdBlocks = m.type === "agent" && md.hasMarkdown(m.text) ? md.parse(m.text) : null;
       return Object.assign({}, m, {
+        md: mdBlocks,
         hidden: !!q && !hit(text),
         bw: m.pending
           ? Math.min(210, bwMax)
