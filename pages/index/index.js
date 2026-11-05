@@ -2066,19 +2066,6 @@ Page({
     if (this._debug) console.log("[mic] end, recording=", this.data.recording, "mode=", this.data.recMode);
     if (!this.data.recording) return;
 
-    // 轻点一下（没按住、也没拖动）= 他想打字，不是想录音。
-    // 这样即使键盘图标点不到，点一下这条也能切到文字。
-    const held = this._downAt ? Date.now() - this._downAt : 9999;
-    if (held < 280 && !this._moved) {
-      clearInterval(this._recTimer);
-      clearTimeout(this._recWatch);
-      try {
-        if (this._rec) this._rec.stop();
-      } catch (e) {}
-      this.setData({ recording: false, cancel: false, recMode: "send", recTime: "0:00" });
-      this.toggleImMode();
-      return;
-    }
 
     clearInterval(this._recTimer);
     clearTimeout(this._recWatch);
