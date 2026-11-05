@@ -65,7 +65,10 @@ Page({
 
     /* 录音 */
     recording: false,
-    draft: "",
+    draft: "",          // 兼容旧逻辑，真正的打字内容在 this._draft
+    draftSeed: "",      // 只由程序设置：恢复草稿 / 粘贴 / 发送后清空
+    hasDraft: false,    // 界面"有没有字"，用它决定发送键
+    querySeed: "",      // 搜索框同理
     cancel: false,
     recTime: "0:00",
     recMode: "send",
@@ -145,7 +148,10 @@ Page({
     // 恢复上次没发出去的草稿
     try {
       const saved = wx.getStorageSync("jl_draft");
-      if (saved) this.setData({ draft: saved });
+      if (saved) {
+        this._draft = saved;
+        this.setData({ draft: saved, draftSeed: saved, hasDraft: true });
+      }
     } catch (e) {}
     this.setData({ hapticOn: fbState.haptic, soundOn: fbState.sound });
     this.refreshViews("");
@@ -355,7 +361,8 @@ Page({
     fb.tap();
 
     api
-      .get("/api/v1/bootstrap")
+      // 必须带 projectId：不带的话后端用默认项目，刷新完就串成别的项目了
+      .get("/api/v1/bootstrap?projectId=" + encodeURIComponent(this._projectId()))
       .then((d) => {
         this._loadedOnce = true;
         this._baseDocs = (d && d.docs) || [];
@@ -730,7 +737,7 @@ Page({
 
     if (this.data.tab === "field") {
       // 有草稿就直接进文字态，让人看到自己没发出去的东西
-      this.setData({ imMode: this.data.draft ? "text" : "voice" });
+      this.setData({ imMode: (this._draft || this.data.draftSeed) ? "text" : "voice" });
       this.setMode("input");
     } else {
       this.setData({ drawerH: DRAWER_MAX, drawerOpen: true });
@@ -771,12 +778,14 @@ Page({
 
   onQuery(e) {
     const q = e.detail.value;
+    this._query = q;
     this.setData({ query: q });
     this.refreshViews(q);
   },
 
   clearQuery() {
-    this.setData({ query: "", searchFocus: true });
+    this._query = "";
+    this.setData({ query: "", querySeed: "", searchFocus: true });
     this.refreshViews("");
   },
 
@@ -1465,7 +1474,9 @@ Page({
           wx.showToast({ title: "剪贴板是空的", icon: "none" });
           return;
         }
-        this.setData({ draft: text, imMode: "text", kbHeight: 0 });
+        this._draft = text;
+        this.setData({ draft: text, draftSeed: text, hasDraft: true,
+                       imMode: "text", kbHeight: 0 });
         this.setMode("input");
         wx.showToast({ title: "已粘贴到输入框", icon: "none" });
       },
@@ -1480,7 +1491,7 @@ Page({
     wx.getClipboardData({
       success: (res) => {
         const text = (res.data || "").trim();
-        if (text && text !== this.data.draft) {
+        if (text && text !== (this._draft || "")) {
           this._clipFull = text;
           this.setData({ clipText: text.length > 12 ? text.slice(0, 12) + "…" : text });
         }
@@ -1494,7 +1505,8 @@ Page({
     const text = this._clipFull || "";
     if (!text) return;
     fb.tap();
-    this.setData({ draft: text, clipText: "", imFocus: true });
+    this._draft = text;
+    this.setData({ draft: text, draftSeed: text, hasDraft: true, clipText: "", imFocus: true });
   },
   /** 项目信息编辑 */
   onProjectEdit() {
@@ -1705,19 +1717,32 @@ Page({
     if (h > 0) this.scrollToBottom();
   },
 
-  /** 打字中：有字时出现发送键 */
+  /**
+   * 打字中。
+   *
+   * 这里**不能**把内容回写到绑定的 value：电脑端输入法合成、回车、粘贴时，
+   * 异步回写会冲掉光标位置，表现就是字符重复/错位，看着像乱码。
+   * 正文只放 this._draft，界面只更新"有没有字"。
+   */
   onType(e) {
     const v = e.detail.value || "";
-    this.setData({ draft: v });
-    try {
-      if (v) wx.setStorageSync("jl_draft", v);
-      else wx.removeStorageSync("jl_draft");
-    } catch (err) {}
+    this._draft = v;
+    const has = !!(v && v.trim());
+    if (has !== this.data.hasDraft) this.setData({ hasDraft: has });
+
+    // 存草稿防抖：每敲一下都写 storage 会卡输入
+    clearTimeout(this._draftTimer);
+    this._draftTimer = setTimeout(() => {
+      try {
+        if (v) wx.setStorageSync("jl_draft", v);
+        else wx.removeStorageSync("jl_draft");
+      } catch (err) {}
+    }, 400);
   },
 
   /** 发送文字：插一条自己的气泡 */
   onSend() {
-    const text = (this.data.draft || "").trim();
+    const text = (this._draft || this.data.draftSeed || "").trim();
     const attach = this.data.attach || [];
     if (!text && !attach.length) return;
 
@@ -1732,7 +1757,8 @@ Page({
     const photos = attach.filter((a) => a.kind === "photo").map((a) => a.src);
     const audios = attach.filter((a) => a.kind === "audio");
 
-    this.setData({ draft: "", attach: [] });
+    this._draft = "";
+    this.setData({ draft: "", draftSeed: "", hasDraft: false, attach: [] });
     try {
       wx.removeStorageSync("jl_draft");
     } catch (err) {}

@@ -608,7 +608,7 @@
             <image class="hicon" src="/assets/icons/search-dark.png" mode="aspectFit" style="width:42rpx;height:42rpx;" />
             <input
               class="findinput"
-              value="{{query}}"
+              value="{{querySeed}}"
               focus="{{searchFocus}}"
               adjust-position="{{false}}"
               cursor-spacing="20"
@@ -696,7 +696,7 @@
 
                 <view class="fieldwrap">                  <textarea
                     class="ctext"
-                    value="{{draft}}"
+                    value="{{draftSeed}}"
                     focus="{{imFocus}}"
                     auto-height
                     maxlength="500"
@@ -711,7 +711,7 @@
                 </view>
 
                 <!-- 右边一个位置，两种功能：有内容=发送，空=切语音 -->
-                <view class="send" wx:if="{{draft || attach.length}}" bindtap="onSend" aria-label="发送">
+                <view class="send" wx:if="{{hasDraft || attach.length}}" bindtap="onSend" aria-label="发送">
                   <image class="send-img" src="/assets/icons/arrowup-white.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
                 </view>
                 <view class="micmode" wx:else catchtap="toggleImMode" aria-label="切到语音">
@@ -727,7 +727,7 @@
             <view class="tab {{tab === 'field' ? 'on' : ''}}" data-tab="field" bindtap="switchTab" aria-label="现场">
               <image class="tic-img" src="{{tab === 'field' ? '/assets/icons/bubble-blue.png' : '/assets/icons/bubble-gray.png'}}" mode="aspectFit" style="width:42rpx;height:42rpx;" />
               <text>现场</text>
-              <view class="draftdot" wx:if="{{draft && tab !== 'field'}}"></view>
+              <view class="draftdot" wx:if="{{hasDraft && tab !== 'field'}}"></view>
             </view>
             <view class="tab {{tab === 'inbox' ? 'on' : ''}}" data-tab="inbox" bindtap="switchTab" aria-label="记录">
               <image class="tic-img" src="{{tab === 'inbox' ? '/assets/icons/doc-blue.png' : '/assets/icons/doc-gray.png'}}" mode="aspectFit" style="width:42rpx;height:42rpx;" />
