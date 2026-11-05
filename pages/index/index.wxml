@@ -597,7 +597,7 @@
               bindtouchcancel="onMicEnd"
             >
               <!-- 结构固定：录音时只改文字和类名，绝不增删节点 -->
-              <view class="imtoggle {{recording ? 'gone' : ''}}" catchtouchstart="noop" catchtap="toggleImMode" aria-label="切换语音或键盘">
+              <view class="imtoggle {{recording ? 'gone' : ''}}" catchtap="toggleImMode" aria-label="切换语音或键盘">
                 <image class="imtoggle-img" src="/assets/icons/kbd-dark.png" mode="aspectFit" style="width:38rpx;height:38rpx;" />
               </view>
               <text class="holdbar-t">{{recording ? (recMode === 'cancel' ? '松开取消' : (recMode === 'convert' ? '松开转文字' : '松开结束')) : '按住 说话'}}</text>

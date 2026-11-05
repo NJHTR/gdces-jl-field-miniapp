@@ -1945,6 +1945,8 @@ Page({
       return;
     }
     if (this._debug) console.log("[mic] start");
+    this._downAt = Date.now();
+    this._moved = false;
     this._recY0 = e.touches[0].clientY;
     this._recSec = 0;
     fb.bump();
@@ -2005,6 +2007,7 @@ Page({
     const t = e.touches[0];
     const x = t.clientX;
     const w = win.windowWidth;
+    this._moved = true;
 
     // 和微信一样：滑到左边=取消，滑到右边=转文字，中间=发送
     let mode = "send";
@@ -2019,6 +2022,21 @@ Page({
   onMicEnd() {
     if (this._debug) console.log("[mic] end, recording=", this.data.recording, "mode=", this.data.recMode);
     if (!this.data.recording) return;
+
+    // 轻点一下（没按住、也没拖动）= 他想打字，不是想录音。
+    // 这样即使键盘图标点不到，点一下这条也能切到文字。
+    const held = this._downAt ? Date.now() - this._downAt : 9999;
+    if (held < 280 && !this._moved) {
+      clearInterval(this._recTimer);
+      clearTimeout(this._recWatch);
+      try {
+        if (this._rec) this._rec.stop();
+      } catch (e) {}
+      this.setData({ recording: false, cancel: false, recMode: "send", recTime: "0:00" });
+      this.toggleImMode();
+      return;
+    }
+
     clearInterval(this._recTimer);
     clearTimeout(this._recWatch);
     const mode = this.data.recMode;
@@ -2031,17 +2049,11 @@ Page({
       return;
     }
 
-    const samples = [
-      "四号楼东侧外架，连墙件还差两根，让班组补。",
-      "三号楼五层顶板，钢筋间距目测合格。",
-      "甲方下午三点到现场，验收资料准备好。",
-    ];
-    const text = samples[Math.floor(Math.random() * samples.length)];
-    // 转文字：出一段纯文字（不带走音波），发送：带语音条
-    const msg =
-      mode === "convert"
-        ? { id: "n" + Date.now(), type: "me", text }
-        : { id: "n" + Date.now(), type: "me", voice: true, dur, text };
+    // 转写还没接（ASR 在后端做）。**绝不编内容**：
+    // 没转写就明说"转写待接入"，让人知道自己说了什么、系统还没识别。
+    const text = "（语音 " + dur + "，转写待接入）";
+    const msg = { id: "n" + Date.now(), type: "me", voice: true, dur, text, pendingAsr: true };
+    wx.showToast({ title: "语音已保存，转写待接入", icon: "none" });
     fb.tick();
     this._audioForId = msg.id;
     try {
