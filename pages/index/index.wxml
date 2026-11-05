@@ -186,22 +186,30 @@
                 </view>
               </view>
 
-              <!-- 过程：折叠成一行，和正文明显不是一个层级 -->
+              <!-- 过程：两层折叠。外层是整轮，内层每条都能单独开 -->
               <view class="trace" wx:if="{{item.trace && item.trace.length}}">
                 <view class="trace-head" data-id="{{item.id}}" catchtap="onTraceToggle">
                   <view class="trace-badge">
                     <image class="trace-badge-i" src="/assets/icons/check-gray.png" mode="aspectFit" />
                   </view>
-                  <text class="trace-sum">{{item.traceSum}}</text>
+                  <text class="trace-sum">已完成 · 用时 {{item.msLabel || item.ms}}</text>
                   <text class="trace-more">{{item.traceOpen ? '收起' : '展开'}}</text>
                 </view>
 
                 <view class="trace-list" wx:if="{{item.traceOpen}}">
-                  <view class="trace-row" wx:for="{{item.trace}}" wx:for-item="t" wx:key="text">
-                    <image class="trace-i" src="/assets/icons/{{t.icon}}-gray.png" mode="aspectFit" />
-                    <text class="trace-t">{{t.text}}</text>
+                  <view class="tl-item" wx:for="{{item.traceView}}" wx:for-item="t" wx:key="text"
+                        data-id="{{item.id}}" data-idx="{{index}}" catchtap="onTraceItem">
+                    <view class="tl-line">
+                      <text class="tl-caret">{{t.open ? '⌄' : '›'}}</text>
+                      <text class="tl-t {{t.kind === 'note' ? 'note' : ''}}">{{t.text}}</text>
+                      <text class="tl-secs" wx:if="{{t.secs}}">{{t.secs}}s</text>
+                    </view>
+
+                    <view class="tl-body" wx:if="{{t.open}}">
+                      <text class="tl-cmd" wx:if="{{t.cmd}}" selectable>{{t.cmd}}</text>
+                      <text class="tl-out" wx:if="{{t.output}}" selectable>{{t.output}}</text>
+                    </view>
                   </view>
-                  <view class="trace-foot">用时 {{item.msLabel || item.ms}}</view>
                 </view>
               </view>
 

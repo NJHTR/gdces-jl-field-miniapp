@@ -812,6 +812,7 @@ Page({
     const bwMax = this.data.bubbleMax || 275;
 
     const openMap = this._traceOpen || {};
+    const itemMap = this._traceItemOpen || {};
     const msgsView = this.data.msgs.map((m) => {
       if (m.type === "stamp") return Object.assign({}, m, { hidden: !!q });
       const text = (m.text || "") + (m.sub || "") + (m.cap || "");
@@ -821,6 +822,10 @@ Page({
           ? Math.min(210, bwMax)
           : Math.max(m.artifact ? 282 : 0, this.bubbleWidth(m, bwMax)),
         traceOpen: !!openMap[m.id],
+        traceView: (m.trace || []).map(function (t, i) {
+          const k = m.id + ":" + i;
+          return Object.assign({}, t, { open: !!(itemMap[k]) });
+        }),
       });
     });
 
@@ -2002,6 +2007,18 @@ Page({
   },
 
   /** 生成文书后，资料页要跟着变 */
+  /** 点时间线里的某一条：单独展开/收起它的细节 */
+  onTraceItem(e) {
+    const id = e.currentTarget.dataset.id;
+    const idx = Number(e.currentTarget.dataset.idx);
+    const key = id + ":" + idx;
+    const open = this._traceItemOpen || {};
+    open[key] = !open[key];
+    this._traceItemOpen = open;
+    fb.tap();
+    this.refreshViews(this.data.query);
+  },
+
   /** 点引用脚注 → 看条文原文 */
   onOpenCite(e) {
     const id = e.currentTarget.dataset.id;

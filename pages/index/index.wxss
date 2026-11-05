@@ -5652,3 +5652,103 @@ page {
   align-self: flex-start;
   max-width: 86%;
 }
+
+/* ============================================================
+   执行过程：两层折叠
+   外层「已完成 · 用时 56 秒」→ 内层每条 → 点开看命令和输出
+   ============================================================ */
+.tl-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding: 8rpx 0;
+}
+
+.tl-line {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10rpx;
+}
+
+.tl-caret {
+  flex: none;
+  width: 20rpx;
+  font-size: 22rpx;
+  line-height: 34rpx;
+  color: #9aa4b4;
+}
+
+.tl-t {
+  flex: 1;
+  min-width: 0;
+  font-size: 23rpx;
+  line-height: 34rpx;
+  color: #33405a;
+}
+
+/* 模型的插话：比命令轻一档，斜体区分"它在想"和"它做了" */
+.tl-t.note {
+  color: #6b7789;
+}
+
+.tl-secs {
+  flex: none;
+  font-size: 20rpx;
+  line-height: 34rpx;
+  color: #a3adbd;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 展开后的细节：命令 + 输出 */
+.tl-body {
+  margin-left: 30rpx;
+  padding: 12rpx 14rpx;
+  border-radius: 12rpx;
+  background: rgba(120, 134, 155, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.tl-cmd {
+  font-size: 20rpx;
+  line-height: 30rpx;
+  color: #5b6473;
+  word-break: break-all;
+}
+
+.tl-out {
+  font-size: 20rpx;
+  line-height: 30rpx;
+  color: #8a94a6;
+  word-break: break-all;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tl-t {
+    color: #c9d4e3;
+  }
+
+  .tl-t.note {
+    color: #9aa4b4;
+  }
+
+  .tl-body {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+/* 时间线文字必须能换行，不能顶出气泡 */
+.tl-t,
+.tl-cmd,
+.tl-out {
+  white-space: normal;
+  word-break: break-word;
+  overflow: hidden;
+}
+
+.trace-list {
+  width: 100%;
+  box-sizing: border-box;
+}
