@@ -5926,3 +5926,100 @@ page {
   font-weight: 600;
   color: #0a6dff;
 }
+
+/* ============================================================
+   气泡：重做一版规格
+   ------------------------------------------------------------
+   1. 用户气泡去渐变、去彩色投影 —— 渐变会让白字对比度不稳定，
+      蓝色阴影落在浅灰底上会显脏。纯色 + 无阴影更干净。
+   2. AI 气泡从"半透明白 + 白边"改成"纯白 + 极淡描边"：
+      长段落压在 78% 白上，边界会糊，宁可要一条 1rpx 的线。
+   3. 内边距 10/13 → 14/16：长段落需要呼吸，短句也不会显胖。
+   4. 中文长段落行高 1.45 → 1.58，字号 14 → 15px。
+   5. 去掉"尖角尾巴"，统一 22px 全圆角 —— 尾巴在小屏长文里
+      只会让第一行显得缩进错位。
+   ============================================================ */
+
+.bubble {
+  padding: 26rpx 32rpx;
+  border-radius: 44rpx;
+  max-width: 560rpx;
+}
+
+/* 用户：纯色，无渐变，无投影 */
+.bubble.me {
+  background: #0a6dff;
+  border-radius: 44rpx;
+  box-shadow: none;
+}
+
+.bubble.me .quote {
+  color: #ffffff;
+  font-size: 29rpx;
+  line-height: 1.5;
+  letter-spacing: 0.2rpx;
+}
+
+/* AI：纯白 + 一条极淡的线，靠对比而不是靠阴影 */
+.bubble.agent {
+  background: #ffffff;
+  border: 1rpx solid rgba(17, 19, 26, 0.06);
+  border-radius: 44rpx;
+  box-shadow: none;
+}
+
+.bubble.agent .quote {
+  font-size: 30rpx;
+  line-height: 1.58;
+  letter-spacing: 0.2rpx;
+  color: #11131a;
+}
+
+/* 引用块：跟着新的内边距重排 */
+.bubble .qblock {
+  margin-bottom: 12rpx;
+}
+
+.bubble .sub {
+  margin-top: 10rpx;
+  font-size: 25rpx;
+  line-height: 1.5;
+}
+
+/* 时间戳：从 9.5px 提到 11px，淡而不糊 */
+.meta-t,
+.meta-s {
+  font-size: 22rpx;
+  letter-spacing: 0.2rpx;
+  color: rgba(17, 19, 26, 0.34);
+}
+
+.meta-s.wait {
+  color: rgba(200, 120, 0, 0.85);
+}
+
+/* 消息之间：24 → 28rpx，长段落之间需要更清楚的停顿 */
+.row {
+  margin-bottom: 28rpx;
+}
+
+/* 深色模式：AI 气泡用近黑，别用 96% 那种发灰的黑 */
+@media (prefers-color-scheme: dark) {
+  .bubble.me {
+    background: #0a6dff;
+  }
+
+  .bubble.agent {
+    background: #1b2230;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .bubble.agent .quote {
+    color: #eef3fa;
+  }
+
+  .meta-t,
+  .meta-s {
+    color: rgba(255, 255, 255, 0.4);
+  }
+}

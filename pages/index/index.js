@@ -803,7 +803,7 @@ Page({
     const textW = Math.max(this.textWidth(m.text), this.textWidth(m.sub));
     // 语音条（波形 + 时长）至少占 110
     const voiceW = m.voice ? 118 : 0;
-    return Math.min(max, Math.ceil(Math.max(textW, voiceW)) + 30);
+    return Math.min(max, Math.ceil(Math.max(textW, voiceW)) + 34);
   },
 
   refreshViews(raw) {
