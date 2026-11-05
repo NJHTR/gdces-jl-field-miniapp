@@ -3809,97 +3809,101 @@ page {
   gap: 12rpx;
 }
 
-.attachrow {
+.attachgrid {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  white-space: nowrap;
-  padding: 4rpx 8rpx;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12rpx;
+  padding: 10rpx 12rpx 14rpx;
+  /* 最多 9 张 + 1 个添加位，两行足够；多出来裁掉，绝不顶出输入框 */
+  max-height: 264rpx;
+  overflow: hidden;
 }
 
-.achip {
+.atile {
   position: relative;
   flex: none;
-  width: 120rpx;
-  height: 120rpx;
-  margin-right: 14rpx;
-  border-radius: 22rpx;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 20rpx;
   overflow: hidden;
-  background: #eef4fb;
-  border: 1rpx solid rgba(255, 255, 255, 0.9);
+  background: #eef3f9;
+  border: 1rpx solid rgba(16, 24, 40, 0.06);
 }
 
-.achip-img {
-  width: 120rpx;
-  height: 120rpx;
+.atile-img {
+  /* image 默认 inline，底部会多几像素基线空隙，缩略图就不齐了 */
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
-.achip-audio {
-  width: 120rpx;
-  height: 120rpx;
+.atile-audio {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
-  background: #e8f0ff;
+  gap: 10rpx;
+  background: linear-gradient(160deg, #e9f1ff 0%, #dbe8ff 100%);
 }
 
-.achip-wave {
+.atile-wave {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 4rpx;
+  gap: 5rpx;
   height: 30rpx;
 }
 
-.aw-bar {
+.atile-bar {
   width: 4rpx;
   border-radius: 2rpx;
   background: #0a6dff;
 }
 
-.achip-dur {
+.atile-dur {
   font-size: 20rpx;
-  font-weight: 700;
+  font-weight: 600;
   color: #0a6dff;
+  letter-spacing: 0.2rpx;
 }
 
-.achip-x {
+.atile-x {
   position: absolute;
-  right: 4rpx;
-  top: 4rpx;
+  top: 6rpx;
+  right: 6rpx;
   width: 34rpx;
   height: 34rpx;
   border-radius: 17rpx;
-  background: rgba(12, 16, 24, 0.6);
+  background: rgba(12, 16, 24, 0.62);
+  border: 2rpx solid rgba(255, 255, 255, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.achip-x-t {
-  font-size: 20rpx;
+.atile-x-t {
+  font-size: 18rpx;
   color: #ffffff;
   line-height: 1;
 }
 
-.achip-add {
-  flex: none;
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 22rpx;
+.atile-add {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(120, 134, 155, 0.1);
-  border: 1rpx dashed rgba(120, 134, 155, 0.4);
+  background: rgba(10, 109, 255, 0.05);
+  border: 2rpx dashed rgba(10, 109, 255, 0.35);
 }
 
-.achip-add-t {
-  font-size: 40rpx;
-  color: #8a94a6;
+.atile-add-t {
+  font-size: 44rpx;
   line-height: 1;
+  color: #0a6dff;
+  opacity: 0.75;
 }
 
 /* 文字框：自动增高，最多 5 行后内部滚动 */

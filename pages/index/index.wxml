@@ -660,24 +660,24 @@
               </view>
 
               <!-- 附件条：拍了几张、录了几段，都在这儿 -->
-              <scroll-view class="attachrow" wx:if="{{attach.length}}" scroll-x show-scrollbar="{{false}}" enable-flex>
-                <view class="achip" wx:for="{{attach}}" wx:key="id" data-id="{{item.id}}">
-                  <image wx:if="{{item.kind === 'photo'}}" class="achip-img" src="{{item.src}}" mode="aspectFill" />
-                  <view wx:else class="achip-audio">
-                    <view class="achip-wave">
-                      <view class="aw-bar" wx:for="{{[10,16,22,14,18,12,20]}}" wx:key="*this" style="height:{{item}}rpx"></view>
+              <view class="attachgrid" wx:if="{{attach.length}}">
+                <view class="atile" wx:for="{{attach}}" wx:key="id" data-id="{{item.id}}">
+                  <image wx:if="{{item.kind === 'photo'}}" class="atile-img" src="{{item.src}}" mode="aspectFill" />
+                  <view wx:else class="atile-audio">
+                    <view class="atile-wave">
+                      <view class="atile-bar" wx:for="{{[12,20,28,18,24,14,22]}}" wx:key="*this" style="height:{{item}}rpx"></view>
                     </view>
-                    <text class="achip-dur">{{item.dur}}</text>
+                    <text class="atile-dur">{{item.dur}}</text>
                   </view>
-                  <view class="achip-x" data-id="{{item.id}}" catchtap="onRemoveAttach">
-                    <text class="achip-x-t">✕</text>
+                  <view class="atile-x" data-id="{{item.id}}" catchtap="onRemoveAttach">
+                    <text class="atile-x-t">✕</text>
                   </view>
                 </view>
 
-                <view class="achip-add" bindtap="onAddPhoto">
-                  <text class="achip-add-t">＋</text>
+                <view class="atile atile-add" wx:if="{{attach.length < 9}}" bindtap="onAddPhoto">
+                  <text class="atile-add-t">＋</text>
                 </view>
-              </scroll-view>
+              </view>
 
               <!-- 一行只有三个东西：＋ / 输入 / 麦克风或发送 -->
               <view class="holdbar textrow">
