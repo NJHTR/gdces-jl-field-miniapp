@@ -1892,12 +1892,17 @@ Page({
     wx.showToast({ title: "已发送，正在处理", icon: "none", duration: 1200 });
     console.log("[send] 发出", clientId);
 
-    api
-      .post("/api/v1/chat", {
-        projectId: this._projectId(),
-        userId: this._userId(),
-        clientId,
-        text,
+    // 先把图片和语音传上去换 sha，再发 parts —— 后端认 sha，不认本地路径。
+    this._uploadParts(text, photos, audios)
+      .then((parts) => {
+        if (!parts.length) throw new Error("没有可发送的内容");
+        return api.post("/api/v1/chat", {
+          projectId: this._projectId(),
+          userId: this._userId(),
+          clientId,
+          text,
+          parts,
+        });
       })
       .then((d) => {
         const taskId = d && d.taskId;
@@ -1912,6 +1917,48 @@ Page({
           text: "没发出去：" + ((err && err.message) || "网络异常"),
         });
       });
+  },
+
+  /**
+   * 把附件换成 parts。
+   *
+   * parts 是后端的内容模型：文字 / 图片 / 语音可以任意组合。
+   * 图片给 sha 就够了；语音还要顺手转写成文字，
+   * 这样模型既能看原文（"用户说了什么"）也能在需要时重新听。
+   */
+  _uploadParts(text, photos, audios) {
+    const imgPaths = photos || [];
+    const audList = audios || [];
+
+    const jobs = [
+      uploader.uploadAll(imgPaths, "photo"),
+      uploader.uploadAll(audList.map((a) => a.src), "audio"),
+    ];
+
+    return Promise.all(jobs).then(([imgRes, audRes]) => {
+      const parts = [];
+      if (text) parts.push({ type: "text", text });
+
+      (imgRes || []).forEach((r) => {
+        if (r && r.sha) parts.push({ type: "image", blob: r.sha });
+      });
+
+      // 逐段转写；转写失败不影响发送，只是少了文字
+      const asrJobs = (audRes || []).map((r) => {
+        if (!r || !r.sha) return Promise.resolve(null);
+        return api
+          .post("/api/v1/asr", { blob: r.sha })
+          .then((d) => ({ blob: r.sha, transcript: (d && d.text) || "" }))
+          .catch(() => ({ blob: r.sha, transcript: "" }));
+      });
+
+      return Promise.all(asrJobs).then((auds) => {
+        (auds || []).forEach((a) => {
+          if (a) parts.push({ type: "audio", blob: a.blob, transcript: a.transcript });
+        });
+        return parts;
+      });
+    });
   },
 
   /** 轮询任务：2 秒一次，最多 5 分钟 */
