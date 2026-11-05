@@ -2011,7 +2011,9 @@ Page({
         });
         // 有附件没传上去时说清楚，别笼统地说"没有可发送的内容"
         if (failed && !parts.some((x) => x.type === "image" || x.type === "audio")) {
-          throw new Error("有 " + failed + " 个附件没传上去，检查网络后再试");
+          // 打日志方便排查：控制台能看到每个附件是"上传失败"还是"服务端没给 sha"
+          console.log("[send] 附件全部上传失败，failed =", failed);
+          throw new Error("附件上传没成功，看一下控制台 [upload] 的日志");
         }
         return parts;
       });
