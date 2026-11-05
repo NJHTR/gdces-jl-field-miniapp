@@ -197,19 +197,32 @@
                 </view>
 
                 <view class="trace-list" wx:if="{{item.traceOpen}}">
-                  <view class="tl-item" wx:for="{{item.traceView}}" wx:for-item="t" wx:key="text"
-                        data-id="{{item.id}}" data-idx="{{index}}" catchtap="onTraceItem">
-                    <view class="tl-line">
-                      <text class="tl-caret">{{t.open ? '⌄' : '›'}}</text>
-                      <text class="tl-t {{t.kind === 'note' ? 'note' : ''}}">{{t.text}}</text>
-                      <text class="tl-secs" wx:if="{{t.secs}}">{{t.secs}}s</text>
-                    </view>
+                  <block wx:for="{{item.traceView}}" wx:for-item="t" wx:key="text">
 
-                    <view class="tl-body" wx:if="{{t.open}}">
-                      <text class="tl-cmd" wx:if="{{t.cmd}}" selectable>{{t.cmd}}</text>
-                      <text class="tl-out" wx:if="{{t.output}}" selectable>{{t.output}}</text>
+                    <!-- 它说的话：正文级字号，是这一段的主线 -->
+                    <text class="tl-note" wx:if="{{t.kind === 'note'}}">{{t.text}}</text>
+
+                    <!-- 它做的事：一行命令，点开看真实命令和输出 -->
+                    <view class="tl-item" wx:else data-id="{{item.id}}" data-idx="{{index}}" catchtap="onTraceItem">
+                      <view class="tl-line">
+                        <view class="tl-badge"><text class="tl-badge-t">›_</text></view>
+                        <text class="tl-cmdlabel">{{t.text}}</text>
+                        <text class="tl-secs" wx:if="{{t.secs}}">{{t.secs}}s</text>
+                        <text class="tl-caret">{{t.open ? '⌄' : '›'}}</text>
+                      </view>
+
+                      <view class="tl-body" wx:if="{{t.open}}">
+                        <view class="tl-body-head">
+                          <text class="tl-body-t">Shell</text>
+                          <text class="tl-body-ok {{t.ok ? 'ok' : 'bad'}}">{{t.ok ? '✓ 成功' : '✗ 失败'}}</text>
+                        </view>
+                        <scroll-view class="tl-scroll" scroll-y>
+                          <text class="tl-cmd" wx:if="{{t.cmd}}" selectable>$ {{t.cmd}}</text>
+                          <text class="tl-out" wx:if="{{t.output}}" selectable>{{t.output}}</text>
+                        </scroll-view>
+                      </view>
                     </view>
-                  </view>
+                  </block>
                 </view>
               </view>
 
