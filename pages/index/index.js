@@ -1731,7 +1731,14 @@ Page({
         clearInterval(this._busyTimer);
         return;
       }
-      this.setData({ busy: Object.assign({}, b, { elapsed: Math.floor((Date.now() - b.startedAt) / 1000) }) });
+      const sec = Math.floor((Date.now() - b.startedAt) / 1000);
+      const patch = { busy: Object.assign({}, b, { elapsed: sec }) };
+      if (this._pendingId) {
+        patch.msgs = this.data.msgs.map((m) =>
+          m.id === this._pendingId ? Object.assign({}, m, { elapsed: sec }) : m
+        );
+      }
+      this.setData(patch);
     }, 1000);
   },
 
@@ -1789,6 +1796,7 @@ Page({
       { id: pendingId, type: "agent", time: hhmm, pending: true, text: "", progress: [] },
     ]);
     const startedAt = Date.now();
+    this._pendingId = pendingId;
     this.setData({ msgs: list, busy: { taskId: null, startedAt, elapsed: 0, step: "正在发送…" } }, () => {
       this.refreshViews(this.data.query);
       this.scrollToBottom();
@@ -1904,10 +1912,35 @@ Page({
   },
 
   /** 生成文书后，资料页要跟着变 */
+  /** 点引用脚注 → 看条文原文 */
+  onOpenCite(e) {
+    const id = e.currentTarget.dataset.id;
+    const ci = Number(e.currentTarget.dataset.ci);
+    const m = this.data.msgs.filter((x) => x.id === id)[0];
+    const c = m && m.cites && m.cites[ci];
+    if (!c) return;
+    fb.tap();
+    if (c.kind !== "rule") {
+      wx.showToast({ title: "这条依据的原文暂未接入", icon: "none" });
+      return;
+    }
+    api
+      .get("/api/v1/standard?code=" + encodeURIComponent(c.code) + "&clause=" + encodeURIComponent(c.clause))
+      .then((d) => {
+        wx.showModal({
+          title: c.code + " §" + c.clause + (d && d.title ? " " + d.title : ""),
+          content: (d && d.body) || "没有取到条文",
+          showCancel: false,
+          confirmText: "知道了",
+        });
+      })
+      .catch(() => wx.showToast({ title: "条文取不到", icon: "none" }));
+  },
+
   /** 点回复里的文书卡片 → 打开详情 */
   onOpenArtifact(e) {
-    const idx = e.currentTarget.dataset.idx;
-    const m = this.data.msgs[idx];
+    const id = e.currentTarget.dataset.id;
+    const m = this.data.msgs.filter((x) => x.id === id)[0];
     const a = m && m.artifact;
     if (!a) return;
     fb.tap();

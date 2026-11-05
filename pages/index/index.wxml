@@ -135,68 +135,84 @@
           </view>
 
           <view wx:elif="{{item.type === 'agent' && !item.hidden}}" class="row agent" style="width:{{rowW}}px;">
-            <view class="bubble agent" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
-              <view class="qblock" wx:if="{{item.quote}}">
-                <text class="qblock-who">{{item.quote.who}}</text>
-                <text class="qblock-t">{{item.quote.text}}</text>
-              </view>
-              <!-- 执行中：步骤流，做完一条显示一条 -->
-              <view class="thinking" wx:if="{{item.pending}}">
-                <view class="tstep" wx:for="{{item.progress}}" wx:for-item="s" wx:key="label">
-                  <view class="tstep-dot {{s.state === 'done' ? 'on' : ''}}"></view>
-                  <text class="tstep-t {{s.state === 'done' ? 'on' : ''}}">{{s.label}}</text>
-                </view>
-                <view class="tstep" wx:if="{{!item.progress.length}}">
-                  <view class="tstep-dot run"></view>
-                  <text class="tstep-t">正在读项目资料…</text>
-                </view>
-                <view class="tqueue" wx:if="{{item.queueAhead > 0}}">
-                  <text class="tqueue-t">前面还有 {{item.queueAhead}} 条在跑，稍等</text>
-                </view>
-              </view>
-              <view class="quote" wx:else>{{item.text}}</view>
-              <view class="sub" wx:if="{{item.sub && !item.pending}}">{{item.sub}}</view>
 
-              <!-- 产出物：文书卡片，点开看详情 -->
-              <view class="artifact" wx:if="{{!item.pending && item.artifact}}" data-idx="{{index}}" catchtap="onOpenArtifact">
-                <view class="af-top">
-                  <view class="af-icon"><image class="af-img" src="/assets/icons/doc-blue.png" mode="aspectFit" /></view>
-                  <text class="af-name">{{item.artifact.name}}</text>
-                </view>
-                <view class="af-meta">
-                  <text class="af-tag af-{{item.artifact.state === '待签' ? 'ok' : 'wait'}}">{{item.artifact.state}}</text>
-                  <text class="af-sub">{{item.artifact.commit}} 已提交</text>
-                </view>
-                <view class="af-more"><text class="af-more-t">查看文书 ›</text></view>
+            <!-- 执行中：这是一条状态，不是消息。小字、灰、不占气泡 -->
+            <view class="proc" wx:if="{{item.pending}}">
+              <view class="proc-head">
+                <view class="proc-spin"></view>
+                <text class="proc-title">处理中 · {{item.elapsed || 0}} 秒</text>
               </view>
+              <view class="proc-step" wx:for="{{item.progress}}" wx:for-item="s" wx:key="label">
+                <view class="proc-dot {{s.state === 'done' ? 'on' : ''}}"></view>
+                <text class="proc-t {{s.state === 'done' ? 'on' : ''}}">{{s.label}}</text>
+              </view>
+              <view class="proc-step" wx:if="{{!item.progress.length}}">
+                <view class="proc-dot on"></view>
+                <text class="proc-t">正在读项目资料…</text>
+              </view>
+              <text class="proc-queue" wx:if="{{item.queueAhead > 0}}">前面还有 {{item.queueAhead}} 条在跑</text>
             </view>
 
-            <!-- AI 操作轨迹：它读了什么、查了什么、花了多久 -->
-            <view class="trace" wx:if="{{!item.pending && item.trace && item.trace.length}}">
-              <view class="trace-head" data-id="{{item.id}}" catchtap="onTraceToggle">
-                <view class="trace-badge">
-                  <image class="trace-badge-i" src="/assets/icons/check-gray.png" mode="aspectFit" />
+            <block wx:else>
+              <view class="bubble agent" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
+                <view class="qblock" wx:if="{{item.quote}}">
+                  <text class="qblock-who">{{item.quote.who}}</text>
+                  <text class="qblock-t">{{item.quote.text}}</text>
                 </view>
-                <text class="trace-sum">{{item.traceSum}}</text>
-                <text class="trace-more">{{item.traceOpen ? '收起' : '展开'}}</text>
+                <view class="quote">{{item.text}}</view>
+                <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
+
+                <!-- 依据：论文式脚注，可点开原文 -->
+                <view class="cites" wx:if="{{item.cites && item.cites.length}}">
+                  <view class="cite" wx:for="{{item.cites}}" wx:for-item="c" wx:key="clause"
+                        data-id="{{item.id}}" data-ci="{{index}}" catchtap="onOpenCite">
+                    <text class="cite-n">{{index + 1}}</text>
+                    <text class="cite-t">{{c.code}} §{{c.clause}}</text>
+                  </view>
+                </view>
+
+                <!-- 产出物 -->
+                <view class="artifact" wx:if="{{item.artifact}}" data-id="{{item.id}}" catchtap="onOpenArtifact">
+                  <view class="af-top">
+                    <view class="af-icon"><image class="af-img" src="/assets/icons/doc-blue.png" mode="aspectFit" /></view>
+                    <text class="af-name">{{item.artifact.name}}</text>
+                  </view>
+                  <view class="af-meta">
+                    <text class="af-tag af-{{item.artifact.state === '待签' ? 'ok' : 'wait'}}">{{item.artifact.state}}</text>
+                    <text class="af-sub">{{item.artifact.commit}} 已提交</text>
+                  </view>
+                  <view class="af-more"><text class="af-more-t">查看文书 ›</text></view>
+                </view>
               </view>
 
-              <view class="trace-list" wx:if="{{item.traceOpen}}">
-                <view class="trace-row" wx:for="{{item.trace}}" wx:for-item="t" wx:key="text">
-                  <image class="trace-i" src="/assets/icons/{{t.icon}}-gray.png" mode="aspectFit" />
-                  <text class="trace-t">{{t.text}}</text>
+              <!-- 过程：折叠成一行，和正文明显不是一个层级 -->
+              <view class="trace" wx:if="{{item.trace && item.trace.length}}">
+                <view class="trace-head" data-id="{{item.id}}" catchtap="onTraceToggle">
+                  <view class="trace-badge">
+                    <image class="trace-badge-i" src="/assets/icons/check-gray.png" mode="aspectFit" />
+                  </view>
+                  <text class="trace-sum">{{item.traceSum}}</text>
+                  <text class="trace-more">{{item.traceOpen ? '收起' : '展开'}}</text>
                 </view>
-                <view class="trace-foot">用时 {{item.msLabel || item.ms}}</view>
-              </view>
-            </view>
 
-            <view class="meta left">
-              <text class="meta-t">{{item.time}}</text>
-              <text class="meta-dot" wx:if="{{item.src}}">·</text>
-              <text class="meta-s" wx:if="{{item.src}}">{{item.src}}</text>
-            </view>
+                <view class="trace-list" wx:if="{{item.traceOpen}}">
+                  <view class="trace-row" wx:for="{{item.trace}}" wx:for-item="t" wx:key="text">
+                    <image class="trace-i" src="/assets/icons/{{t.icon}}-gray.png" mode="aspectFit" />
+                    <text class="trace-t">{{t.text}}</text>
+                  </view>
+                  <view class="trace-foot">用时 {{item.msLabel || item.ms}}</view>
+                </view>
+              </view>
+
+              <view class="meta left">
+                <text class="meta-t">{{item.time}}</text>
+                <text class="meta-dot" wx:if="{{item.src}}">·</text>
+                <text class="meta-s" wx:if="{{item.src}}">{{item.src}}</text>
+              </view>
+            </block>
           </view>
-        </block>
+
+          </block>
         <view class="tb-pad" id="tl-bottom"></view>
       </scroll-view>
 
