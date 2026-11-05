@@ -216,10 +216,15 @@
                           <text class="tl-body-t">Shell</text>
                           <text class="tl-body-ok {{t.ok ? 'ok' : 'bad'}}">{{t.ok ? '✓ 成功' : '✗ 失败'}}</text>
                         </view>
-                        <scroll-view class="tl-scroll" scroll-y>
+                        <view class="tl-scroll">
                           <text class="tl-cmd" wx:if="{{t.cmd}}" selectable>$ {{t.cmd}}</text>
+                          <text class="tl-cmd" wx:elif="{{t.args}}" selectable>{{t.args}}</text>
                           <text class="tl-out" wx:if="{{t.output}}" selectable>{{t.output}}</text>
-                        </scroll-view>
+                          <text class="tl-out" wx:elif="{{t.text}}" selectable>{{t.text}}</text>
+                        </view>
+                        <view class="tl-more" data-id="{{item.id}}" data-idx="{{index}}" catchtap="onTraceFull">
+                          <text class="tl-more-t">查看完整输出 ›</text>
+                        </view>
                       </view>
                     </view>
                   </block>

@@ -2007,6 +2007,23 @@ Page({
   },
 
   /** 生成文书后，资料页要跟着变 */
+  /** 完整输出太长时，弹出来看 */
+  onTraceFull(e) {
+    const id = e.currentTarget.dataset.id;
+    const idx = Number(e.currentTarget.dataset.idx);
+    const m = this.data.msgs.filter((x) => x.id === id)[0];
+    const t = m && m.trace && m.trace[idx];
+    if (!t) return;
+    fb.tap();
+    const body = [t.cmd, t.output].filter(Boolean).join("\n\n");
+    wx.showModal({
+      title: t.text || "输出",
+      content: body.slice(0, 1200) || "（没有内容）",
+      showCancel: false,
+      confirmText: "知道了",
+    });
+  },
+
   /** 点时间线里的某一条：单独展开/收起它的细节 */
   onTraceItem(e) {
     const id = e.currentTarget.dataset.id;

@@ -5908,3 +5908,21 @@ page {
 .tl-note {
   max-width: 100%;
 }
+
+/* 输出区：普通 view，限高裁切（scroll-view 在 Skyline 下高度会塌） */
+.tl-scroll {
+  max-height: 320rpx;
+  overflow: hidden;
+  padding: 12rpx 16rpx;
+  box-sizing: border-box;
+}
+
+.tl-more {
+  padding: 10rpx 16rpx 14rpx;
+}
+
+.tl-more-t {
+  font-size: 21rpx;
+  font-weight: 600;
+  color: #0a6dff;
+}
