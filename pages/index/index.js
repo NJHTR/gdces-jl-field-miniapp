@@ -2007,6 +2007,26 @@ Page({
   },
 
   /** 生成文书后，资料页要跟着变 */
+  /** 点待补 chip：带着栏位名跳到文书，去把这一栏填了 */
+  onGapTap(e) {
+    const id = e.currentTarget.dataset.id;
+    const gap = e.currentTarget.dataset.gap || "";
+    const m = this.data.msgs.filter((x) => x.id === id)[0];
+    const a = m && m.artifact;
+    fb.tap();
+    if (!a) {
+      wx.showToast({ title: "这一栏在「" + gap + "」", icon: "none" });
+      return;
+    }
+    wx.navigateTo({
+      url:
+        "/pages/draft/draft?kind=" + encodeURIComponent(a.kind || "文书") +
+        "&obj=" + encodeURIComponent(a.obj || "") +
+        "&id=" + (a.id || "") +
+        "&field=" + encodeURIComponent(gap),
+    });
+  },
+
   /** 完整输出太长时，弹出来看 */
   onTraceFull(e) {
     const id = e.currentTarget.dataset.id;

@@ -155,54 +155,6 @@
             </view>
 
             <block wx:else>
-              <view class="bubble agent" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
-                <view class="qblock" wx:if="{{item.quote}}">
-                  <text class="qblock-who">{{item.quote.who}}</text>
-                  <text class="qblock-t">{{item.quote.text}}</text>
-                </view>
-                <!-- 结构化回答：结论 / 依据 / 待补，一眼扫完 -->
-                <view class="ans" wx:if="{{item.answer}}">
-                  <view class="ans-row" wx:if="{{item.answer.conclusion}}">
-                    <text class="ans-k">结论</text>
-                    <text class="ans-v strong">{{item.answer.conclusion}}</text>
-                  </view>
-                  <view class="ans-row" wx:if="{{item.answer.basis}}">
-                    <text class="ans-k">依据</text>
-                    <text class="ans-v">{{item.answer.basis}}</text>
-                  </view>
-                  <view class="ans-row" wx:if="{{item.answer.gaps}}">
-                    <text class="ans-k">待补</text>
-                    <text class="ans-v gap">{{item.answer.gaps}}</text>
-                  </view>
-                  <text class="ans-rest" wx:if="{{item.answer.rest}}">{{item.answer.rest}}</text>
-                </view>
-
-                <view class="quote" wx:else>{{item.text}}</view>
-                <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
-
-                <!-- 依据：论文式脚注，可点开原文 -->
-                <view class="cites" wx:if="{{item.cites && item.cites.length}}">
-                  <view class="cite" wx:for="{{item.cites}}" wx:for-item="c" wx:key="clause"
-                        data-id="{{item.id}}" data-ci="{{index}}" catchtap="onOpenCite">
-                    <text class="cite-n">{{index + 1}}</text>
-                    <text class="cite-t">{{c.code}} §{{c.clause}}</text>
-                  </view>
-                </view>
-
-                <!-- 产出物 -->
-                <view class="artifact" wx:if="{{item.artifact}}" data-id="{{item.id}}" catchtap="onOpenArtifact">
-                  <view class="af-top">
-                    <view class="af-icon"><image class="af-img" src="/assets/icons/doc-blue.png" mode="aspectFit" /></view>
-                    <text class="af-name">{{item.artifact.name}}</text>
-                  </view>
-                  <view class="af-meta">
-                    <text class="af-tag af-{{item.artifact.state === '待签' ? 'ok' : 'wait'}}">{{item.artifact.state}}</text>
-                    <text class="af-sub">{{item.artifact.commit}} 已提交</text>
-                  </view>
-                  <view class="af-more"><text class="af-more-t">查看文书 ›</text></view>
-                </view>
-              </view>
-
               <!-- 过程：两层折叠。外层是整轮，内层每条都能单独开 -->
               <view class="trace" wx:if="{{item.trace && item.trace.length}}">
                 <view class="trace-head" data-id="{{item.id}}" catchtap="onTraceToggle">
@@ -245,6 +197,76 @@
                       </view>
                     </view>
                   </block>
+                </view>
+              </view>
+
+              <view class="bubble agent" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
+                <view class="qblock" wx:if="{{item.quote}}">
+                  <text class="qblock-who">{{item.quote.who}}</text>
+                  <text class="qblock-t">{{item.quote.text}}</text>
+                </view>
+                <!-- 结构化回答：结论 / 依据 / 待补，一眼扫完 -->
+                <view class="ans" wx:if="{{item.answer}}">
+                  <view class="ans-row" wx:if="{{item.answer.conclusion}}">
+                    <text class="ans-k">结论</text>
+                    <view class="ans-v strong">
+                      <text class="seg {{sg.s === 'n' ? 'seg-num' : (sg.s === 'b' ? 'seg-bold' : '')}}"
+                            wx:for="{{item.answer.conclusionRich}}" wx:for-item="sg" wx:key="v">{{sg.v}}</text>
+                    </view>
+                  </view>
+
+                  <view class="ans-row" wx:if="{{item.answer.basis}}">
+                    <text class="ans-k">依据</text>
+                    <view class="ans-v">
+                      <text class="seg {{sg.s === 'n' ? 'seg-num' : (sg.s === 'b' ? 'seg-bold' : '')}}"
+                            wx:for="{{item.answer.basisRich}}" wx:for-item="sg" wx:key="v">{{sg.v}}</text>
+                    </view>
+                  </view>
+
+                  <view class="ans-row" wx:if="{{item.answer.gaps}}">
+                    <text class="ans-k">待补</text>
+                    <view class="ans-v">
+                      <view class="gapchips" wx:if="{{item.answer.gapItems.length}}">
+                        <view class="gapchip" wx:for="{{item.answer.gapItems}}" wx:for-item="g" wx:key="*this"
+                              data-id="{{item.id}}" data-gap="{{g}}" catchtap="onGapTap">
+                          <text class="gapchip-t">{{g}}</text>
+                          <text class="gapchip-plus">＋</text>
+                        </view>
+                      </view>
+                      <text class="seg" wx:else
+                            wx:for="{{item.answer.gapsRich}}" wx:for-item="sg" wx:key="v">{{sg.v}}</text>
+                    </view>
+                  </view>
+
+                  <view class="ans-rest" wx:if="{{item.answer.rest}}">
+                    <text class="seg {{sg.s === 'n' ? 'seg-num' : (sg.s === 'b' ? 'seg-bold' : '')}}"
+                          wx:for="{{item.answer.restRich}}" wx:for-item="sg" wx:key="v">{{sg.v}}</text>
+                  </view>
+                </view>
+
+                <view class="quote" wx:else>{{item.text}}</view>
+                <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
+
+                <!-- 依据：论文式脚注，可点开原文 -->
+                <view class="cites" wx:if="{{item.cites && item.cites.length}}">
+                  <view class="cite" wx:for="{{item.cites}}" wx:for-item="c" wx:key="clause"
+                        data-id="{{item.id}}" data-ci="{{index}}" catchtap="onOpenCite">
+                    <text class="cite-n">{{index + 1}}</text>
+                    <text class="cite-t">{{c.code}} §{{c.clause}}</text>
+                  </view>
+                </view>
+
+                <!-- 产出物 -->
+                <view class="artifact" wx:if="{{item.artifact}}" data-id="{{item.id}}" catchtap="onOpenArtifact">
+                  <view class="af-top">
+                    <view class="af-icon"><image class="af-img" src="/assets/icons/doc-blue.png" mode="aspectFit" /></view>
+                    <text class="af-name">{{item.artifact.name}}</text>
+                  </view>
+                  <view class="af-meta">
+                    <text class="af-tag af-{{item.artifact.state === '待签' ? 'ok' : 'wait'}}">{{item.artifact.state}}</text>
+                    <text class="af-sub">{{item.artifact.commit}} 已提交</text>
+                  </view>
+                  <view class="af-more"><text class="af-more-t">查看文书 ›</text></view>
                 </view>
               </view>
 

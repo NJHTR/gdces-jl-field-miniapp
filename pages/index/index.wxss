@@ -6100,3 +6100,88 @@ page {
     color: #9aa4b4;
   }
 }
+
+/* ============================================================
+   结构化回答的补充：片段高亮 + 待补 chips
+   ============================================================ */
+
+/* 数字：只提字重和一点点底色，不用荧光笔那种色块 */
+.seg-num {
+  font-weight: 700;
+  color: #0a3d91;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 模型自己标的重点 */
+.seg-bold {
+  font-weight: 700;
+  color: #11131a;
+}
+
+/* 待补 chips：点一下就跳到文书那一栏 */
+.gapchips {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.gapchip {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 14rpx;
+  background: rgba(255, 176, 32, 0.14);
+  border: 1rpx solid rgba(196, 123, 0, 0.22);
+  box-sizing: border-box;
+}
+
+.gapchip-t {
+  font-size: 23rpx;
+  color: #8a4b00;
+}
+
+.gapchip-plus {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #c47b00;
+}
+
+.ans-rest .seg {
+  font-size: 27rpx;
+}
+
+@media (prefers-color-scheme: dark) {
+  .seg-num {
+    color: #8fb6ff;
+  }
+
+  .seg-bold {
+    color: #ffffff;
+  }
+
+  .gapchip {
+    background: rgba(255, 176, 32, 0.18);
+    border-color: rgba(255, 176, 32, 0.3);
+  }
+
+  .gapchip-t {
+    color: #ffcf8a;
+  }
+}
+
+/* 过程区在上、答案在下时的间距 */
+.row.agent .trace {
+  margin-bottom: 16rpx;
+}
+
+.row.agent .bubble.agent {
+  margin-top: 0;
+}
+
+/* 片段必须行内排，不能各占一行 */
+.seg {
+  display: inline;
+}
