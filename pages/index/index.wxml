@@ -150,6 +150,9 @@
                   <view class="tstep-dot run"></view>
                   <text class="tstep-t">正在读项目资料…</text>
                 </view>
+                <view class="tqueue" wx:if="{{item.queueAhead > 0}}">
+                  <text class="tqueue-t">前面还有 {{item.queueAhead}} 条在跑，稍等</text>
+                </view>
               </view>
               <view class="quote" wx:else>{{item.text}}</view>
               <view class="sub" wx:if="{{item.sub && !item.pending}}">{{item.sub}}</view>

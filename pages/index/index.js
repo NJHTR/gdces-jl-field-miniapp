@@ -1796,7 +1796,12 @@ Page({
           // 还在跑：把已经做完的步骤实时显示出来
           this.setData({
             msgs: this.data.msgs.map((m) =>
-              m.id === pendingId ? Object.assign({}, m, { progress: (d && d.progress) || [] }) : m
+              m.id === pendingId
+                ? Object.assign({}, m, {
+                    progress: (d && d.progress) || [],
+                    queueAhead: (d && d.queueAhead) || 0,
+                  })
+                : m
             ),
           }, () => this.refreshViews(this.data.query));
           this._pollTask(taskId, pendingId, tries + 1);

@@ -5075,3 +5075,15 @@ page {
 .tstep-t {
   max-width: 100%;
 }
+
+/* 排队提示 */
+.tqueue {
+  margin-top: 6rpx;
+  padding-top: 10rpx;
+  border-top: 1rpx solid rgba(120, 134, 155, 0.16);
+}
+
+.tqueue-t {
+  font-size: 21rpx;
+  color: #c47b00;
+}
