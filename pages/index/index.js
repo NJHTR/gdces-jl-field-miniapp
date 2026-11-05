@@ -2058,6 +2058,7 @@ Page({
               trace: early.trace || null,
               traceSum: early.traceSum,
               review: this._reviewOf(early),
+              warning: this._warningOf(early),
             });
           }
           if (st === "done") {
@@ -2065,6 +2066,7 @@ Page({
             const patch = {
               text: (asst && asst.text) || "这轮没有产出内容。",
               review: this._reviewOf(asst),
+              warning: this._warningOf(asst),
               trace: (asst && asst.trace) || null,
               traceSum: asst && asst.traceSum,
               msLabel: asst && asst.msLabel,
@@ -2113,6 +2115,31 @@ Page({
         })
         .catch(() => this._pollTask(taskId, pendingId, tries + 1));
     }, 800);
+  },
+
+  /** 从消息里取复核意见（answer 可能是对象，也可能是 JSON 字符串） */
+  _reviewOf(asst) {
+    const ans = this._answerOf(asst);
+    return (ans && ans.review) || "";
+  },
+
+  /** 从消息里取后端警示（例如「有文书没入库」） */
+  _warningOf(asst) {
+    const ans = this._answerOf(asst);
+    return (ans && ans.warning) || "";
+  },
+
+  /** answer 字段统一解析：可能是对象，也可能是 JSON 字符串 */
+  _answerOf(asst) {
+    let ans = asst && asst.answer;
+    if (typeof ans === "string") {
+      try {
+        ans = JSON.parse(ans);
+      } catch (e) {
+        ans = null;
+      }
+    }
+    return ans || null;
   },
 
   /** 就地填充这条气泡（幂等，轮询时每轮都能调） */

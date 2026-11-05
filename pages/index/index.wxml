@@ -208,6 +208,9 @@
                 <!-- 一段话，重点在句子内部标出来 -->
                 <!-- Skyline 里 text 放在 view 下会变块级，必须都塞进同一个 text 父节点才走行内 -->
                 <!-- Markdown 块渲染：段落 / 列表 / 小标题 / 分隔线 -->
+      <!-- 后端的警示（比如「有文书没入库」）：不许藏失败，直接摆在回答下面 -->
+      <view class="warnbar" wx:if="{{item.warning}}">{{item.warning}}</view>
+
       <!-- 复核意见：默认收起，点一下展开（异步补上的，所以单独一张卡） -->
       <view class="rvcard" wx:if="{{item.review}}">
         <view class="rvhead" bindtap="onToggleReview" data-id="{{item.id}}">

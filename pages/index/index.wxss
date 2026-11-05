@@ -6482,3 +6482,15 @@ page {
   color: #2a3240;
   white-space: pre-wrap;
 }
+
+/* 后端警示（有东西没入库之类） */
+.warnbar {
+  margin-top: 10rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 10rpx;
+  background: rgba(255, 159, 10, 0.12);
+  border: 1rpx solid rgba(255, 159, 10, 0.35);
+  color: #8a5200;
+  font-size: 25rpx;
+  line-height: 36rpx;
+}
