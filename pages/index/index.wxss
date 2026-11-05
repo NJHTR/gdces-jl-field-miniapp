@@ -6217,3 +6217,88 @@ page {
     border-bottom-color: rgba(255, 207, 138, 0.5);
   }
 }
+
+/* ============================================================
+   过程区不是卡片，是"说明文字"
+   ------------------------------------------------------------
+   屏幕上只该有两种盒子：你说的话（蓝）、它说的话（白）。
+   过程是旁注，就该像旁注——没有底色、没有边框、没有圆角，
+   只是比正文小一号、淡一档的一行字。
+   ============================================================ */
+.trace-head {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 4rpx 0 8rpx;
+  gap: 8rpx;
+}
+
+.trace-badge {
+  opacity: 0.4;
+}
+
+.trace-sum {
+  font-size: 23rpx;
+  font-weight: 500;
+  color: rgba(17, 19, 26, 0.36);
+  letter-spacing: 0.2rpx;
+}
+
+.trace-more {
+  font-size: 23rpx;
+  font-weight: 500;
+  color: rgba(17, 19, 26, 0.36);
+}
+
+/* 展开后：贴着左边给一条极淡的竖线，表示这一段是上一句的展开 */
+.trace-list {
+  padding: 6rpx 0 6rpx 22rpx;
+  border-left: 2rpx solid rgba(17, 19, 26, 0.07);
+  margin-left: 10rpx;
+}
+
+/* 展开里的命令条：没有底色，只有一行字 */
+.tl-item {
+  padding: 4rpx 0;
+}
+
+.tl-badge {
+  background: transparent;
+  opacity: 0.45;
+}
+
+.tl-cmdlabel {
+  color: rgba(17, 19, 26, 0.55);
+}
+
+/* Shell 面板：唯一保留的浅底，因为它是"外部内容" */
+.tl-body {
+  background: rgba(17, 19, 26, 0.03);
+  border: none;
+  border-radius: 10rpx;
+}
+
+@media (prefers-color-scheme: dark) {
+  .trace-sum,
+  .trace-more {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .tl-cmdlabel {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .trace-list {
+    border-left-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .tl-body {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* 行内换行：让"依据：""待补："各自成段，但仍是一段话的节奏 */
+.seg-br {
+  display: block;
+  height: 12rpx;
+}
