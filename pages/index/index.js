@@ -988,7 +988,7 @@ Page({
     }
 
     if (act === "export") {
-      wx.showToast({ title: "导出：原型占位", icon: "none" });
+      wx.showToast({ title: "暂不支持导出，可截图或长按复制", icon: "none", duration: 2000 });
       return;
     }
 
@@ -1215,7 +1215,12 @@ Page({
       itemList: ["预览", "从资料里移除"],
       success: (res) => {
         if (res.tapIndex === 0) {
-          wx.showToast({ title: name + "：预览占位", icon: "none" });
+          const docId = String(id || "").charAt(0) === "f" ? String(id).slice(1) : "";
+          if (/^\d+$/.test(docId)) {
+            wx.navigateTo({ url: "/pages/draft/draft?id=" + docId });
+          } else {
+            wx.showToast({ title: name + "：这份没有关联文书", icon: "none" });
+          }
           return;
         }
         wx.showModal({
@@ -1654,7 +1659,7 @@ Page({
       wx.navigateTo({ url: "/pages/capture/capture" });
       return;
     }
-    if (label) wx.showToast({ title: label + "：原型占位", icon: "none" });
+    if (label) wx.showToast({ title: label + "：暂未开放", icon: "none" });
   },
 
   /** 记录卡片：进详情 */
@@ -1680,11 +1685,17 @@ Page({
     });
   },
 
-  /** 资料行：预览 */
+  /** 资料行：打开真文书（后端文书 id 前面加了 f） */
   onDocTap(e) {
     fb.tap();
+    const id = String(e.currentTarget.dataset.id || "");
     const name = e.currentTarget.dataset.name || "";
-    wx.showToast({ title: name + "：预览占位", icon: "none" });
+    const docId = id.charAt(0) === "f" ? id.slice(1) : "";
+    if (!/^\d+$/.test(docId)) {
+      wx.showToast({ title: name + "：这份没有关联文书", icon: "none" });
+      return;
+    }
+    wx.navigateTo({ url: "/pages/draft/draft?id=" + docId });
   },
 
   /** 记忆条目：停用 / 删除 */
@@ -1706,14 +1717,14 @@ Page({
     this.setData({ meSeg: e.currentTarget.dataset.seg });
   },
 
-  /** 拍照：原型里是占位，这里给个明确反馈 */
+  /** 拍照：直接走附件那条已经能用的链路（wx.chooseMedia → 上传） */
   onCamera() {
     const app = getApp();
     if (!app.globalData.token) {
       wx.navigateTo({ url: "/pages/login/login?action=record" });
       return;
     }
-    wx.showToast({ title: "拍照 / 选图：下一步接相机", icon: "none" });
+    this.onAddPhoto("camera");
   },
 
   /** 占位：用于 catchtouchstart，阻止事件冒泡到"按住说话" */
