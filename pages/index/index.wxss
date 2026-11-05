@@ -6302,3 +6302,27 @@ page {
   display: block;
   height: 12rpx;
 }
+
+/* ============================================================
+   行内标注只靠颜色 + 字重
+   Skyline 里嵌套 text 上的 border / text-decoration 不可靠，
+   一旦不生效就会露出奇怪的方框或顶掉基线 —— 只用颜色最稳。
+   ============================================================ */
+.seg-ref {
+  color: #0a6dff;
+  border-bottom: none;
+}
+
+.seg-gap {
+  color: #8a4b00;
+  border-bottom: none;
+}
+
+.seg-num {
+  font-weight: 600;
+}
+
+/* 换行片段不需要任何样式 */
+.seg-br {
+  display: inline;
+}
