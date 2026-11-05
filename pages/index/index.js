@@ -203,9 +203,12 @@ Page({
     }
 
     // 项目信息以本地仓为准（编辑后头部/水印都跟着变）
-    if (this.data.project.name !== store.project().name) {
-      const p = store.project();
-      this.setData({ project: { name: p.name, sub: p.builder } });
+    // 注意要合并而不是替换：原来只塞 name/sub，把 id 丢了，
+    // 结果 _projectId() 拿不到 id，胶囊也可能变空。
+    const local = store.project() || {};
+    const localName = String(local.name || "").trim() || local.code || local.id || "";
+    if (localName && (this.data.project.name !== localName || this.data.project.id !== local.id)) {
+      this.setData({ project: Object.assign({}, this.data.project, local, { name: localName }) });
     }
 
     // 登录页返回：之前没数据就重新拉一次
@@ -302,6 +305,19 @@ Page({
   },
 
   /** 启动时校准一次：量 tabbar 宽度 + 4 个 tab 的真实位置 */
+  /**
+   * 合并项目信息。
+   * 后端可能只回部分字段，本地仓可能只有 id —— 这里保证 name 永远有值，
+   * 否则左上角胶囊会变成一个空白方块。
+   */
+  _mergeProject(remote) {
+    const prev = this.data.project || {};
+    const merged = Object.assign({}, prev, remote || {});
+    const name = String(merged.name || "").trim();
+    if (!name) merged.name = merged.code || merged.id || prev.name || "未命名项目";
+    return merged;
+  },
+
   /** 首屏数据：走统一请求层，失败可重试 */
   loadAll(pid) {
     const id = pid || this._projectId();
@@ -316,7 +332,7 @@ Page({
         this.setData(
           {
             msgs: (d && d.msgs) || [],
-            project: Object.assign({}, this.data.project, (d && d.project) || {}),
+            project: this._mergeProject((d && d.project) || {}),
             records: (d && d.records) || [],
             docs: this._baseDocs.slice(),
             memos: (d && d.memos) || [],
@@ -1268,7 +1284,7 @@ Page({
     try {
       if (!this._rec) {
         this._rec = wx.getRecorderManager();
-        this._rec.onStop(() => this._attachAudioDone());
+        this._rec.onStop((res) => this._attachAudioDone(res));
         this._rec.onError(() => {});
       }
       this._recMode = "attach";
@@ -1294,13 +1310,19 @@ Page({
   },
 
   /** 录音结束 → 加进附件条 */
-  _attachAudioDone() {
+  _attachAudioDone(res) {
     if (this._recMode !== "attach") return;
     this._recMode = "";
+    // 必须用 onStop 给的 tempFilePath：之前写死空串，语音根本传不上去
+    const src = (res && res.tempFilePath) || "";
     const sec = Math.max(1, Math.round((Date.now() - (this._arStart || Date.now())) / 1000));
     const dur = Math.floor(sec / 60) + ":" + (sec % 60 < 10 ? "0" : "") + (sec % 60);
+    if (!src) {
+      wx.showToast({ title: "录音没保存成功，再试一次", icon: "none" });
+      return;
+    }
     this.setData({
-      attach: this.data.attach.concat([{ id: "v" + Date.now(), kind: "audio", dur, src: "" }]),
+      attach: this.data.attach.concat([{ id: "v" + Date.now(), kind: "audio", dur, src }]),
     });
   },
   /* ---------------- 气泡长按菜单 ---------------- */
@@ -1758,7 +1780,7 @@ Page({
     const audios = attach.filter((a) => a.kind === "audio");
 
     this._draft = "";
-    this.setData({ draft: "", draftSeed: "", hasDraft: false, attach: [] });
+    this.setData({ draft: "", draftSeed: "", hasDraft: false });
     try {
       wx.removeStorageSync("jl_draft");
     } catch (err) {}
@@ -1933,6 +1955,8 @@ Page({
       .then((d) => {
         const taskId = d && d.taskId;
         if (!taskId) throw new Error("服务器没有返回任务号");
+        // 真发出去了才清附件，失败时留着让用户重试
+        this.setData({ attach: [] });
         console.log("[send] 任务", taskId, "开始轮询");
         this.setData({ busy: Object.assign({}, this.data.busy, { taskId }) });
         this._saveInflight({ taskId, pendingId, startedAt: Date.now() });
@@ -1965,8 +1989,10 @@ Page({
       const parts = [];
       if (text) parts.push({ type: "text", text });
 
+      let failed = 0;
       (imgRes || []).forEach((r) => {
         if (r && r.sha) parts.push({ type: "image", blob: r.sha });
+        else failed += 1;
       });
 
       // 逐段转写；转写失败不影响发送，只是少了文字
@@ -1981,7 +2007,12 @@ Page({
       return Promise.all(asrJobs).then((auds) => {
         (auds || []).forEach((a) => {
           if (a) parts.push({ type: "audio", blob: a.blob, transcript: a.transcript });
+          else failed += 1;
         });
+        // 有附件没传上去时说清楚，别笼统地说"没有可发送的内容"
+        if (failed && !parts.some((x) => x.type === "image" || x.type === "audio")) {
+          throw new Error("有 " + failed + " 个附件没传上去，检查网络后再试");
+        }
         return parts;
       });
     });
