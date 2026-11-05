@@ -1,4 +1,5 @@
 const store = require("../../utils/store");
+const api = require("../../utils/request");
 
 const DOCS = {
   旁站记录: {
@@ -153,6 +154,8 @@ Page({
     viewerTitle: "",
     viewerBody: "",
     missingCount: 0,
+    docId: "",
+    state: "",
     hdrTop: 52,
     bottomPad: 48,
   },
@@ -181,6 +184,14 @@ Page({
       });
     } catch (e) {}
     const kind = decodeURIComponent(opt.kind || "旁站记录");
+    const docId = opt.id || "";
+
+    // 有文书 id 就查真数据；没有（比如从记录点进来）才用原型数据
+    if (docId) {
+      this._loadDoc(docId, kind);
+      return;
+    }
+
     const conf = DOCS[kind] || DOCS["旁站记录"];
 
     let missing = 0;
@@ -194,6 +205,60 @@ Page({
       groups: conf.groups,
       missingCount: missing,
     });
+  },
+
+  /**
+   * 读真文书。
+   *
+   * 字段是后端给的 key-value（中文键名），待补是 missing 数组，
+   * 依据是 [{ref, kind, text}]。这里只做"摆到页面上"，
+   * 不去猜字段含义 —— 猜错了比不显示更糟。
+   */
+  _loadDoc(docId, kind) {
+    api
+      .get("/api/v1/docs/" + docId)
+      .then((d) => {
+        const fields = d.fields || {};
+        const missing = d.missing || [];
+
+        const filled = Object.keys(fields)
+          .filter((k) => String(fields[k] == null ? "" : fields[k]).trim())
+          .map((k) => ({ k: k, v: String(fields[k]) }));
+
+        const groups = [];
+        if (filled.length) groups.push({ label: "基本信息", rows: filled });
+        if (missing.length) {
+          groups.push({
+            label: "待补",
+            rows: missing.map((k) => ({ k: k, v: "", missing: true })),
+          });
+        }
+
+        const bases = (d.bases || []).map((b) => ({
+          ic: "search",
+          kind: b.kind || "rule",
+          t: b.ref || b.kind || "依据",
+          body: b.text || "",
+        }));
+
+        this.setData({
+          docId: d.id || docId,
+          title: d.kind || kind,
+          sub: [d.obj, d.state].filter(Boolean).join(" · "),
+          state: d.state || "",
+          groups: groups,
+          bases: bases,
+          basesOpen: false,
+          missingCount: missing.length,
+        });
+      })
+      .catch((err) => {
+        wx.showToast({
+          title: "文书没读出来：" + ((err && err.message) || "网络异常"),
+          icon: "none",
+          duration: 2000,
+        });
+      });
   },
 
   onBack() {
