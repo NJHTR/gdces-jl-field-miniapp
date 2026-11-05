@@ -2052,7 +2052,6 @@ Page({
           const early = list.filter((m) => m.role === "assistant").pop();
           if (early && early.text) {
             // 文书已经写好了 —— 先给用户看，别等复核
-            this._earlyId = pendingId;
             this._fillPending(pendingId, {
               text: early.text,
               trace: early.trace || null,
@@ -2074,9 +2073,7 @@ Page({
               progress: null,
               pending: false,
             };
-            const targetId = this._earlyId || pendingId;
-            this._earlyId = null;
-            this._fillPending(targetId, patch);
+            this._fillPending(pendingId, patch);
             this._pendingId = null;
             fb.success();
             wx.showToast({ title: "已完成", icon: "none", duration: 1200 });
@@ -2085,9 +2082,7 @@ Page({
             return;
           }
           if (st === "failed" || st === "cancelled") {
-            const tid = this._earlyId || pendingId;
-            this._earlyId = null;
-            this._fillPending(tid, {
+            this._fillPending(pendingId, {
               text: "处理失败：" + ((d && d.error) || st),
               failed: true,
             });
