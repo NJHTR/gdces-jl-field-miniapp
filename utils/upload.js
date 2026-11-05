@@ -1,8 +1,9 @@
 /**
- * 图片上传。
+ * 上传：图片和音频都走这里。
  *
- * 现在后端没上：直接把本地路径当"已上传"用（临时文件已落盘，能显示）。
- * 接了后端只改 MOCK 这一段，调用方不用动。
+ * 后端 /api/v1/upload 返回 { photoId, sha256, size, commit }，
+ * 发消息时要的是 sha256 —— 它当 parts 里的 blob 用。
+ * 后端还要求 projectId（必填），所以 formData 带上。
  */
 
 const { API_BASE } = require("./config");
@@ -15,16 +16,31 @@ function token() {
   return (s && s.token) || "";
 }
 
+function projectId() {
+  try {
+    const p = wx.getStorageSync("jl_project");
+    if (p && typeof p === "object" && p.id) return p.id;
+    if (typeof p === "string" && p) return p;
+  } catch (e) {}
+  return "yun-gu-3qi";
+}
+
+function userId() {
+  const app = getApp();
+  const u = (app && app.globalData && app.globalData.user) || {};
+  return u.id || 1;
+}
+
 /**
- * 上传一张图，resolve 一个可长期使用的地址。
- * 失败时 resolve 回本地路径，保证照片不丢。
+ * 上传一个文件。
+ * resolve { sha, url, path } —— sha 为空表示没传成功，调用方要能降级。
  */
-function upload(localPath) {
-  if (!localPath) return Promise.resolve("");
+function uploadFile(localPath, kind) {
+  if (!localPath) return Promise.resolve({ sha: "", url: "", path: "" });
 
   if (MOCK) {
-    // 演示模式：本地路径就是"地址"
-    return Promise.resolve(localPath);
+    // 演示模式：没有后端，也就没有 sha，只留本地路径显示用
+    return Promise.resolve({ sha: "", url: localPath, path: localPath });
   }
 
   return new Promise((resolve) => {
@@ -32,29 +48,44 @@ function upload(localPath) {
       url: API_BASE + "/api/v1/upload",
       filePath: localPath,
       name: "file",
-      timeout: 30000,
+      timeout: 60000,
+      formData: {
+        projectId: projectId(),
+        userId: String(userId()),
+        kind: kind || "photo",
+      },
       header: {
         authorization: token() ? "Bearer " + token() : "",
       },
       success(res) {
         try {
           const body = JSON.parse(res.data || "{}");
-          resolve(body.url || localPath);
+          const data = (body && body.data) || {};
+          resolve({
+            sha: data.sha256 || "",
+            url: data.url || localPath,
+            path: localPath,
+          });
         } catch (e) {
-          resolve(localPath);
+          resolve({ sha: "", url: localPath, path: localPath });
         }
       },
       fail() {
-        resolve(localPath);
+        resolve({ sha: "", url: localPath, path: localPath });
       },
     });
   });
 }
 
-/** 批量上传，返回地址数组（顺序不变） */
-function uploadAll(paths) {
+/** 批量上传，顺序不变 */
+function uploadAll(paths, kind) {
   const list = paths || [];
-  return Promise.all(list.map((p) => upload(p)));
+  return Promise.all(list.map((p) => uploadFile(p, kind)));
 }
 
-module.exports = { upload, uploadAll, MOCK };
+/** 老接口留着，免得别处调用报错 */
+function upload(localPath) {
+  return uploadFile(localPath, "photo").then((r) => r.url || localPath);
+}
+
+module.exports = { uploadFile, uploadAll, upload, MOCK };
