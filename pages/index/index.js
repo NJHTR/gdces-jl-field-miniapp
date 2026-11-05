@@ -1779,7 +1779,16 @@ Page({
         return;
       }
       const sec = Math.floor((Date.now() - b.startedAt) / 1000);
-      this.setData({ busy: Object.assign({}, b, { elapsed: sec }) });
+      const patch = { busy: Object.assign({}, b, { elapsed: sec }) };
+      // 注意：这里必须先把 id 取出来。写在 function(m) 里的话 this 不是页面对象，
+      // 匹配永远失败，秒数就一直是 0。
+      const pid = this._pendingId;
+      if (pid) {
+        patch.msgs = this.data.msgs.map(function (m) {
+          return m.id === pid ? Object.assign({}, m, { elapsed: sec }) : m;
+        });
+      }
+      this.setData(patch);
     }, 1000);
   },
 
@@ -1809,8 +1818,22 @@ Page({
       return false;
     }
     console.log("[resume] 接上任务", v.taskId);
+    const now = new Date();
+    const pad = (n) => (n < 10 ? "0" + n : "" + n);
+    const hhmm = pad(now.getHours()) + ":" + pad(now.getMinutes());
+    const pending = {
+      id: v.pendingId || "p" + Date.now(),
+      type: "agent",
+      time: hhmm,
+      pending: true,
+      text: "",
+      elapsed: 0,
+      progress: [],
+    };
+    this._pendingId = pending.id;
     this.setData({
-      busy: { taskId: v.taskId, startedAt: v.startedAt || Date.now(), elapsed: 0, step: "正在接上…" },
+      msgs: this.data.msgs.concat([pending]),
+      busy: { taskId: v.taskId, startedAt: v.startedAt || Date.now(), elapsed: 0, progress: [] },
     });
     this._startBusyTicker();
     this._pollTask(v.taskId, v.pendingId, 0);
@@ -1839,9 +1862,22 @@ Page({
     const pendingId = "p" + Date.now();
 
     const startedAt = Date.now();
-    this._pendingId = null;   // 列表里不放占位气泡，状态只在底部条
+    // 状态就长在"答案将要出现"的位置：消息流里、AI 那侧
+    const pending = {
+      id: pendingId,
+      type: "agent",
+      time: hhmm,
+      pending: true,
+      text: "",
+      elapsed: 0,
+      progress: [],
+    };
+    this._pendingId = pendingId;
     this.setData(
-      { busy: { taskId: null, startedAt, elapsed: 0, step: "已发出，等待响应", progress: [], open: false } },
+      {
+        msgs: this.data.msgs.concat([pending]),
+        busy: { taskId: null, startedAt, elapsed: 0, progress: [] },
+      },
       () => {
         this.refreshViews(this.data.query);
         this.scrollToBottom();
@@ -1906,38 +1942,25 @@ Page({
             });
             return;
           }
-          // 还在跑：状态条跟着动
+          // 还在跑：进度写到这条消息上（它就在答案将要出现的位置）
           const prog = (d && d.progress) || [];
-          const running = prog.filter((x) => x.state !== "done").pop();
-          const lastDone = prog.filter((x) => x.state === "done").pop();
-          let step;
-          if (running) step = running.label;
-          else if (lastDone) step = lastDone.label;
-          else step = "已发出，等待模型响应";
-          this.setData({
-            busy: Object.assign({}, this.data.busy, {
-              progress: prog,
-              step,
-              queueAhead: (d && d.queueAhead) || 0,
-            }),
-          });
+          const qa = (d && d.queueAhead) || 0;
           console.log("[poll]", taskId, st, prog.length, "步");
-
-          // 还在跑：把已经做完的步骤实时显示出来
-          this.setData({
-            msgs: this.data.msgs.map((m) =>
-              m.id === pendingId
-                ? Object.assign({}, m, {
-                    progress: (d && d.progress) || [],
-                    queueAhead: (d && d.queueAhead) || 0,
-                  })
-                : m
-            ),
-          }, () => this.refreshViews(this.data.query));
+          this.setData(
+            {
+              msgs: this.data.msgs.map(function (m) {
+                return m.id === pendingId
+                  ? Object.assign({}, m, { progress: prog, queueAhead: qa })
+                  : m;
+              }),
+              busy: Object.assign({}, this.data.busy, { progress: prog }),
+            },
+            () => this.refreshViews(this.data.query)
+          );
           this._pollTask(taskId, pendingId, tries + 1);
         })
         .catch(() => this._pollTask(taskId, pendingId, tries + 1));
-    }, 2000);
+    }, 800);
   },
 
   /** 把"正在处理"的气泡换成结果 */
@@ -1954,11 +1977,16 @@ Page({
     const now = new Date();
     const pad = (n) => (n < 10 ? "0" + n : "" + n);
     const hhmm = pad(now.getHours()) + ":" + pad(now.getMinutes());
-    const msg = Object.assign(
-      { id: "r" + Date.now(), type: "agent", time: hhmm, pending: false },
-      patch
-    );
-    const msgs = this.data.msgs.concat([msg]);
+    const base = { id: "r" + Date.now(), type: "agent", time: hhmm, pending: false };
+    const done = Object.assign(base, patch);
+    const exists = this.data.msgs.some(function (m) {
+      return m.pending;
+    });
+    const msgs = exists
+      ? this.data.msgs.map(function (m) {
+          return m.pending ? Object.assign({}, done, { id: m.id, time: m.time }) : m;
+        })
+      : this.data.msgs.concat([done]);
     this.setData({ msgs }, () => {
       this.refreshViews(this.data.query);
       this.scrollToBottom();

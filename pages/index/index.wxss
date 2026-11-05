@@ -5638,3 +5638,17 @@ page {
     color: #eaf1fb;
   }
 }
+
+/* 步骤行右侧的耗时：小、浅，补充信息 */
+.proc-secs {
+  flex: none;
+  font-size: 20rpx;
+  color: #a3adbd;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 状态区不占满宽，缩在左边，像一句话而不是一块面板 */
+.proc {
+  align-self: flex-start;
+  max-width: 86%;
+}
