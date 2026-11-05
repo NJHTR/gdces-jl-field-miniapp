@@ -6185,3 +6185,35 @@ page {
 .seg {
   display: inline;
 }
+
+/* ============================================================
+   行内标注：文字仍是一段话，只在句子内部做轻标记
+   - 规范号：蓝色 + 虚线下划线（可以点开条文）
+   - 待补字段：暖色 + 实线下划线（提示要补）
+   - 数字：加重，不加底色
+   ============================================================ */
+.seg {
+  display: inline;
+}
+
+.seg-ref {
+  color: #0a6dff;
+  border-bottom: 1rpx dashed rgba(10, 109, 255, 0.55);
+}
+
+.seg-gap {
+  color: #8a4b00;
+  border-bottom: 1rpx solid rgba(196, 123, 0, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  .seg-ref {
+    color: #8fb6ff;
+    border-bottom-color: rgba(143, 182, 255, 0.5);
+  }
+
+  .seg-gap {
+    color: #ffcf8a;
+    border-bottom-color: rgba(255, 207, 138, 0.5);
+  }
+}

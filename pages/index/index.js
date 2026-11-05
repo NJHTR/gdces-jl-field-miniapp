@@ -2007,6 +2007,32 @@ Page({
   },
 
   /** 生成文书后，资料页要跟着变 */
+  /** 点行内标注：规范号看条文，待补字段进文书 */
+  onSegTap(e) {
+    const ds = e.currentTarget.dataset;
+    const kind = ds.kind;
+    if (kind === "r" && ds.code) {
+      fb.tap();
+      api
+        .get("/api/v1/standard?code=" + encodeURIComponent(ds.code) +
+             "&clause=" + encodeURIComponent(ds.clause || ""))
+        .then((d) => {
+          wx.showModal({
+            title: ds.code + (ds.clause ? " §" + ds.clause : "") + (d && d.title ? " " + d.title : ""),
+            content: (d && d.body) || "没有取到条文",
+            showCancel: false,
+            confirmText: "知道了",
+          });
+        })
+        .catch(() => wx.showToast({ title: "条文取不到", icon: "none" }));
+      return;
+    }
+    if (kind === "g") {
+      fb.tap();
+      wx.showToast({ title: "待填：" + (ds.gap || ""), icon: "none" });
+    }
+  },
+
   /** 点待补 chip：带着栏位名跳到文书，去把这一栏填了 */
   onGapTap(e) {
     const id = e.currentTarget.dataset.id;

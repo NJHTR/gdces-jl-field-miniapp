@@ -205,43 +205,12 @@
                   <text class="qblock-who">{{item.quote.who}}</text>
                   <text class="qblock-t">{{item.quote.text}}</text>
                 </view>
-                <!-- 结构化回答：结论 / 依据 / 待补，一眼扫完 -->
-                <view class="ans" wx:if="{{item.answer}}">
-                  <view class="ans-row" wx:if="{{item.answer.conclusion}}">
-                    <text class="ans-k">结论</text>
-                    <view class="ans-v strong">
-                      <text class="seg {{sg.s === 'n' ? 'seg-num' : (sg.s === 'b' ? 'seg-bold' : '')}}"
-                            wx:for="{{item.answer.conclusionRich}}" wx:for-item="sg" wx:key="v">{{sg.v}}</text>
-                    </view>
-                  </view>
-
-                  <view class="ans-row" wx:if="{{item.answer.basis}}">
-                    <text class="ans-k">依据</text>
-                    <view class="ans-v">
-                      <text class="seg {{sg.s === 'n' ? 'seg-num' : (sg.s === 'b' ? 'seg-bold' : '')}}"
-                            wx:for="{{item.answer.basisRich}}" wx:for-item="sg" wx:key="v">{{sg.v}}</text>
-                    </view>
-                  </view>
-
-                  <view class="ans-row" wx:if="{{item.answer.gaps}}">
-                    <text class="ans-k">待补</text>
-                    <view class="ans-v">
-                      <view class="gapchips" wx:if="{{item.answer.gapItems.length}}">
-                        <view class="gapchip" wx:for="{{item.answer.gapItems}}" wx:for-item="g" wx:key="*this"
-                              data-id="{{item.id}}" data-gap="{{g}}" catchtap="onGapTap">
-                          <text class="gapchip-t">{{g}}</text>
-                          <text class="gapchip-plus">＋</text>
-                        </view>
-                      </view>
-                      <text class="seg" wx:else
-                            wx:for="{{item.answer.gapsRich}}" wx:for-item="sg" wx:key="v">{{sg.v}}</text>
-                    </view>
-                  </view>
-
-                  <view class="ans-rest" wx:if="{{item.answer.rest}}">
-                    <text class="seg {{sg.s === 'n' ? 'seg-num' : (sg.s === 'b' ? 'seg-bold' : '')}}"
-                          wx:for="{{item.answer.restRich}}" wx:for-item="sg" wx:key="v">{{sg.v}}</text>
-                  </view>
+                <!-- 一段话，重点在句子内部标出来 -->
+                <view class="quote rich" wx:if="{{item.answer && item.answer.rich && item.answer.rich.length}}">
+                  <text class="seg {{sg.s === 'n' ? 'seg-num' : (sg.s === 'b' ? 'seg-bold' : (sg.s === 'r' ? 'seg-ref' : (sg.s === 'g' ? 'seg-gap' : '')))}}"
+                        wx:for="{{item.answer.rich}}" wx:for-item="sg" wx:key="v"
+                        data-kind="{{sg.s}}" data-code="{{sg.code}}" data-clause="{{sg.clause}}" data-gap="{{sg.gap}}"
+                        catchtap="onSegTap">{{sg.v}}</text>
                 </view>
 
                 <view class="quote" wx:else>{{item.text}}</view>
