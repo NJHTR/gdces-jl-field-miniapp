@@ -810,7 +810,9 @@ Page({
       const text = (m.text || "") + (m.sub || "") + (m.cap || "");
       return Object.assign({}, m, {
         hidden: !!q && !hit(text),
-        bw: m.pending ? Math.min(190, bwMax) : this.bubbleWidth(m, bwMax),
+        bw: m.pending
+          ? Math.min(210, bwMax)
+          : Math.max(m.artifact ? 282 : 0, this.bubbleWidth(m, bwMax)),
         traceOpen: !!openMap[m.id],
       });
     });
@@ -1778,6 +1780,8 @@ Page({
               trace: (asst && asst.trace) || null,
               traceSum: asst && asst.traceSum,
               msLabel: asst && asst.msLabel,
+              artifact: (d && d.artifact) || null,
+              progress: null,
             });
             this._maybeReloadDocs();
             return;
@@ -1785,9 +1789,16 @@ Page({
           if (st === "failed" || st === "cancelled") {
             this._finishPending(pendingId, {
               text: "处理失败：" + ((d && d.error) || st),
+              failed: true,
             });
             return;
           }
+          // 还在跑：把已经做完的步骤实时显示出来
+          this.setData({
+            msgs: this.data.msgs.map((m) =>
+              m.id === pendingId ? Object.assign({}, m, { progress: (d && d.progress) || [] }) : m
+            ),
+          }, () => this.refreshViews(this.data.query));
           this._pollTask(taskId, pendingId, tries + 1);
         })
         .catch(() => this._pollTask(taskId, pendingId, tries + 1));
@@ -1796,6 +1807,7 @@ Page({
 
   /** 把"正在处理"的气泡换成结果 */
   _finishPending(pendingId, patch) {
+    if (!patch.failed) fb.success();
     const now = new Date();
     const pad = (n) => (n < 10 ? "0" + n : "" + n);
     const hhmm = pad(now.getHours()) + ":" + pad(now.getMinutes());
@@ -1810,6 +1822,20 @@ Page({
   },
 
   /** 生成文书后，资料页要跟着变 */
+  /** 点回复里的文书卡片 → 打开详情 */
+  onOpenArtifact(e) {
+    const idx = e.currentTarget.dataset.idx;
+    const m = this.data.msgs[idx];
+    const a = m && m.artifact;
+    if (!a) return;
+    fb.tap();
+    wx.navigateTo({
+      url: "/pages/draft/draft?kind=" + encodeURIComponent(a.kind || "文书") +
+           "&obj=" + encodeURIComponent(a.obj || "") +
+           "&id=" + (a.id || ""),
+    });
+  },
+
   _maybeReloadDocs() {
     api
       .get("/api/v1/docs?projectId=" + this._projectId())

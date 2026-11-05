@@ -140,12 +140,32 @@
                 <text class="qblock-who">{{item.quote.who}}</text>
                 <text class="qblock-t">{{item.quote.text}}</text>
               </view>
+              <!-- 执行中：步骤流，做完一条显示一条 -->
               <view class="thinking" wx:if="{{item.pending}}">
-                <view class="tdot"></view><view class="tdot"></view><view class="tdot"></view>
-                <text class="thinking-t">正在查资料…</text>
+                <view class="tstep" wx:for="{{item.progress}}" wx:for-item="s" wx:key="label">
+                  <view class="tstep-dot {{s.state === 'done' ? 'on' : ''}}"></view>
+                  <text class="tstep-t {{s.state === 'done' ? 'on' : ''}}">{{s.label}}</text>
+                </view>
+                <view class="tstep" wx:if="{{!item.progress.length}}">
+                  <view class="tstep-dot run"></view>
+                  <text class="tstep-t">正在读项目资料…</text>
+                </view>
               </view>
               <view class="quote" wx:else>{{item.text}}</view>
               <view class="sub" wx:if="{{item.sub && !item.pending}}">{{item.sub}}</view>
+
+              <!-- 产出物：文书卡片，点开看详情 -->
+              <view class="artifact" wx:if="{{!item.pending && item.artifact}}" data-idx="{{index}}" catchtap="onOpenArtifact">
+                <view class="af-top">
+                  <view class="af-icon"><image class="af-img" src="/assets/icons/doc-blue.png" mode="aspectFit" /></view>
+                  <text class="af-name">{{item.artifact.name}}</text>
+                </view>
+                <view class="af-meta">
+                  <text class="af-tag af-{{item.artifact.state === '待签' ? 'ok' : 'wait'}}">{{item.artifact.state}}</text>
+                  <text class="af-sub">{{item.artifact.commit}} 已提交</text>
+                </view>
+                <view class="af-more"><text class="af-more-t">查看文书 ›</text></view>
+              </view>
             </view>
 
             <!-- AI 操作轨迹：它读了什么、查了什么、花了多久 -->
