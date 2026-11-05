@@ -93,7 +93,15 @@ function request(method, path, data) {
           resolve(unwrapped);
           return;
         }
-        reject(Object.assign(new Error((res.data && res.data.message) || "请求失败"), { code: res.statusCode }));
+        // 错误体里除了 message 还可能有 missing / dropped（比如缺字段不许签发），
+        // 一起带到 Error 上，页面才能把原因说清楚，而不是只说"请求失败"。
+        const ebody = res.data || {};
+        reject(Object.assign(new Error(ebody.message || "请求失败"), {
+          code: res.statusCode,
+          body: ebody,
+          missing: ebody.missing || (ebody.data && ebody.data.missing) || [],
+          dropped: (ebody.data && ebody.data.dropped) || [],
+        }));
       },
       fail(err) {
         reject(Object.assign(new Error((err && err.errMsg) || "网络异常"), { code: "NETWORK" }));

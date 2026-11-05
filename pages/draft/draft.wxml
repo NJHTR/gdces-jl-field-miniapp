@@ -19,10 +19,11 @@
     <block wx:for="{{groups}}" wx:key="label" wx:for-item="g">
       <view class="sec">{{g.label}}</view>
       <view class="fgroup">
-        <view class="frow" wx:for="{{g.rows}}" wx:key="k" wx:for-item="r">
+        <view class="frow" wx:for="{{g.rows}}" wx:key="k" wx:for-item="r"
+                  data-k="{{r.k}}" bindtap="onEditField">
           <text class="fk">{{r.k}}</text>
           <text class="fv {{r.missing ? 'miss' : ''}}" wx:if="{{!r.missing}}">{{r.v}}</text>
-          <text class="fv miss" wx:else>待补</text>
+          <text class="fv miss" wx:else>待补 · 点这里填</text>
         </view>
       </view>
     </block>

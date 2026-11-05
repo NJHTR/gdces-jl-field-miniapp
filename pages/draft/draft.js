@@ -266,8 +266,72 @@ Page({
   },
 
   onFillAll() {
-    // 原型占位：真实场景会逐个弹输入
-    wx.showToast({ title: "逐项补齐：原型占位", icon: "none" });
+    // 找第一个缺项，直接弹输入框补它
+    const groups = this.data.groups || [];
+    for (let gi = 0; gi < groups.length; gi++) {
+      const rows = groups[gi].rows || [];
+      for (let ri = 0; ri < rows.length; ri++) {
+        if (rows[ri].missing) {
+          this._editField(rows[ri].k, "");
+          return;
+        }
+      }
+    }
+    wx.showToast({ title: "没有缺项了", icon: "none" });
+  },
+
+  /** 点某一行字段 → 弹输入框 → 保存 */
+  onEditField(e) {
+    const k = (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.k) || "";
+    if (!k) return;
+    let cur = "";
+    (this.data.groups || []).forEach((g) => {
+      (g.rows || []).forEach((r) => {
+        if (r.k === k) cur = r.v || "";
+      });
+    });
+    this._editField(k, cur);
+  },
+
+  _editField(key, value) {
+    const that = this;
+    wx.showModal({
+      title: key,
+      editable: true,
+      placeholderText: "填「" + key + "」",
+      content: value || "",
+      success(res) {
+        if (!res.confirm) return;
+        const v = String(res.content == null ? "" : res.content).trim();
+        if (!v) {
+          wx.showToast({ title: "没填内容", icon: "none" });
+          return;
+        }
+        that._saveField(key, v);
+      },
+    });
+  },
+
+  /** 保存一个字段：PUT /docs/<id>（小程序不支持 PATCH，服务端已支持 PUT） */
+  _saveField(key, value) {
+    const id = this.data.docId;
+    if (!id) return;
+    const fields = {};
+    fields[key] = value;
+    api
+      .put("/api/v1/docs/" + id, { fields: fields })
+      .then((d) => {
+        wx.showToast({ title: "已保存", icon: "none", duration: 900 });
+        const missing = (d && d.missing) || [];
+        this.setData({ missingCount: missing.length, state: (d && d.state) || this.data.state });
+        this._loadDoc(id, this.data.title);
+      })
+      .catch((err) => {
+        let msg = (err && err.message) || "保存失败";
+        const dropped = err && err.dropped;
+        if (dropped && dropped.length) msg = "这几种字段不收：" + dropped.join("、");
+        wx.showToast({ title: msg, icon: "none", duration: 2200 });
+      });
   },
 
   /** 点依据 → 看原文（照片直接看大图） */
@@ -303,26 +367,32 @@ Page({
   },
 
   onGenerate() {
-    const now = new Date();
-    const pad = (n) => (n < 10 ? "0" + n : "" + n);
-    const stamp = pad(now.getMonth() + 1) + "-" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes());
+    const id = this.data.docId;
+    const left = this.data.missingCount || 0;
 
-    // 归档：生成的文书进"资料"页
-    store.addDoc({
-      id: "g" + Date.now(),
-      kind: this.data.title,
-      name: this.data.title + " · " + (this.data.sub || ""),
-      meta: stamp,
-      state: this.data.missingCount ? "待补 " + this.data.missingCount + " 项" : "待签",
-      tone: "wait",
-      icon: "doc",
-      visual: false,
-    });
+    if (!id) {
+      wx.showToast({ title: "这份文书还没入库", icon: "none" });
+      return;
+    }
+    if (left) {
+      wx.showToast({ title: "还缺 " + left + " 项", icon: "none", duration: 1500 });
+      this.onFillAll();
+      return;
+    }
 
-    try {
-      wx.vibrateShort({ type: "heavy" });
-    } catch (e) {}
-    wx.showToast({ title: "已生成，去「资料」看", icon: "none" });
-    setTimeout(() => wx.navigateBack({ delta: 1 }), 900);
+    const that = this;
+    api
+      .put("/api/v1/docs/" + id, { state: "待签" })
+      .then(() => {
+        wx.showToast({ title: "已生成，待签发", icon: "none", duration: 1200 });
+        that._loadDoc(id, that.data.title);
+        setTimeout(() => wx.navigateBack({ delta: 1 }), 1200);
+      })
+      .catch((err) => {
+        // 缺项被拒时，服务端会带回 missing
+        const miss = (err && err.missing) || [];
+        const msg = miss.length ? "还缺 " + miss.length + " 项：" + miss.join("、") : ((err && err.message) || "生成失败");
+        wx.showToast({ title: msg, icon: "none", duration: 2400 });
+      });
   },
 });
