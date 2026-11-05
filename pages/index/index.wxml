@@ -556,11 +556,27 @@
       </view>
       <!-- 点 / 横拖 / 上拉 -->
       <!-- 全局状态条：不管消息列表滚到哪，都能看到它在干活 -->
-      <view class="busybar" wx:if="{{busy}}">
+      <view class="busybar" wx:if="{{busy}}" bindtap="onBusyTap">
         <view class="bb-spin"></view>
         <view class="bb-body">
-          <text class="bb-title">{{busy.queueAhead > 0 ? '排队中 · 前面还有 ' + busy.queueAhead + ' 条' : '正在处理'}} · {{busy.elapsed}} 秒</text>
+          <view class="bb-line">
+            <text class="bb-title {{busy.queueAhead > 0 ? '' : 'shimmer'}}">{{busy.queueAhead > 0 ? '排队中 · 前面还有 ' + busy.queueAhead + ' 条' : '正在处理'}}</text>
+            <text class="bb-sec">· {{busy.elapsed || 0}} 秒</text>
+          </view>
           <text class="bb-step">{{busy.step}}</text>
+        </view>
+        <text class="bb-chev">{{busy.open ? '收起' : '详情'}}</text>
+      </view>
+
+      <!-- 展开：它到底做了哪几步 -->
+      <view class="busylog" wx:if="{{busy && busy.open}}">
+        <view class="bl-row" wx:for="{{busy.progress}}" wx:for-item="s" wx:key="label">
+          <view class="bl-dot {{s.state === 'done' ? 'on' : ''}}"></view>
+          <text class="bl-t {{s.state === 'done' ? 'on' : ''}}">{{s.label}}</text>
+        </view>
+        <view class="bl-row" wx:if="{{!busy.progress.length}}">
+          <view class="bl-dot on"></view>
+          <text class="bl-t on">已发出，等待模型响应</text>
         </view>
       </view>
 

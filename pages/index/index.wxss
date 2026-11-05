@@ -5278,3 +5278,97 @@ page {
     border-top-color: rgba(255, 255, 255, 0.12);
   }
 }
+
+/* ============================================================
+   底部状态条：一条信息说清楚，可展开看它做了什么
+   ============================================================ */
+.bb-line {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.bb-sec {
+  font-size: 21rpx;
+  color: #5b93f5;
+}
+
+.bb-chev {
+  flex: none;
+  font-size: 21rpx;
+  font-weight: 600;
+  color: #0a6dff;
+  padding-left: 6rpx;
+}
+
+/* 高光扫过：只变透明度，文字一动不动 */
+.shimmer {
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* 展开后的步骤清单 */
+.busylog {
+  margin: -4rpx 24rpx 12rpx;
+  padding: 14rpx 20rpx;
+  border-radius: 20rpx;
+  background: rgba(120, 134, 155, 0.07);
+  border: 1rpx solid rgba(120, 134, 155, 0.16);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.bl-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.bl-dot {
+  flex: none;
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 5rpx;
+  background: rgba(120, 134, 155, 0.3);
+}
+
+.bl-dot.on {
+  background: #0a6dff;
+}
+
+.bl-t {
+  flex: 1;
+  min-width: 0;
+  font-size: 21rpx;
+  color: #8a94a6;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bl-t.on {
+  color: #5b6473;
+}
+
+@media (prefers-color-scheme: dark) {
+  .bl-t.on {
+    color: #c9d4e3;
+  }
+
+  .busylog {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
