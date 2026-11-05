@@ -297,11 +297,12 @@ Page({
 
   /** 启动时校准一次：量 tabbar 宽度 + 4 个 tab 的真实位置 */
   /** 首屏数据：走统一请求层，失败可重试 */
-  loadAll() {
+  loadAll(pid) {
+    const id = pid || this._projectId();
     this.setData({ pageState: "loading", loadErr: "" });
 
     api
-      .get("/api/v1/bootstrap")
+      .get("/api/v1/bootstrap?projectId=" + encodeURIComponent(id))
       .then((d) => {
         this._loadedOnce = true;
         this._baseDocs = (d && d.docs) || [];
@@ -309,7 +310,7 @@ Page({
         this.setData(
           {
             msgs: (d && d.msgs) || [],
-            project: (d && d.project) || this.data.project,
+            project: Object.assign({}, this.data.project, (d && d.project) || {}),
             records: (d && d.records) || [],
             docs: this._baseDocs.slice(),
             memos: (d && d.memos) || [],
@@ -362,7 +363,7 @@ Page({
         this.setData(
           {
             msgs: (d && d.msgs) || [],
-            project: (d && d.project) || this.data.project,
+            project: Object.assign({}, this.data.project, (d && d.project) || {}),
             records: (d && d.records) || [],
             docs: this._baseDocs.slice(),
             memos: (d && d.memos) || [],
@@ -1529,18 +1530,64 @@ Page({
   /* ---------------- 其它可点区域 ---------------- */
 
   /** 顶部项目胶囊：切换项目 */
+  /** 切项目：列表来自服务器，切换后重新拉这个项目的数据 */
   onProjectTap() {
     fb.tap();
-    const list = ["云谷智造园 · 3期", "前海金融中心 · 2期", "深湾文化中心 · 1期"];
-    wx.showActionSheet({
-      itemList: list,
-      success: (res) => {
-        const name = list[res.tapIndex];
-        const sub = res.tapIndex === 0 ? "深湾 · 中建八局" : "深湾 · 中建三局";
-        this.setData({ project: { name, sub } });
-        wx.showToast({ title: "已切到 " + name, icon: "none" });
+    api
+      .get("/api/v1/projects")
+      .then((d) => {
+        // 后端两种形状都兼容：数组 或 {list:[...]}
+        const list = Array.isArray(d) ? d : (d && d.list) || [];
+        if (!list.length) {
+          wx.showToast({ title: "还没有项目", icon: "none" });
+          return;
+        }
+        if (list.length === 1) {
+          wx.showToast({ title: "只有一个项目", icon: "none" });
+          return;
+        }
+        const names = list.map(function (p) {
+          const extra = p.builder || p.addr || "";
+          return p.name + (extra ? " · " + extra : "");
+        });
+        wx.showActionSheet({
+          itemList: names,
+          success: (res) => {
+            const picked = list[res.tapIndex];
+            if (!picked || picked.id === this._projectId()) return;
+            this.switchProject(picked);
+          },
+        });
+      })
+      .catch(() => wx.showToast({ title: "项目列表取不到", icon: "none" }));
+  },
+
+  /** 真的切：存起来、清干净、重新拉 */
+  switchProject(proj) {
+    fb.tap();
+    try {
+      wx.setStorageSync("jl_project", proj.id);
+    } catch (e) {}
+
+    this._traceOpen = {};
+    this.setData(
+      {
+        project: { id: proj.id, name: proj.name, sub: proj.builder || proj.sub || "" },
+        msgs: [],
+        records: [],
+        docs: [],
+        memos: [],
+        projMemos: [],
+        query: "",
+        quoting: null,
+        busy: null,
       },
-    });
+      () => {
+        this.refreshViews("");
+        this.loadAll(proj.id);
+        wx.showToast({ title: "已切到 " + proj.name, icon: "none" });
+      }
+    );
   },
 
   /** 抽屉里的宫格 / 工作区文件 */
@@ -1772,7 +1819,12 @@ Page({
   /** 项目 id：来自 bootstrap 的 project.id，缺省用默认项目 */
   _projectId() {
     const p = this.data.project || {};
-    return p.id || "yun-gu-3qi";
+    if (p.id) return p.id;
+    try {
+      const saved = wx.getStorageSync("jl_project");
+      if (saved) return saved;
+    } catch (e) {}
+    return "yun-gu-3qi";
   },
 
   _userId() {
