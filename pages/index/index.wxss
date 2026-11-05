@@ -6326,3 +6326,43 @@ page {
 .seg-br {
   display: inline;
 }
+
+/* ============================================================
+   行内标注（改名 rt-，避开分期控件那套 .seg）
+   只动颜色和字重，不碰背景、边框、行高 —— 绝不改变排版
+   ============================================================ */
+.rt-num {
+  font-weight: 600;
+  color: #0a3d91;
+}
+
+.rt-bold {
+  font-weight: 700;
+  color: #11131a;
+}
+
+.rt-ref {
+  color: #0a6dff;
+}
+
+.rt-gap {
+  color: #8a4b00;
+}
+
+@media (prefers-color-scheme: dark) {
+  .rt-num {
+    color: #8fb6ff;
+  }
+
+  .rt-bold {
+    color: #ffffff;
+  }
+
+  .rt-ref {
+    color: #8fb6ff;
+  }
+
+  .rt-gap {
+    color: #ffcf8a;
+  }
+}

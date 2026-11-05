@@ -209,7 +209,7 @@
                 <!-- Skyline 里 text 放在 view 下会变块级，必须都塞进同一个 text 父节点才走行内 -->
                 <text class="quote rich" wx:if="{{item.answer && item.answer.rich && item.answer.rich.length}}"><text
                     wx:for="{{item.answer.rich}}" wx:for-item="sg" wx:key="v"
-                    class="{{sg.s === 'br' ? '' : 'seg ' + (sg.s === 'n' ? 'seg-num' : (sg.s === 'b' ? 'seg-bold' : (sg.s === 'r' ? 'seg-ref' : (sg.s === 'g' ? 'seg-gap' : ''))))}}">{{sg.v}}</text></text>
+                    class="{{sg.s === 'n' ? 'rt-num' : (sg.s === 'b' ? 'rt-bold' : (sg.s === 'r' ? 'rt-ref' : (sg.s === 'g' ? 'rt-gap' : '')))}}">{{sg.v}}</text></text>
 
                 <view class="quote" wx:else>{{item.text}}</view>
                 <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
