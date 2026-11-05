@@ -208,6 +208,15 @@
                 <!-- 一段话，重点在句子内部标出来 -->
                 <!-- Skyline 里 text 放在 view 下会变块级，必须都塞进同一个 text 父节点才走行内 -->
                 <!-- Markdown 块渲染：段落 / 列表 / 小标题 / 分隔线 -->
+      <!-- 复核意见：默认收起，点一下展开（异步补上的，所以单独一张卡） -->
+      <view class="rvcard" wx:if="{{item.review}}">
+        <view class="rvhead" bindtap="onToggleReview" data-id="{{item.id}}">
+          <text class="rvtitle">复核意见</text>
+          <text class="rvmore">{{item.reviewOpen ? '收起' : '展开'}}</text>
+        </view>
+        <view class="rvbody" wx:if="{{item.reviewOpen}}">{{item.review}}</view>
+      </view>
+
       <view class="mdbox" wx:if="{{item.md && item.md.length}}">
         <block wx:for="{{item.md}}" wx:for-item="b" wx:for-index="bi" wx:key="bi">
           <view wx:if="{{b.t === 'p'}}" class="md-p">

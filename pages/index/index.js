@@ -832,6 +832,16 @@ Page({
     return Math.min(max, Math.ceil(Math.max(textW, voiceW)) + 34);
   },
 
+  /** 展开/收起复核意见 */
+  onToggleReview(e) {
+    const id = (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.id) || "";
+    if (!id) return;
+    const map = this._traceOpen || {};
+    map[id + ":rv"] = !map[id + ":rv"];
+    this._traceOpen = map;
+    this.refreshViews(this.data.query);
+  },
+
   refreshViews(raw) {
     const q = (raw || "").trim();
     const hit = (s) => !q || (s || "").indexOf(q) >= 0;
@@ -847,6 +857,7 @@ Page({
       const mdBlocks = m.type === "agent" && md.hasMarkdown(m.text) ? md.parse(m.text) : null;
       return Object.assign({}, m, {
         md: mdBlocks,
+        reviewOpen: !!openMap[m.id + ":rv"],
         hidden: !!q && !hit(text),
         bw: m.pending
           ? Math.min(210, bwMax)
@@ -2037,25 +2048,50 @@ Page({
         .get("/api/v1/tasks/" + taskId)
         .then((d) => {
           const st = (d && d.status) || "";
+          const list = (d && d.messages) || [];
+          const early = list.filter((m) => m.role === "assistant").pop();
+          if (early && early.text) {
+            // 文书已经写好了 —— 先给用户看，别等复核
+            this._earlyId = pendingId;
+            this._fillPending(pendingId, {
+              text: early.text,
+              trace: early.trace || null,
+              traceSum: early.traceSum,
+              review: this._reviewOf(early),
+            });
+          }
           if (st === "done") {
-            const msgs = (d && d.messages) || [];
-            const asst = msgs.filter((m) => m.role === "assistant").pop();
-            this._finishPending(pendingId, {
+            const asst = list.filter((m) => m.role === "assistant").pop();
+            const patch = {
               text: (asst && asst.text) || "这轮没有产出内容。",
+              review: this._reviewOf(asst),
               trace: (asst && asst.trace) || null,
               traceSum: asst && asst.traceSum,
               msLabel: asst && asst.msLabel,
               artifact: (d && d.artifact) || null,
               progress: null,
-            });
+              pending: false,
+            };
+            const targetId = this._earlyId || pendingId;
+            this._earlyId = null;
+            this._fillPending(targetId, patch);
+            this._pendingId = null;
+            fb.success();
+            wx.showToast({ title: "已完成", icon: "none", duration: 1200 });
+            this._clearInflight();
             this._maybeReloadDocs();
             return;
           }
           if (st === "failed" || st === "cancelled") {
-            this._finishPending(pendingId, {
+            const tid = this._earlyId || pendingId;
+            this._earlyId = null;
+            this._fillPending(tid, {
               text: "处理失败：" + ((d && d.error) || st),
               failed: true,
             });
+            this._pendingId = null;
+            wx.showToast({ title: "处理失败", icon: "none", duration: 2000 });
+            this._clearInflight();
             return;
           }
           // 还在跑：进度写到这条消息上（它就在答案将要出现的位置）
@@ -2077,6 +2113,16 @@ Page({
         })
         .catch(() => this._pollTask(taskId, pendingId, tries + 1));
     }, 800);
+  },
+
+  /** 就地填充这条气泡（幂等，轮询时每轮都能调） */
+  _fillPending(id, patch) {
+    if (!id) return;
+    const msgs = this.data.msgs.map(function (m) {
+      if (m.id !== id) return m;
+      return Object.assign({}, m, patch, { pending: false });
+    });
+    this.setData({ msgs }, () => this.refreshViews(this.data.query));
   },
 
   /** 把"正在处理"的气泡换成结果 */
