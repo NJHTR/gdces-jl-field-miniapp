@@ -160,7 +160,24 @@
                   <text class="qblock-who">{{item.quote.who}}</text>
                   <text class="qblock-t">{{item.quote.text}}</text>
                 </view>
-                <view class="quote">{{item.text}}</view>
+                <!-- 结构化回答：结论 / 依据 / 待补，一眼扫完 -->
+                <view class="ans" wx:if="{{item.answer}}">
+                  <view class="ans-row" wx:if="{{item.answer.conclusion}}">
+                    <text class="ans-k">结论</text>
+                    <text class="ans-v strong">{{item.answer.conclusion}}</text>
+                  </view>
+                  <view class="ans-row" wx:if="{{item.answer.basis}}">
+                    <text class="ans-k">依据</text>
+                    <text class="ans-v">{{item.answer.basis}}</text>
+                  </view>
+                  <view class="ans-row" wx:if="{{item.answer.gaps}}">
+                    <text class="ans-k">待补</text>
+                    <text class="ans-v gap">{{item.answer.gaps}}</text>
+                  </view>
+                  <text class="ans-rest" wx:if="{{item.answer.rest}}">{{item.answer.rest}}</text>
+                </view>
+
+                <view class="quote" wx:else>{{item.text}}</view>
                 <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
 
                 <!-- 依据：论文式脚注，可点开原文 -->

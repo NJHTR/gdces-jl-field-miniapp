@@ -6023,3 +6023,80 @@ page {
     color: rgba(255, 255, 255, 0.4);
   }
 }
+
+/* ============================================================
+   结构化回答：像一张填好的表单，而不是一段话
+   结论 = 加粗正文；依据/待补 = 标签 + 值
+   ============================================================ */
+.ans {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.ans-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14rpx;
+}
+
+.ans-k {
+  flex: none;
+  width: 56rpx;
+  font-size: 21rpx;
+  line-height: 34rpx;
+  color: rgba(17, 19, 26, 0.34);
+  letter-spacing: 0.4rpx;
+  padding-top: 8rpx;
+}
+
+.ans-v {
+  flex: 1;
+  min-width: 0;
+  font-size: 29rpx;
+  line-height: 1.55;
+  color: #11131a;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* 结论是主角，字重加一档 */
+.ans-v.strong {
+  font-size: 30rpx;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* 待补用暖色，提醒"这里需要你补" */
+.ans-v.gap {
+  color: #8a4b00;
+}
+
+.ans-rest {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 27rpx;
+  line-height: 1.58;
+  color: #5b6473;
+  white-space: normal;
+  word-break: break-word;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ans-k {
+    color: rgba(255, 255, 255, 0.38);
+  }
+
+  .ans-v {
+    color: #eef3fa;
+  }
+
+  .ans-v.gap {
+    color: #ffc266;
+  }
+
+  .ans-rest {
+    color: #9aa4b4;
+  }
+}
