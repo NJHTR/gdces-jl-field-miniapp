@@ -446,8 +446,23 @@
         <view class="seg">
           <view class="seg-b {{meSeg === 'mine' ? 'on' : ''}}" data-seg="mine" bindtap="switchSeg">我的</view>
           <view class="seg-b {{meSeg === 'project' ? 'on' : ''}}" data-seg="project" bindtap="switchSeg">项目的</view>
+      <view class="seg-b {{meSeg === 'pending' ? 'on' : ''}}" data-seg="pending" bindtap="switchSeg">待确认{{pendingRules.length ? ' ' + pendingRules.length : ''}}</view>
         </view>
-        <block wx:if="{{meSeg === 'mine'}}">
+        <block wx:if="{{meSeg === 'pending'}}">
+    <view class="prefgroup" wx:if="{{pendingRules.length}}">
+      <view wx:for="{{pendingRules}}" wx:key="id" class="memo">
+        <view class="memo-t">{{item.text}}</view>
+        <view class="memo-m">
+          <text class="memo-mt">模型提议 · 还没生效</text>
+        </view>
+        <view class="rule-actions">
+          <view class="rule-btn on" data-id="{{item.id}}" data-act="accept" bindtap="onRuleDecide">采纳</view>
+          <view class="rule-btn" data-id="{{item.id}}" data-act="reject" bindtap="onRuleDecide">否决</view>
+        </view>
+      </view>
+    </view>
+  </block>
+  <block wx:if="{{meSeg === 'mine'}}">
           <view class="prefgroup" wx:if="{{memosView.length}}">
         <view wx:for="{{memosView}}" wx:key="id" class="memo" data-id="{{item.id}}" bindtap="onMemoTap">
             <view class="memo-t">{{item.text}}</view>

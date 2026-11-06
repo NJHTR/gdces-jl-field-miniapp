@@ -125,6 +125,7 @@ Page({
     meSeg: "mine",
     memos: [],
     projMemos: [],
+    pendingRules: [],
 
     /* 拖动过程量 */
     dragX0: 0,
@@ -342,6 +343,7 @@ Page({
             docs: this._baseDocs.slice(),
             memos: (d && d.memos) || [],
             projMemos: (d && d.projMemos) || [],
+            pendingRules: (d && d.pendingRules) || [],
             pageState: "ready",
           },
           () => {
@@ -399,6 +401,7 @@ Page({
             docs: this._baseDocs.slice(),
             memos: (d && d.memos) || [],
             projMemos: (d && d.projMemos) || [],
+            pendingRules: (d && d.pendingRules) || [],
             photoCount: store.photos().length,
             pageState: "ready",
           },
@@ -942,11 +945,12 @@ Page({
     // 「我的」页有两个分段：空状态和搜索计数要跟当前分段走，
     // 否则切到「项目的」时会拿「我的」的条数，空状态一直挂着
     else
-      count = (
-        this.data.meSeg === "project"
-          ? this.data.projMemos.filter((m) => hit(m.text))
-          : memosView
-      ).length;
+      count =
+        this.data.meSeg === "pending"
+          ? this.data.pendingRules.length
+          : this.data.meSeg === "project"
+          ? this.data.projMemos.filter((m) => hit(m.text)).length
+          : memosView.length;
 
     let listEmpty = false;
     let emptyText = "";
@@ -963,6 +967,10 @@ Page({
       listEmpty = count === 0;
       emptyText = "还没有资料";
       emptySub = "图纸、方案、报验都会收进这里";
+    } else if (this.data.meSeg === "pending") {
+      listEmpty = count === 0;
+      emptyText = "没有待确认的规矩";
+      emptySub = "模型提议的规矩会先出现在这里，你点了才生效";
     } else {
       listEmpty = count === 0;
       emptyText = "还没有记忆";
@@ -1789,6 +1797,28 @@ Page({
   },
 
   /** 记忆条目：停用 / 删除 */
+  /** 待确认规矩：确认才写进项目规矩，否决就作废 */
+  onRuleDecide(e) {
+    fb.tap();
+    const id = e.currentTarget.dataset.id;
+    const act = e.currentTarget.dataset.act;
+    api
+      .post("/api/v1/rule-proposals/" + id + "/" + act, {})
+      .then(() => {
+        wx.showToast({
+          title: act === "accept" ? "已采纳，写进项目规矩" : "已否决",
+          icon: "none",
+        });
+        this.loadAll();
+      })
+      .catch((err) =>
+        wx.showToast({
+          title: "没成：" + ((err && err.message) || "网络问题"),
+          icon: "none",
+        })
+      );
+  },
+
   onMemoTap(e) {
     fb.tap();
     const id = e.currentTarget.dataset.id;

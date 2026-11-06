@@ -6535,3 +6535,22 @@ page {
   font-size: 20rpx;
   color: #9aa0a6;
 }
+
+.rule-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+.rule-btn {
+  flex: 1;
+  text-align: center;
+  padding: 14rpx 0;
+  border-radius: 14rpx;
+  font-size: 26rpx;
+  color: #2f6fed;
+  background: rgba(47, 111, 237, 0.08);
+}
+.rule-btn.on {
+  color: #fff;
+  background: #2f6fed;
+}
