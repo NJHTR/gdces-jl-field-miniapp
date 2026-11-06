@@ -16,7 +16,7 @@
       "desc": "拍照水印需要记录拍摄位置，方便文书归档"
     }
   },
-  "requiredPrivateInfos": ["getLocation"],
+  "requiredPrivateInfos": ["getLocation", "chooseLocation"],
   "darkmode": true,
   "style": "v2",
   "renderer": "skyline",

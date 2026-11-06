@@ -52,7 +52,10 @@ function toBody(raw) {
  * 上传一个文件。
  * resolve { sha, url, path } —— sha 为空表示没传成功，调用方要能降级。
  */
-function uploadFile(localPath, kind) {
+/**
+ * @param extra 额外表单字段（地址/来源/备注/拍摄人等），必须都是字符串
+ */
+function uploadFile(localPath, kind, extra) {
   if (!localPath) return Promise.resolve({ sha: "", url: "", path: "" });
 
   if (MOCK) {
@@ -65,11 +68,22 @@ function uploadFile(localPath, kind) {
       filePath: localPath,
       name: "file",
       timeout: 60000,
-      formData: {
-        projectId: projectId(),
-        userId: String(userId()),
-        kind: kind || "photo",
-      },
+      formData: Object.assign(
+        {
+          projectId: projectId(),
+          userId: String(userId()),
+          kind: kind || "photo",
+        },
+        (function () {
+          const out = {};
+          Object.keys(extra || {}).forEach((k) => {
+            const v = extra[k];
+            if (v === null || v === undefined || v === "") return;
+            out[k] = typeof v === "string" ? v : JSON.stringify(v);
+          });
+          return out;
+        })()
+      ),
       header: {
         authorization: token() ? "Bearer " + token() : "",
       },
@@ -85,9 +99,13 @@ function uploadFile(localPath, kind) {
             JSON.stringify(body).slice(0, 200)
           );
         }
+        // 后端回的 url 是相对路径（/api/v1/blobs/<sha>），
+        // 直接塞给 <image> 会被当成小程序包内路径 → 白图。
+        const raw = data.url || "";
+        const abs = raw && !/^https?:\/\//.test(raw) ? API_BASE + raw : raw;
         resolve({
           sha: sha,
-          url: data.url || localPath,
+          url: abs || localPath,
           path: localPath,
         });
       },
@@ -100,9 +118,9 @@ function uploadFile(localPath, kind) {
 }
 
 /** 批量上传，顺序不变 */
-function uploadAll(paths, kind) {
+function uploadAll(paths, kind, extra) {
   const list = paths || [];
-  return Promise.all(list.map((p) => uploadFile(p, kind)));
+  return Promise.all(list.map((p) => uploadFile(p, kind, extra)));
 }
 
 /** 老接口留着，免得别处调用报错 */

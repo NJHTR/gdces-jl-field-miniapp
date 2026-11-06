@@ -8,51 +8,77 @@
   </view>
 
   <view class="stage">
-    <!-- 取景：用 camera 组件，才能一边看画面一边看水印 -->
     <camera
-      wx:if="{{!src}}"
+      wx:if="{{!src && showCam}}"
       class="cam"
       device-position="back"
       flash="off"
       resolution="high"
       binderror="onCamErr"></camera>
+    <image wx:elif="{{src}}" class="cam" src="{{src}}" mode="aspectFill" />
+    <view wx:else class="cam cam-off">
+      <text class="co-t">相机已暂停</text>
+      <text class="co-s">编辑信息后继续</text>
+    </view>
 
-    <!-- 已拍：冻结这一张，水印版式与取景时一致 -->
-    <image wx:else class="cam" src="{{src}}" mode="aspectFill" />
-
-    <!--
-      水印必须用 cover-view：camera 是原生组件，普通 view 盖不上去。
-      cover-view 只支持有限样式（无渐变/无阴影），所以用半透明纯色块，
-      与最终画进图里的版式保持一致。
-    -->
-    <cover-view class="wm">
+    <!-- 水印：cover-view 才能盖在 camera 上 -->
+    <cover-view class="wm" wx:if="{{showCam || src}}">
       <cover-view class="wm-bar"></cover-view>
       <cover-view class="wm-p">{{wm.project || "未选择项目"}}</cover-view>
-      <cover-view class="wm-l">{{wm.place || "定位中…"}}</cover-view>
+      <cover-view class="wm-l" bindtap="onLocTap">
+        {{wm.place || "定位中…"}}{{wm.placeTag || ""}}  ›
+      </cover-view>
       <cover-view class="wm-row">
-        <cover-view class="wm-w">{{wm.weather || ""}}</cover-view>
+        <cover-view class="wm-w" bindtap="onWeatherTap">{{wm.weather || (locState === 'loading' ? '取天气中…' : '—')}}</cover-view>
         <cover-view class="wm-t">{{wm.time || ""}}</cover-view>
       </cover-view>
       <cover-view class="wm-u" wx:if="{{wm.user}}">{{wm.user}}</cover-view>
+      <cover-view class="wm-m" wx:if="{{wm.work || wm.note || wm.placeName}}">
+        {{wm.work ? "工序 " + wm.work : ""}}{{wm.placeName ? " · " + wm.placeName : ""}}{{wm.note ? " · " + wm.note : ""}}
+      </cover-view>
     </cover-view>
 
-    <!-- 定位提示：点了去设置，不阻断拍照 -->
-    <cover-view class="loc-hint" wx:if="{{locHint}}" bindtap="onAskLoc">
-      {{locHint}}
+    <!-- 状态条：定位失败时才出现，可点 -->
+    <cover-view class="loc-hint" wx:if="{{locState === 'fail'}}">
+      {{locNote || "没拿到定位"}} · 点这里处理
     </cover-view>
 
-    <!-- 相机起不来时的兜底：系统相机 -->
     <cover-view class="cam-fail" wx:if="{{camFailed}}" bindtap="onPickSystem">
       相机没起来，点这里用系统相机
     </cover-view>
   </view>
 
-  <!-- 离屏画布：把水印真正画进图片 -->
+  <!-- 编辑面板（普通 view，需先暂停相机，否则被原生组件盖住） -->
+  <view class="sheet" wx:if="{{sheet === 'edit'}}">
+    <view class="sh-t">补充信息</view>
+    <view class="sh-row">
+      <text class="sh-k">部位</text>
+      <input class="sh-i" value="{{edit.place}}" data-k="place" bindinput="onEditInput" placeholder="如 3号楼2层东侧" />
+    </view>
+    <view class="sh-row">
+      <text class="sh-k">工序</text>
+      <input class="sh-i" value="{{edit.work}}" data-k="work" bindinput="onEditInput" placeholder="如 外架搭设" />
+    </view>
+    <view class="sh-row">
+      <text class="sh-k">备注</text>
+      <input class="sh-i" value="{{edit.note}}" data-k="note" bindinput="onEditInput" placeholder="一句话说明" />
+    </view>
+    <view class="sh-row">
+      <text class="sh-k">拍摄人</text>
+      <input class="sh-i" value="{{edit.shooter}}" data-k="shooter" bindinput="onEditInput" placeholder="姓名" />
+    </view>
+    <view class="sh-btns">
+      <view class="sh-b ghost" bindtap="onSheetCancel">取消</view>
+      <view class="sh-b" bindtap="onSheetSave">保存</view>
+    </view>
+  </view>
+
   <canvas type="2d" id="wmc" class="offcanvas"></canvas>
 
   <view class="cfoot">
-    <view class="cbtn ghost" wx:if="{{src}}" bindtap="onRetake" aria-label="重拍">重拍</view>
-    <view class="cbtn" wx:if="{{!src}}" bindtap="onShoot" aria-label="拍照">拍照</view>
-    <view class="cbtn" wx:if="{{src}}" bindtap="onSave" aria-label="保存到现场影像">保存到现场影像</view>
+    <view class="cbtn ghost" wx:if="{{src}}" bindtap="onRetake">重拍</view>
+    <view class="cbtn ghost" wx:if="{{!src}}" bindtap="onEditTap">补充信息</view>
+    <view class="cbtn" wx:if="{{!src}}" bindtap="onShoot">拍照</view>
+    <view class="cbtn" wx:if="{{src}}" bindtap="onSave">保存到现场影像</view>
   </view>
 </view>

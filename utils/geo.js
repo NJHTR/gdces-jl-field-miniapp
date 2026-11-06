@@ -63,7 +63,8 @@ function weather(loc) {
 /**
  * 水印要用的四行。定位和天气并行取，任一失败都不影响出图。
  */
-function watermark() {
+function watermark(opts) {
+  const o = opts || {};
   const p = store.project();
   const now = new Date();
   const pad = (n) => (n < 10 ? "0" + n : "" + n);
@@ -78,8 +79,10 @@ function watermark() {
     ":" +
     pad(now.getMinutes());
 
-  return locate().then((loc) =>
-    Promise.all([reverse(loc), weather(loc)]).then(([addr, w]) => ({
+  // o.loc：外部指定的坐标（地图选点）；o.addr：外部指定的地址
+  const locP = o.loc ? Promise.resolve(o.loc) : locate();
+  return locP.then((loc) =>
+    Promise.all([o.addr ? Promise.resolve(o.addr) : reverse(loc), weather(loc)]).then(([addr, w]) => ({
       project: p.name,
       place: addr || p.addr || "",
       time,
