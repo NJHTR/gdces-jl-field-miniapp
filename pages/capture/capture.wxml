@@ -7,35 +7,52 @@
     <view class="ph"></view>
   </view>
 
-  <view class="shot">
-    <image wx:if="{{src}}" class="shot-img" src="{{src}}" mode="aspectFill" />
+  <view class="stage">
+    <!-- 取景：用 camera 组件，才能一边看画面一边看水印 -->
+    <camera
+      wx:if="{{!src}}"
+      class="cam"
+      device-position="back"
+      flash="off"
+      resolution="high"
+      binderror="onCamErr"></camera>
 
-    <!-- 水印：项目 / 位置 / 天气 / 时间 -->
-    <view class="wm" wx:if="{{src}}">
-      <view class="wm-bar"></view>
-      <view class="wm-body">
-        <text class="wm-p">{{wm.project}}</text>
-        <text class="wm-l">{{wm.place}}</text>
-        <view class="wm-row">
-          <text class="wm-w">{{wm.weather}}</text>
-          <text class="wm-t">{{wm.time}}</text>
-        </view>
-      </view>
-    </view>
+    <!-- 已拍：冻结这一张，水印版式与取景时一致 -->
+    <image wx:else class="cam" src="{{src}}" mode="aspectFill" />
 
-    <view class="shot-empty" wx:else bindtap="onRetake">
-      <view class="se-box">
-        <text class="se-t">{{tried ? '没拍到照片' : '正在打开相机…'}}</text>
-        <text class="se-s" wx:if="{{tried}}">点这里重新打开相机</text>
-      </view>
-    </view>
+    <!--
+      水印必须用 cover-view：camera 是原生组件，普通 view 盖不上去。
+      cover-view 只支持有限样式（无渐变/无阴影），所以用半透明纯色块，
+      与最终画进图里的版式保持一致。
+    -->
+    <cover-view class="wm">
+      <cover-view class="wm-bar"></cover-view>
+      <cover-view class="wm-p">{{wm.project || "未选择项目"}}</cover-view>
+      <cover-view class="wm-l">{{wm.place || "定位中…"}}</cover-view>
+      <cover-view class="wm-row">
+        <cover-view class="wm-w">{{wm.weather || ""}}</cover-view>
+        <cover-view class="wm-t">{{wm.time || ""}}</cover-view>
+      </cover-view>
+      <cover-view class="wm-u" wx:if="{{wm.user}}">{{wm.user}}</cover-view>
+    </cover-view>
+
+    <!-- 定位提示：点了去设置，不阻断拍照 -->
+    <cover-view class="loc-hint" wx:if="{{locHint}}" bindtap="onAskLoc">
+      {{locHint}}
+    </cover-view>
+
+    <!-- 相机起不来时的兜底：系统相机 -->
+    <cover-view class="cam-fail" wx:if="{{camFailed}}" bindtap="onPickSystem">
+      相机没起来，点这里用系统相机
+    </cover-view>
   </view>
 
-'  <!-- 离屏画布：把水印真正画进图片 -->
+  <!-- 离屏画布：把水印真正画进图片 -->
   <canvas type="2d" id="wmc" class="offcanvas"></canvas>
 
-  <view class="cfoot">'
-    <view class="cbtn ghost" bindtap="onRetake" aria-label="重拍">重拍</view>
-    <view class="cbtn" bindtap="onSave" aria-label="保存到现场影像">保存到现场影像</view>
+  <view class="cfoot">
+    <view class="cbtn ghost" wx:if="{{src}}" bindtap="onRetake" aria-label="重拍">重拍</view>
+    <view class="cbtn" wx:if="{{!src}}" bindtap="onShoot" aria-label="拍照">拍照</view>
+    <view class="cbtn" wx:if="{{src}}" bindtap="onSave" aria-label="保存到现场影像">保存到现场影像</view>
   </view>
 </view>

@@ -83,7 +83,8 @@ function watermark() {
       project: p.name,
       place: addr || p.addr || "",
       time,
-      weather: w.temp === null ? w.text || "—" : (w.text ? w.text + " " : "") + w.temp + "℃",
+      // 没有真实天气就留空（宁可不显示，也不编一个「多云 26℃」）
+      weather: w.temp === null ? w.text || "" : (w.text ? w.text + " " : "") + w.temp + "℃",
       lat: loc ? loc.lat : null,
       lng: loc ? loc.lng : null,
     }))

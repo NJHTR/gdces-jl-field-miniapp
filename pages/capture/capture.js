@@ -2,13 +2,22 @@ const store = require("../../utils/store");
 const geo = require("../../utils/geo");
 const uploader = require("../../utils/upload");
 
+/**
+ * 现场拍照：取景时就带水印（cover-view 盖在 camera 上），
+ * 按下拍照后把同一版式用 canvas 画进图里。
+ *
+ * 为什么不用 wx.chooseMedia：它调的是系统相机，页面上看不到水印，
+ * 拍完才知道写了什么。水印相机的做法都是「页内 camera + 覆盖层预览」。
+ */
 Page({
   data: {
     src: "",
     wm: {},
     hdrTop: 52,
     saving: false,
-    tried: false, // 是否已经尝试过打开相机
+    locHint: "",
+    camFailed: false,
+    userName: "",
   },
 
   onLoad() {
@@ -23,19 +32,98 @@ Page({
       hdrTop = Math.round(top);
     } catch (e) {}
 
-    this.setData({ hdrTop, wm: {} });
+    const app = getApp();
+    const u = (app.globalData && app.globalData.user) || {};
+    this.setData({ hdrTop, wm: {}, userName: u.name || "" });
     this.refreshWatermark();
   },
 
-  onReady() {
-    // 等页面挂载完再调相机，太早调容易直接失败
-    setTimeout(() => this.shoot(), 120);
+  onShow() {
+    // 从设置页回来（刚给了定位权限）→ 立刻重取一次
+    if (this._askedSetting) {
+      this._askedSetting = false;
+      this.refreshWatermark();
+    }
   },
 
-  /** 调相机；取消留在本页，可以再拍 */
-  shoot() {
-    this.setData({ tried: true });
+  /* ---------------------------------------------------------------- 水印 */
 
+  /**
+   * 定位 → 地址 + 天气。
+   * 拿不到定位不阻断：用项目地址，并在屏幕上明说。
+   */
+  refreshWatermark() {
+    return geo.watermark().then((wm) => {
+      wm.user = this.data.userName ? "拍摄人 " + this.data.userName : "";
+      const noLoc = wm.lat === null || wm.lat === undefined;
+      this.setData({
+        wm,
+        locHint: noLoc ? "没拿到定位（用的是项目地址）· 点此开启" : "",
+      });
+      return wm;
+    });
+  },
+
+  /** 点提示 → 去设置开定位 */
+  onAskLoc() {
+    this._askedSetting = true;
+    wx.openSetting({
+      success: (r) => {
+        if (r && r.authSetting && r.authSetting["scope.userLocation"]) {
+          this.refreshWatermark();
+        }
+      },
+      fail: () => wx.showToast({ title: "打开设置失败", icon: "none" }),
+    });
+  },
+
+  /* ---------------------------------------------------------------- 相机 */
+
+  onShoot() {
+    if (this.data.camFailed) {
+      this.onPickSystem();
+      return;
+    }
+    let ctx = null;
+    try {
+      ctx = wx.createCameraContext();
+    } catch (e) {
+      this.setData({ camFailed: true });
+      return;
+    }
+    ctx.takePhoto({
+      quality: "high",
+      success: (res) => {
+        this.setData({ src: res.tempImagePath });
+        // 时间刷新到这一张；其余信息沿用屏幕上看到的（所见即所存）
+        this.refreshWatermark();
+      },
+      fail: (err) => {
+        const msg = (err && err.errMsg) || "";
+        if (msg.indexOf("cancel") >= 0) return;
+        wx.showToast({ title: "拍照失败，试试系统相机", icon: "none" });
+        this.setData({ camFailed: true });
+      },
+    });
+  },
+
+  onCamErr(e) {
+    const msg = (e && e.detail && e.detail.errMsg) || "";
+    this.setData({ camFailed: true });
+    if (msg.indexOf("auth") >= 0 || msg.indexOf("deny") >= 0) {
+      wx.showModal({
+        title: "需要相机权限",
+        content: "拍照要记录时间地点，请允许访问相机。",
+        confirmText: "去设置",
+        success: (r) => {
+          if (r.confirm) wx.openSetting({});
+        },
+      });
+    }
+  },
+
+  /** 兜底：系统相机（水印拍完再画） */
+  onPickSystem() {
     wx.chooseMedia({
       count: 1,
       mediaType: ["image"],
@@ -45,19 +133,16 @@ Page({
       success: (res) => {
         const f = res.tempFiles && res.tempFiles[0];
         if (!f) return;
-        this.setData({ src: f.tempFilePath });
+        this.setData({ src: f.tempFilePath, camFailed: false });
         this.refreshWatermark();
       },
       fail: (err) => {
         const msg = (err && err.errMsg) || "";
-        // 用户主动取消：什么都不做，停在取景页可以再点
         if (msg.indexOf("cancel") >= 0) return;
-
-        // 没授权：引导去设置
         if (msg.indexOf("auth") >= 0 || msg.indexOf("deny") >= 0) {
           wx.showModal({
             title: "需要相机权限",
-            content: "拍照要用水印记录时间地点，请允许访问相机。",
+            content: "拍照要记录时间地点，请允许访问相机。",
             confirmText: "去设置",
             success: (r) => {
               if (r.confirm) wx.openSetting({});
@@ -65,30 +150,21 @@ Page({
           });
           return;
         }
-
         wx.showToast({ title: "打不开相机", icon: "none" });
       },
     });
   },
 
-  /** 定位 + 天气（失败就用项目地址兜底，不阻断拍照） */
-  refreshWatermark() {
-    geo.watermark().then((wm) => {
-      this.setData({ wm });
-      if (wm.lat === null) {
-        const last = this.data.locHint;
-        if (!last) this.setData({ locHint: "没拿到定位，用的是项目地址" });
-      }
-    });
-  },
-
   onRetake() {
-    this.shoot();
+    this.setData({ src: "" });
+    this.refreshWatermark();
   },
 
   onBack() {
     wx.navigateBack({ delta: 1 });
   },
+
+  /* ---------------------------------------------------------------- 合成 */
 
   /**
    * 把水印真正画进图片，导出成新的临时文件。
@@ -143,16 +219,19 @@ Page({
     });
   },
 
-  /** 按图片宽度等比排版，任何分辨率都不走样 */
+  /** 按图片宽度等比排版；与屏幕上 cover-view 的版式一一对应 */
   drawWatermark(ctx, W, H, wm) {
     const pad = Math.round(W * 0.045);
     const barW = Math.round(W * 0.085);
     const barH = Math.max(2, Math.round(W * 0.006));
     const fTitle = Math.round(W * 0.052);
     const fBody = Math.round(W * 0.034);
+    const fSmall = Math.round(W * 0.028);
     const gap = Math.round(W * 0.022);
 
-    const blockH = pad * 2 + barH + gap + fTitle + gap + fBody * 2;
+    const hasUser = !!wm.user;
+    const blockH = pad * 2 + barH + gap + fTitle + gap + fBody * 2 +
+      (hasUser ? fSmall + Math.round(fSmall * 0.6) : 0);
     const top = H - blockH - pad * 0.6;
 
     const grad = ctx.createLinearGradient(0, top - blockH, 0, H);
@@ -179,10 +258,19 @@ Page({
     const right = wm.time || "";
     ctx.fillStyle = "rgba(255,255,255,0.94)";
     ctx.font = "bold " + fBody + "px sans-serif";
-    ctx.fillText(wm.weather || "", pad, y);
+    if (wm.weather) ctx.fillText(wm.weather, pad, y);
     const tw = ctx.measureText(right).width;
     ctx.fillText(right, W - pad - tw, y);
+
+    if (hasUser) {
+      y += fSmall + Math.round(fSmall * 0.6);
+      ctx.fillStyle = "rgba(255,255,255,0.78)";
+      ctx.font = fSmall + "px sans-serif";
+      ctx.fillText(wm.user, pad, y);
+    }
   },
+
+  /* ---------------------------------------------------------------- 保存 */
 
   /** 存进现场影像 */
   onSave() {
