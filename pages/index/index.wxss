@@ -6354,6 +6354,14 @@ page {
   color: #11131a;
 }
 
+.rt-cite {
+  font-size: 0.72em;
+  vertical-align: super;
+  line-height: 0;
+  color: #1a73e8;
+  margin-left: 2rpx;
+}
+
 .rt-ref {
   color: #0a6dff;
 }

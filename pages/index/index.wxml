@@ -254,7 +254,7 @@
 
       <text class="quote rich" wx:elif="{{item.answer && item.answer.rich && item.answer.rich.length}}"><text
                     wx:for="{{item.answer.rich}}" wx:for-item="sg" wx:key="v"
-                    class="{{sg.s === 'n' ? 'rt-num' : (sg.s === 'b' ? 'rt-bold' : (sg.s === 'r' ? 'rt-ref' : (sg.s === 'g' ? 'rt-gap' : '')))}}">{{sg.v}}</text></text>
+                    class="{{sg.s === 'n' ? 'rt-num' : (sg.s === 'b' ? 'rt-bold' : (sg.s === 'c' ? 'rt-cite' : (sg.s === 'r' ? 'rt-ref' : (sg.s === 'g' ? 'rt-gap' : ''))))}}">{{sg.v}}</text></text>
 
                 <view class="quote" wx:else>{{item.text}}</view>
                 <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
