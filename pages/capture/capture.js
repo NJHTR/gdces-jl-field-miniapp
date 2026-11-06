@@ -1,6 +1,7 @@
 const store = require("../../utils/store");
 const geo = require("../../utils/geo");
 const uploader = require("../../utils/upload");
+const offline = require("../../utils/offline");
 
 /**
  * 现场拍照：取景即带水印（cover-view 盖在 camera 上），
@@ -16,6 +17,7 @@ Page({
     hdrTop: 52,
     saving: false,
     camFailed: false,
+    pending: 0,
     userName: "",
     showCam: true,
     locState: "idle", // idle | loading | ok | fail
@@ -54,6 +56,17 @@ Page({
    * 取一次水印。
    * opts.loc / opts.addr：地图选点后传进来，避免再定位一次。
    */
+
+  /** 回到取景页：先把本地队列里的照片补传掉 */
+  onShow() {
+    this.setData({ pending: offline.count() });
+    offline.drain((path, kind, meta) =>
+      uploader.uploadFile(path, kind, meta).then(() => wx.vibrateShort({ type: "light" }))
+    ).then((r) => {
+      this.setData({ pending: r.left });
+      if (r.ok) wx.showToast({ title: "补传 " + r.ok + " 张", icon: "none" });
+    });
+  },
   loadWatermark(opts) {
     const o = opts || {};
     if (!o.loc && this.data.locState !== "ok") {
@@ -395,21 +408,31 @@ Page({
         capturedBy: this.data.userName || "",
       };
 
-      uploader.uploadFile(saved, "photo", meta).then((r) => {
-        store.addPhoto({
-          id: "p" + Date.now(),
-          src: r.url || saved,
-          local: saved,
-          sha: r.sha || "",
-          project: wm.project,
-          ...meta,
+      uploader
+        .uploadFile(saved, "photo", meta)
+        .then((r) => {
+          store.addPhoto({
+            id: "p" + Date.now(),
+            src: r.url || saved,
+            local: saved,
+            sha: r.sha || "",
+            project: wm.project,
+            ...meta,
+          });
+          try {
+            wx.vibrateShort({ type: "heavy" });
+          } catch (e) {}
+          wx.showToast({ title: "水印已写入 · 存入现场影像", icon: "none" });
+          setTimeout(() => wx.navigateBack({ delta: 1 }), 700);
+        })
+        .catch(() => {
+          // 现场断网：先存本地队列，恢复网络自动补传（以前失败=照片直接丢）
+          offline.persist(saved).then((path) => {
+            const n = offline.enqueue(path, meta);
+            this.setData({ pending: n });
+            wx.showToast({ title: "已存本地，待网络恢复补传（" + n + " 张）", icon: "none" });
+          });
         });
-        try {
-          wx.vibrateShort({ type: "heavy" });
-        } catch (e) {}
-        wx.showToast({ title: "水印已写入 · 存入现场影像", icon: "none" });
-        setTimeout(() => wx.navigateBack({ delta: 1 }), 700);
-      });
     });
   },
 });

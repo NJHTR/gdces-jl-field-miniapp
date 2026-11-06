@@ -326,3 +326,14 @@ page {
   background: rgba(255, 255, 255, 0.14);
   color: #fff;
 }
+
+.pending {
+  position: absolute;
+  left: 24rpx;
+  bottom: 210rpx;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+}
