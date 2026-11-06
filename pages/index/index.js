@@ -973,6 +973,46 @@ Page({
   },
 
   /** 我的页抽屉：记忆操作 */
+  /**
+   * 真写一条记忆：POST → 重新拉列表。
+   * 以前这里只改本地数组，弹个「已记住」，刷新就没了（假写）。
+   */
+  _saveMemo(text, scope) {
+    const uid = this._userId();
+    const pid = this._projectId();
+    const ownerId = scope === "project" ? pid : uid;
+    return api
+      .post("/api/v1/memories", { scope, ownerId, text, source: "manual" })
+      .then(() =>
+        api.get(
+          "/api/v1/memories?scope=" +
+            scope +
+            "&ownerId=" +
+            encodeURIComponent(ownerId)
+        )
+      )
+      .then((rows) => {
+        const list = (rows || []).map((m) => ({
+          id: (scope === "project" ? "p" : "m") + m.id,
+          text: m.text,
+          meta:
+            (m.source === "learned" ? "自动记的" : "手动添加") +
+            (m.hits ? " · 用过 " + m.hits + " 次" : ""),
+        }));
+        this.setData(
+          scope === "project" ? { projMemos: list } : { memos: list },
+          () => this.refreshViews(this.data.query)
+        );
+        wx.showToast({ title: "已记住", icon: "none" });
+      })
+      .catch((err) => {
+        wx.showToast({
+          title: "没记住：" + ((err && err.message) || "网络问题"),
+          icon: "none",
+        });
+      });
+  },
+
   onMemoAction(e) {
     const act = e.currentTarget.dataset.act;
 
@@ -984,12 +1024,9 @@ Page({
         success: (res) => {
           const text = (res.content || "").trim();
           if (!res.confirm || !text) return;
-          const memos = this.data.memos.concat([
-            { id: "m" + Date.now(), text, meta: "手动添加 · 刚刚" },
-          ]);
-          this.setData({ memos }, () => this.refreshViews(this.data.query));
           this.collapseDrawer();
-          wx.showToast({ title: "已记住", icon: "none" });
+          const scope = this.data.meSeg === "project" ? "project" : "user";
+          this._saveMemo(text, scope);
         },
       });
       return;
@@ -1008,12 +1045,9 @@ Page({
         itemList: lines,
         success: (res) => {
           const text = lines[res.tapIndex];
-          const memos = this.data.memos.concat([
-            { id: "m" + Date.now(), text, meta: "来自今天的对话 · 刚刚" },
-          ]);
-          this.setData({ memos }, () => this.refreshViews(this.data.query));
           this.collapseDrawer();
-          wx.showToast({ title: "已记住", icon: "none" });
+          const scope = this.data.meSeg === "project" ? "project" : "user";
+          this._saveMemo(text, scope);
         },
       });
       return;
