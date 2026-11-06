@@ -123,9 +123,15 @@ Page({
   },
 
   _projectId() {
+    // 首页把项目 id 存成字符串（jl_project），store 里可能只有名字
+    try {
+      const saved = wx.getStorageSync("jl_project");
+      if (typeof saved === "string" && saved) return saved;
+      if (saved && saved.id) return saved.id;
+    } catch (e) {}
     const p = store.project() || {};
     const app = getApp();
     const g = (app.globalData && app.globalData.project) || {};
-    return p.id || g.id || wx.getStorageSync("projectId") || "";
+    return p.id || g.id || "yun-gu-3qi";
   },
 });
