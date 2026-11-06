@@ -264,7 +264,10 @@
                   <view class="cite" wx:for="{{item.cites}}" wx:for-item="c" wx:key="clause"
                         data-id="{{item.id}}" data-ci="{{index}}" catchtap="onOpenCite">
                     <text class="cite-n">{{index + 1}}</text>
-                    <text class="cite-t">{{c.code}} §{{c.clause}}</text>
+                    <view class="cite-body">
+                      <text class="cite-t">{{c.code}} §{{c.clause}}</text>
+                      <text class="cite-std" wx:if="{{c.std}}">{{c.std}}</text>
+                    </view>
                   </view>
                 </view>
 

@@ -900,7 +900,14 @@ Page({
     if (this.data.tab === "field") count = msgsView.filter((m) => !m.hidden).length;
     else if (this.data.tab === "inbox") count = recordsView.reduce((n, r) => n + r.items.length, 0);
     else if (this.data.tab === "docs") count = docsView.length;
-    else count = memosView.length;
+    // 「我的」页有两个分段：空状态和搜索计数要跟当前分段走，
+    // 否则切到「项目的」时会拿「我的」的条数，空状态一直挂着
+    else
+      count = (
+        this.data.meSeg === "project"
+          ? this.data.projMemos.filter((m) => hit(m.text))
+          : memosView
+      ).length;
 
     let listEmpty = false;
     let emptyText = "";
@@ -1714,7 +1721,11 @@ Page({
     });
   },
   switchSeg(e) {
-    this.setData({ meSeg: e.currentTarget.dataset.seg });
+    const meSeg = e.currentTarget.dataset.seg;
+    if (meSeg === this.data.meSeg) return;
+    // 切分段要重算 memosView / projMemosView / listEmpty，
+    // 不然空状态和顶部条数还停在上一个分段
+    this.setData({ meSeg }, () => this.refreshViews(this.data.query));
   },
 
   /** 拍照：直接走附件那条已经能用的链路（wx.chooseMedia → 上传） */
@@ -2069,6 +2080,7 @@ Page({
               traceSum: early.traceSum,
               review: this._reviewOf(early),
               warning: this._warningOf(early),
+              cites: early.cites || [],
             });
           }
           if (st === "done") {
@@ -2081,6 +2093,8 @@ Page({
               traceSum: asst && asst.traceSum,
               msLabel: asst && asst.msLabel,
               artifact: (d && d.artifact) || null,
+              cites: (asst && asst.cites) || [],
+              noSource: !!(d && d.noSource),
               progress: null,
               pending: false,
             };
@@ -2272,7 +2286,7 @@ Page({
     this.refreshViews(this.data.query);
   },
 
-  /** 点引用脚注 → 看条文原文 */
+  /** 点引用脚注 → 看条号、标准名和摘录（不拉全文：摘录已在消息里） */
   onOpenCite(e) {
     const id = e.currentTarget.dataset.id;
     const ci = Number(e.currentTarget.dataset.ci);
@@ -2280,21 +2294,11 @@ Page({
     const c = m && m.cites && m.cites[ci];
     if (!c) return;
     fb.tap();
-    if (c.kind !== "rule") {
-      wx.showToast({ title: "这条依据的原文暂未接入", icon: "none" });
-      return;
-    }
-    api
-      .get("/api/v1/standard?code=" + encodeURIComponent(c.code) + "&clause=" + encodeURIComponent(c.clause))
-      .then((d) => {
-        wx.showModal({
-          title: c.code + " §" + c.clause + (d && d.title ? " " + d.title : ""),
-          content: (d && d.body) || "没有取到条文",
-          showCancel: false,
-          confirmText: "知道了",
-        });
-      })
-      .catch(() => wx.showToast({ title: "条文取不到", icon: "none" }));
+    const title = (c.code || "") + " 第 " + (c.clause || "") + " 条" +
+      (c.std ? "\n《" + c.std + "》" : (c.title ? "\n" + c.title : ""));
+    const body = (c.quote || "（这条没有摘录）") +
+      "\n\n出处：" + (c.source || "标准原文");
+    wx.showModal({ title: title, content: body, showCancel: false, confirmText: "知道了" });
   },
 
   /** 点回复里的文书卡片 → 打开详情 */
