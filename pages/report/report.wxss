@@ -1,0 +1,17 @@
+.page { min-height: 100vh; background: #f6f8fc; padding: 0 28rpx 40rpx; }
+.hdr { display: flex; flex-direction: row; align-items: center; height: 96rpx; }
+.back { width: 56rpx; height: 56rpx; display: flex; align-items: center; }
+.back-t { font-size: 44rpx; color: #1f3a5f; line-height: 44rpx; }
+.title { font-size: 32rpx; font-weight: 600; color: #1f3a5f; margin-left: 8rpx; }
+.card { background: #fff; border-radius: 20rpx; padding: 8rpx 24rpx; margin-top: 12rpx; }
+.row { display: flex; flex-direction: row; align-items: center; height: 96rpx; border-bottom: 1rpx solid #eef2f8; }
+.row:last-child { border-bottom: none; }
+.k { width: 160rpx; font-size: 26rpx; color: #6b7789; }
+.v { font-size: 28rpx; color: #1f3a5f; }
+.i { flex: 1; font-size: 28rpx; color: #1f3a5f; }
+.tip { font-size: 22rpx; color: #8a94a6; line-height: 1.6; padding: 16rpx 0 20rpx; }
+.actions { margin-top: 28rpx; display: flex; flex-direction: column; gap: 20rpx; }
+.btn { height: 92rpx; border-radius: 46rpx; background: linear-gradient(160deg, #2b96ff, #0060df); color: #fff; font-size: 28rpx; line-height: 92rpx; }
+.btn.ghost { background: #fff; color: #1f3a5f; border: 1rpx solid #dbe3ef; }
+.info { margin-top: 20rpx; font-size: 24rpx; color: #2b7a4b; }
+.err { margin-top: 20rpx; font-size: 24rpx; color: #c0392b; }

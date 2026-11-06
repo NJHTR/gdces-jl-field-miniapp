@@ -5,7 +5,8 @@
     "pages/login/login",
     "pages/draft/draft",
     "pages/project/project",
-    "pages/capture/capture"
+    "pages/capture/capture",
+      "pages/report/report"
   ],
   "window": {
     "navigationBarTextStyle": "black",

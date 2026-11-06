@@ -398,6 +398,13 @@
           </view>
         </block>
 
+        <!-- 巡视记录：服务端生成 docx，微信里直接打开/转发 -->
+        <view class="sec">巡视记录</view>
+        <view class="rep-row" bindtap="onOpenReport">
+          <text class="rep-t">生成这几天的巡视记录（docx）</text>
+          <text class="rep-a">›</text>
+        </view>
+
         <!-- 文书资料 -->
         <view class="sec">文书资料</view>
         <block wx:for="{{docsView}}" wx:key="id">

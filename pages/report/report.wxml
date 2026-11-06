@@ -1,0 +1,38 @@
+<view class="page">
+  <view class="hdr">
+    <view class="back" bindtap="onBack">
+      <text class="back-t">‹</text>
+    </view>
+    <text class="title">生成巡视记录</text>
+  </view>
+
+  <view class="card">
+    <view class="row">
+      <text class="k">开始日期</text>
+      <picker mode="date" value="{{from}}" bindchange="onFrom">
+        <view class="v">{{from}} ›</view>
+      </picker>
+    </view>
+    <view class="row">
+      <text class="k">结束日期</text>
+      <picker mode="date" value="{{to}}" bindchange="onTo">
+        <view class="v">{{to}} ›</view>
+      </picker>
+    </view>
+    <view class="row">
+      <text class="k">巡视人</text>
+      <input class="i" value="{{inspector}}" bindinput="onInspector" placeholder="默认取登录人" />
+    </view>
+    <view class="tip">只汇总这段时间里已存在的文书和影像；缺的天气、实测值不会替你编。</view>
+  </view>
+
+  <view class="actions">
+    <button class="btn" bindtap="onGenerate" disabled="{{busy}}">
+      {{busy ? '生成中…' : '生成 docx'}}
+    </button>
+    <button class="btn ghost" wx:if="{{file}}" bindtap="onOpen">用微信打开 / 转发</button>
+  </view>
+
+  <view class="info" wx:if="{{info}}">{{info}}</view>
+  <view class="err" wx:if="{{err}}">{{err}}</view>
+</view>

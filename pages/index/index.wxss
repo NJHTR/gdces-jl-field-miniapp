@@ -6511,3 +6511,22 @@ page {
   font-size: 25rpx;
   line-height: 36rpx;
 }
+.rep-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12rpx 24rpx;
+  padding: 24rpx 26rpx;
+  border-radius: 18rpx;
+  background: #ffffff;
+  box-shadow: 0 6rpx 18rpx -12rpx rgba(31, 58, 95, 0.4);
+}
+.rep-t {
+  font-size: 27rpx;
+  color: #1f3a5f;
+}
+.rep-a {
+  font-size: 30rpx;
+  color: #9aa6b8;
+}

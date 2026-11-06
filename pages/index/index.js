@@ -4,6 +4,7 @@ const api = require("../../utils/request");
 const uploader = require("../../utils/upload");
 const seed = require("../../utils/seed");
 const md = require("../../utils/md");
+const { API_BASE } = require("../../utils/config");
 
 
 const win = (() => {
@@ -156,6 +157,7 @@ Page({
     } catch (e) {}
     this.setData({ hapticOn: fbState.haptic, soundOn: fbState.sound });
     this.refreshViews("");
+    this._loadPhotos();
   },
 
   /** 只认系统级键盘事件：它一定会在键盘真正收起时发 0 */
@@ -195,6 +197,8 @@ Page({
     // 现场影像的真实张数
     const photos = store.photos();
     if (photos.length !== this.data.photoCount) this.setData({ photoCount: photos.length });
+    // 从拍照页/别的设备回来：资料页的影像封面重新对一次后端
+    this._loadPhotos();
 
     // 生成的文书并进"资料"
     const gen = store.docs();
@@ -340,7 +344,10 @@ Page({
             projMemos: (d && d.projMemos) || [],
             pageState: "ready",
           },
-          () => this.refreshViews(this.data.query)
+          () => {
+            this.refreshViews(this.data.query);
+            this._loadPhotos();
+          }
         );
       })
       .catch((err) => {
@@ -398,6 +405,7 @@ Page({
           () => {
             this.refreshViews(this.data.query);
             this.setData({ refreshing: false });
+            this._loadPhotos();
           }
         );
       })
@@ -709,6 +717,7 @@ Page({
         this.updateFab();
         this.refreshViews("");
         wx.nextTick(() => this.syncLens(true));
+        if (tab === "docs") this._loadPhotos();
       }
     );
     setTimeout(() => this.setData({ anim: "" }), 260);
@@ -880,17 +889,33 @@ Page({
       )
       .filter((r) => r.items.length);
 
-    // 影像这类"里面本来就有东西"的，用最新的那张当封面；空的才用默认图
+    // 影像这类"里面本来就有东西"的，用真实照片当封面：
+    // 先按 id 对上后端那张（bootstrap 里影像卡 id 是 p+photoId），
+    // 对不上退回最新一张（后端优先、本机次之），都没有才用示意图。
     const photos = store.photos();
-    const latestPhoto = photos.length ? photos[0].src : "";
+    const remote = this._remotePhotos || [];
+    const remoteById = {};
+    remote.forEach((p) => {
+      remoteById["p" + p.id] = p.src;
+    });
+    const latestPhoto = remote.length
+      ? remote[0].src
+      : photos.length
+      ? photos[0].src
+      : "";
+    const photoTotal = Math.max(remote.length, photos.length);
 
     const docsView = this.data.docs
       .filter((d) => hit(d.name + d.kind + d.state))
       .map((d) => {
         const cov = d.cov || this.docCoverOf(d.kind, d.name);
         const isPhoto = (d.kind || "").indexOf("影像") >= 0;
-        const img = isPhoto && latestPhoto ? latestPhoto : "/assets/covers/" + cov + ".jpg";
-        const state = isPhoto ? (photos.length ? photos.length + " 张" : "还没有") : d.state;
+        const thumb = remoteById[d.id] || "";
+        const img = thumb || (isPhoto && latestPhoto ? latestPhoto : "/assets/covers/" + cov + ".jpg");
+        // 后端/示例数据自带 state（已上传 / 12 张）就别覆盖；只有缺的时候才按张数算
+        const state = isPhoto
+          ? d.state || (photoTotal ? photoTotal + " 张" : "还没有")
+          : d.state;
         return Object.assign({}, d, { cov, img, state });
       });
     const memosView = this.data.memos.filter((m) => hit(m.text));
@@ -1490,16 +1515,26 @@ Page({
           try {
             saved = wx.getFileSystemManager().saveFileSync(f.path);
           } catch (e) {}
-          uploader.upload(saved).then((remote) => store.addPhoto({
-            id: "p" + Date.now() + Math.random().toString(36).slice(2, 6),
-            src: remote || saved,
-            local: saved,
-            project: wm.project,
-            place: wm.place,
-            time: wm.time,
-            weather: wm.weather,
-            from: "chat",
-          }));
+          uploader
+            .upload(saved)
+            .then((remote) =>
+              store.addPhoto({
+                id: "p" + Date.now() + Math.random().toString(36).slice(2, 6),
+                src: remote || saved,
+                local: saved,
+                project: wm.project,
+                place: wm.place,
+                time: wm.time,
+                weather: wm.weather,
+                from: "chat",
+              })
+            )
+            .then(() => {
+              // 本机图片已经能用了，先把资料页刷一遍；后端影像再补一次
+              this.setData({ photoCount: store.photos().length });
+              this.refreshViews(this.data.query);
+              this._loadPhotos();
+            });
         });
 
         try {
@@ -2301,6 +2336,12 @@ Page({
     wx.showModal({ title: title, content: body, showCancel: false, confirmText: "知道了" });
   },
 
+  /** 打开巡视记录生成页 */
+  onOpenReport() {
+    fb.tap();
+    wx.navigateTo({ url: "/pages/report/report" });
+  },
+
   /** 点回复里的文书卡片 → 打开详情 */
   onOpenArtifact(e) {
     const id = e.currentTarget.dataset.id;
@@ -2321,6 +2362,11 @@ Page({
       .then((d) => {
         const list = (d && d.list) || [];
         if (!list.length) return;
+        // 这个接口只回文书；bootstrap 里的影像卡要留着，否则生成一份文书后
+        // 「图纸与影像」整组会凭空消失
+        const photos = (this._baseDocs || []).filter(
+          (x) => (x.kind || "").indexOf("影像") >= 0
+        );
         this._baseDocs = list.map((x) => ({
           id: "f" + x.id,
           kind: (x.kind || "文书").slice(0, 3),
@@ -2330,10 +2376,42 @@ Page({
           tone: x.state === "已签" ? "ok" : "wait",
           icon: "doc",
           visual: false,
-        }));
+        })).concat(photos);
         this.setData({ docs: this._baseDocs.slice() }, () => this.refreshViews(this.data.query));
       })
       .catch(() => {});
+  },
+
+  /**
+   * 拉后端影像列表。
+   * 资料页影像卡要显示真照片，但本机 store 只存这台设备拍过的；
+   * 换设备 / 重装 / 后端已有的照片都拿不到，所以这里补一次。
+   * url 是相对路径（/api/v1/blobs/<sha>），拼上 API_BASE 才能给 <image>。
+   */
+  _loadPhotos() {
+    if (!API_BASE) return Promise.resolve(); // 演示模式没有后端
+    const pid = String(this._projectId() || "");
+    // 同一个项目已经在拉了就不再发；项目变了要重拉
+    if (this._photosPromise && this._photosPid === pid) return this._photosPromise;
+    this._photosPid = pid;
+    this._photosPromise = api
+      .get("/api/v1/photos?projectId=" + encodeURIComponent(pid) + "&limit=50")
+      .then((rows) => {
+        // 拉的过程中项目切了（或者刚补到真 id），这批结果作废
+        if (pid !== String(this._projectId() || "")) return;
+        const abs = (u) => (!u ? "" : /^https?:\/\//.test(u) ? u : API_BASE + u);
+        this._remotePhotos = (rows || [])
+          .map((p) => Object.assign({}, p, { src: abs(p.url) }))
+          .filter((p) => p.src);
+        this.refreshViews(this.data.query);
+      })
+      .catch(() => {
+        // 拉不到就继续用本机照片 / 示意图，不打断页面
+      })
+      .then(() => {
+        if (this._photosPid === pid) this._photosPromise = null;
+      });
+    return this._photosPromise;
   },
 
   onMicStart(e) {    const app = getApp();
