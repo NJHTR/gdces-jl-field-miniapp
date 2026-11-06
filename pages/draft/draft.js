@@ -234,12 +234,19 @@ Page({
           });
         }
 
-        const bases = (d.bases || []).map((b) => ({
-          ic: "search",
-          kind: b.kind || "rule",
-          t: b.ref || b.kind || "依据",
-          body: b.text || "",
-        }));
+        // 依据：规范类显示「标准名 第 X 条」，点开看原文摘录；照片类显示能看大图
+        const bases = (d.bases || []).map((b) => {
+          const isRule = (b.kind || "rule") === "rule";
+          let t = b.ref || b.kind || "依据";
+          if (isRule && b.std && b.clause) t = b.std + " 第 " + b.clause + " 条";
+          else if (isRule && b.clause) t = (b.ref || "").split("#")[0] + " 第 " + b.clause + " 条";
+          return {
+            ic: b.kind === "photo" ? "cam" : "search",
+            kind: b.kind || "rule",
+            t: t,
+            body: b.quote || b.text || "",
+          };
+        });
 
         this.setData({
           docId: d.id || docId,
