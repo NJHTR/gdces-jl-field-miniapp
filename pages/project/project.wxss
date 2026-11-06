@@ -57,6 +57,10 @@ page {
 .pbody {
   flex: 1;
   min-height: 0;
+  /* scroll-view 默认 content-box：只写 padding 的话内容会按整屏宽排，
+     右边 28rpx 被挤出屏幕 —— 显式 width + border-box，和「我的」页 .list 一致 */
+  width: 750rpx;
+  box-sizing: border-box;
   padding: 0 28rpx;
 }
 

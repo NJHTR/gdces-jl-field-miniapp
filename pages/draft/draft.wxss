@@ -77,6 +77,9 @@ page {
 .dbody {
   flex: 1;
   min-height: 0;
+  /* scroll-view 默认 content-box，只写 padding 右边会被挤出屏幕 */
+  width: 750rpx;
+  box-sizing: border-box;
   padding: 0 28rpx;
 }
 
@@ -334,6 +337,8 @@ page {
 .viewer-body {
   flex: 1;
   min-height: 0;
+  width: 750rpx;
+  box-sizing: border-box;
   padding: 0 28rpx 40rpx;
 }
 

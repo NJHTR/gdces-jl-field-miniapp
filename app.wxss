@@ -20,7 +20,8 @@ scroll-view {
 view,
 text,
 image,
-button {
+button,
+scroll-view {
   box-sizing: border-box;
 }
 
