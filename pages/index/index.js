@@ -918,7 +918,21 @@ Page({
           : d.state;
         return Object.assign({}, d, { cov, img, state });
       });
-    const memosView = this.data.memos.filter((m) => hit(m.text));
+    const _memoMeta = (m) => {
+      const src =
+        m.source === "learned" ? "自动记的"
+        : m.source === "confirmed" ? "你确认的规矩"
+        : m.source === "correction" ? "从纠正里来的"
+        : "手动记的";
+      return src + (m.hits ? " · 用过 " + m.hits + " 次" : " · 还没用过");
+    };
+    const _deco = (m) =>
+      Object.assign({}, m, {
+        meta: _memoMeta(m),
+        stateText: m.status ? "✓ 生效中" : "已停用",
+        active: !!m.status,
+      });
+    const memosView = this.data.memos.filter((m) => hit(m.text)).map(_deco);
 
     // 当前页的命中数（搜索时显示在顶部）
     let count = 0;
@@ -960,7 +974,7 @@ Page({
       recordsView,
       docsView,
       memosView,
-      projMemosView: this.data.projMemos.filter((m) => hit(m.text)),
+      projMemosView: this.data.projMemos.filter((m) => hit(m.text)).map(_deco),
       searchCount: count,
       listEmpty,
       emptyText,
@@ -1778,14 +1792,34 @@ Page({
   onMemoTap(e) {
     fb.tap();
     const id = e.currentTarget.dataset.id;
+    const all = this.data.memos.concat(this.data.projMemos);
+    const item = all.find((m) => m.id === id);
+    if (!item) return;
+    const mid = String(id).replace(/^[mp]/, "");
+    const toggle = item.status ? "停用这条" : "恢复这条";
     wx.showActionSheet({
-      itemList: ["停用这条", "删除这条"],
+      itemList: [toggle, "删除这条"],
       itemColor: "#d92c20",
       success: (res) => {
-        const memos = this.data.memos.filter((m) => m.id !== id);
-        const projMemos = this.data.projMemos.filter((m) => m.id !== id);
-        this.setData({ memos, projMemos }, () => this.refreshViews(this.data.query));
-        wx.showToast({ title: res.tapIndex === 0 ? "已停用" : "已删除", icon: "none" });
+        const done = (title) =>
+          wx.showToast({ title, icon: "none" });
+        if (res.tapIndex === 0) {
+          api
+            .patch("/api/v1/memories/" + mid, { status: item.status ? 0 : 1 })
+            .then(() => {
+              done(item.status ? "已停用" : "已恢复");
+              this.loadAll();
+            })
+            .catch((err) => done("没改成：" + ((err && err.message) || "网络问题")));
+          return;
+        }
+        api
+          .del("/api/v1/memories/" + mid)
+          .then(() => {
+            done("已删除");
+            this.loadAll();
+          })
+          .catch((err) => done("没删掉：" + ((err && err.message) || "网络问题")));
       },
     });
   },

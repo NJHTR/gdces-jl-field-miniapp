@@ -6530,3 +6530,8 @@ page {
   font-size: 30rpx;
   color: #9aa6b8;
 }
+
+.memo-off {
+  font-size: 20rpx;
+  color: #9aa0a6;
+}

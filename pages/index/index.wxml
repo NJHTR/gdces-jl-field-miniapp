@@ -453,7 +453,8 @@
             <view class="memo-t">{{item.text}}</view>
             <view class="memo-m">
               <text class="memo-mt">{{item.meta}}</text>
-              <text class="memo-ok">✓ 生效中</text>
+              <text class="memo-ok" wx:if="{{item.active}}">✓ 生效中</text>
+          <text class="memo-off" wx:else>已停用</text>
             </view>
           </view>
         </view>
@@ -464,7 +465,8 @@
             <view class="memo-t">{{item.text}}</view>
             <view class="memo-m">
               <text class="memo-mt">{{item.meta}}</text>
-              <text class="memo-ok">✓ 生效中</text>
+              <text class="memo-ok" wx:if="{{item.active}}">✓ 生效中</text>
+          <text class="memo-off" wx:else>已停用</text>
             </view>
           </view>
         </view>
