@@ -218,6 +218,8 @@
           <text class="rvmore">{{item.reviewOpen ? '收起' : '展开'}}</text>
         </view>
         <view class="rvbody" wx:if="{{item.reviewOpen}}">{{item.review}}</view>
+      <!-- 出稿已完成、复核还在后台 -->
+      <view class="rvpending" wx:if="{{item.reviewState === 'pending' && !item.review}}">复核中…（文书已出，复核意见稍后补上）</view>
       </view>
 
       <view class="mdbox" wx:if="{{item.md && item.md.length}}">

@@ -6554,3 +6554,12 @@ page {
   color: #fff;
   background: #2f6fed;
 }
+
+.rvpending {
+  margin: 12rpx 24rpx 0;
+  padding: 12rpx 18rpx;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  color: #6b7280;
+  background: #f3f4f6;
+}

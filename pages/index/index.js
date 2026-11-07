@@ -2228,6 +2228,7 @@ Page({
               artifact: (d && d.artifact) || null,
               cites: (asst && asst.cites) || [],
               noSource: !!(d && d.noSource),
+              reviewState: (d && d.reviewStatus) || "",
               progress: null,
               pending: false,
             };
@@ -2237,6 +2238,10 @@ Page({
             wx.showToast({ title: "已完成", icon: "none", duration: 1200 });
             this._clearInflight();
             this._maybeReloadDocs();
+            // 出稿已完成，复核还在后台：轻量再轮询几次，把复核意见补上
+            if (patch.reviewState === "pending") {
+              this._pollReview(taskId, pendingId, 0);
+            }
             return;
           }
           if (st === "failed" || st === "cancelled") {
@@ -2268,6 +2273,27 @@ Page({
         })
         .catch(() => this._pollTask(taskId, pendingId, tries + 1));
     }, 800);
+  },
+
+  /** 复核结果补投：出稿已经 done，这里只等"复核中→完成"，不挡用户 */
+  _pollReview(taskId, pendingId, tries) {
+    if (tries >= 10) return;
+    setTimeout(() => {
+      api
+        .get("/api/v1/tasks/" + taskId)
+        .then((d) => {
+          const st = (d && d.reviewStatus) || "";
+          if (st !== "done" && st !== "failed") {
+            return this._pollReview(taskId, pendingId, tries + 1);
+          }
+          const asst = ((d && d.messages) || []).filter((m) => m.role === "assistant").pop();
+          this._fillPending(pendingId, {
+            review: this._reviewOf(asst),
+            reviewState: st,
+          });
+        })
+        .catch(() => this._pollReview(taskId, pendingId, tries + 1));
+    }, 3000);
   },
 
   /** 从消息里取复核意见（answer 可能是对象，也可能是 JSON 字符串） */
