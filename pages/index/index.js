@@ -195,6 +195,13 @@ Page({
     if (!this.data.busy) this._resumeInflight();
     this._bindKeyboard();
 
+    // 回到前台：把还停在"复核中"的消息续上（切后台会中断 setTimeout 链）
+    (this.data.msgs || []).forEach((m) => {
+      if (m && m.taskId && m.reviewState === "pending") {
+        this._pollReview(m.taskId, m.id, 10);
+      }
+    });
+
     // 现场影像的真实张数
     const photos = store.photos();
     if (photos.length !== this.data.photoCount) this.setData({ photoCount: photos.length });
@@ -2228,6 +2235,7 @@ Page({
               artifact: (d && d.artifact) || null,
               cites: (asst && asst.cites) || [],
               noSource: !!(d && d.noSource),
+              taskId: taskId,
               reviewState: (d && d.reviewStatus) || "",
               progress: null,
               pending: false,
@@ -2275,9 +2283,13 @@ Page({
     }, 800);
   },
 
-  /** 复核结果补投：出稿已经 done，这里只等"复核中→完成"，不挡用户 */
+  /**
+   * 复核结果补投：出稿已经 done，这里只等"复核中→完成"，不挡用户。
+   * 窗口 ≈ 10×3s + 30×6s = 210s：实测复核 97s，30s 窗口会让界面永远停在"复核中"。
+   */
   _pollReview(taskId, pendingId, tries) {
-    if (tries >= 10) return;
+    if (tries >= 40) return;
+    const wait = tries < 10 ? 3000 : 6000;
     setTimeout(() => {
       api
         .get("/api/v1/tasks/" + taskId)
@@ -2293,7 +2305,7 @@ Page({
           });
         })
         .catch(() => this._pollReview(taskId, pendingId, tries + 1));
-    }, 3000);
+    }, wait);
   },
 
   /** 从消息里取复核意见（answer 可能是对象，也可能是 JSON 字符串） */
