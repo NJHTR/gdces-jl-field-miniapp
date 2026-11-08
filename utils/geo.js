@@ -13,6 +13,7 @@ const store = require("./store");
 
 let cachedLoc = null;
 let cachedWx = null;
+let cachedWxKey = "";
 let cachedAt = 0;
 
 /** 取经纬度，失败返回 null（不抛异常） */
@@ -61,13 +62,19 @@ function reverse(loc) {
 
 /** 天气（走自己的后端，key 不进小程序） */
 function weather(loc) {
-  if (cachedWx && Date.now() - cachedAt < 10 * 60 * 1000) return Promise.resolve(cachedWx);
+  // 没有坐标就不取天气，更不能把「无坐标」的空结果缓存给下一次真定位用
+  if (!loc) return Promise.resolve({ text: "", temp: null });
+  const key = loc.lat + "," + loc.lng;
+  if (cachedWx && cachedWxKey === key && Date.now() - cachedAt < 10 * 60 * 1000) {
+    return Promise.resolve(cachedWx);
+  }
 
-  const q = loc ? "?lat=" + loc.lat + "&lng=" + loc.lng : "";
+  const q = "?lat=" + loc.lat + "&lng=" + loc.lng;
   return api
     .get("/api/v1/weather" + q)
     .then((d) => {
       cachedWx = Object.assign({ text: "", temp: null }, d || {});
+      cachedWxKey = key;
       cachedAt = Date.now();
       return cachedWx;
     })

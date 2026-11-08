@@ -77,6 +77,7 @@ Page({
     }
     return geo.watermark(o).then((wm) => {
       const noLoc = wm.lat === null || wm.lat === undefined;
+      wm.place = wm.place || store.project().addr || "未获取定位";
       wm.user = (this.data.edit.shooter || this.data.userName)
         ? "拍摄人 " + (this.data.edit.shooter || this.data.userName)
         : "";

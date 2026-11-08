@@ -29,7 +29,7 @@
         {{wm.place || "定位中…"}}{{wm.placeTag || ""}}  ›
       </cover-view>
       <cover-view class="wm-row">
-        <cover-view class="wm-w" bindtap="onWeatherTap">{{wm.weather || (locState === 'loading' ? '取天气中…' : '—')}}</cover-view>
+        <cover-view class="wm-w" bindtap="onWeatherTap">{{wm.weather || (locState === 'loading' ? '取天气中…' : '未获取')}}</cover-view>
         <cover-view class="wm-t">{{wm.time || ""}}</cover-view>
       </cover-view>
       <cover-view class="wm-e" wx:if="{{wm.weatherExtra}}">{{wm.weatherExtra}}</cover-view>

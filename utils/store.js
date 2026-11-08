@@ -8,6 +8,7 @@ const K_DOCS = "jl_docs";
 const K_PHOTOS = "jl_photos";
 
 const DEFAULT_PROJECT = {
+  id: "yun-gu-3qi",
   name: "云谷智造园 · 3期",
   code: "GZ-2026-031",
   addr: "深圳市南山区科技园北区 A-3-2",
@@ -48,7 +49,7 @@ function write(key, value) {
 /* ---------------- 项目 ---------------- */
 
 function project() {
-  return read(K_PROJECT, null) || Object.assign({}, DEFAULT_PROJECT);
+  return Object.assign({}, DEFAULT_PROJECT, read(K_PROJECT, null) || {});
 }
 
 function saveProject(obj) {
