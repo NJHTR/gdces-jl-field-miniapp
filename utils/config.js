@@ -20,7 +20,9 @@ function apiBase() {
       if (v) return v;
     }
   } catch (e) {}
-  return "http://127.0.0.1:8081";
+  // 手机预览走电脑热点（手机 192.168.137.x，电脑热点网关 192.168.137.1）。
+  // 桌面开发如果走 127.0.0.1 隧道，可 setStorageSync 覆盖。
+  return "http://192.168.137.1:8081";
 }
 
 module.exports = {

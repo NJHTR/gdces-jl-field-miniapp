@@ -1,4 +1,5 @@
 {
   "navigationStyle": "custom",
+  "renderer": "webview",
   "usingComponents": {}
 }
