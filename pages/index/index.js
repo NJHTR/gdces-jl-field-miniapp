@@ -876,10 +876,16 @@ Page({
     const msgsView = this.data.msgs.map((m) => {
       if (m.type === "stamp") return Object.assign({}, m, { hidden: !!q });
       const text = (m.text || "") + (m.sub || "") + (m.cap || "");
+      // 服务端历史里的图片是 /api/v1/blobs/<sha> 相对地址，补成完整 API 地址；
+      // 不补的话 <image> 会当成本地包内路径，加载失败看起来就是「图片不见了」。
+      const photos = (m.photos || []).map((p) =>
+        typeof p === "string" && p.indexOf("/api/") === 0 ? API_BASE + p : p
+      );
       // 模型会用 Markdown（**加粗**、- 列表、### 小标题），按块渲染，
       // 没有语法就还用原来的纯文本/富文本
       const mdBlocks = m.type === "agent" && md.hasMarkdown(m.text) ? md.parse(m.text) : null;
       return Object.assign({}, m, {
+        photos: photos,
         md: mdBlocks,
         reviewOpen: !!openMap[m.id + ":rv"],
         hidden: !!q && !hit(text),
