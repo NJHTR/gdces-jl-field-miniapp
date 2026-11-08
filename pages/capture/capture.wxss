@@ -191,6 +191,12 @@ page {
   color: rgba(255, 255, 255, 0.9);
 }
 
+.wm-e {
+  margin-top: 6rpx;
+  font-size: 19rpx;
+  color: rgba(255, 255, 255, 0.78);
+}
+
 /* 底部 */
 .cfoot {
   flex: none;

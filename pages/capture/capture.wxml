@@ -32,6 +32,7 @@
         <cover-view class="wm-w" bindtap="onWeatherTap">{{wm.weather || (locState === 'loading' ? '取天气中…' : '—')}}</cover-view>
         <cover-view class="wm-t">{{wm.time || ""}}</cover-view>
       </cover-view>
+      <cover-view class="wm-e" wx:if="{{wm.weatherExtra}}">{{wm.weatherExtra}}</cover-view>
       <cover-view class="wm-u" wx:if="{{wm.user}}">{{wm.user}}</cover-view>
       <cover-view class="wm-m" wx:if="{{wm.work || wm.note || wm.placeName}}">
         {{wm.work ? "工序 " + wm.work : ""}}{{wm.placeName ? " · " + wm.placeName : ""}}{{wm.note ? " · " + wm.note : ""}}

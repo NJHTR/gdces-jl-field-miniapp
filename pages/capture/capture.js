@@ -83,12 +83,17 @@ Page({
       wm.placeName = this.data.edit.place || "";
       wm.work = this.data.edit.work || "";
       wm.note = this.data.edit.note || "";
+      const src =
+        wm.addressSource ||
+        (this.data.locSource === "map" ? "map" : noLoc ? "project" : "gps");
       wm.placeTag =
-        this.data.locSource === "map"
+        src === "map"
           ? "（选点）"
-          : noLoc
+          : src === "project"
           ? "（项目地址）"
-          : "";
+          : wm.accuracy
+          ? "（GPS ±" + Math.round(wm.accuracy) + "m）"
+          : "（GPS）";
       this.setData({
         wm,
         locState: noLoc ? "fail" : "ok",
@@ -155,9 +160,11 @@ Page({
         wx.showToast({ title: "天气取不到", icon: "none" });
         return;
       }
+      const fw = geo.formatWeather(w);
       const wm = Object.assign({}, this.data.wm, {
-        weather:
-          w.temp === null ? w.text : (w.text ? w.text + " " : "") + w.temp + "℃",
+        weather: fw.text,
+        weatherExtra: fw.extra,
+        weatherDetail: w,
       });
       this.setData({ wm });
     });
@@ -315,8 +322,10 @@ Page({
       .filter(Boolean)
       .join(" · ");
     const hasMeta = !!metaLine;
+    const hasExtra = !!wm.weatherExtra;
     const blockH =
       pad * 2 + barH + gap + fTitle + gap + fBody * 2 +
+      (hasExtra ? fSmall + Math.round(fSmall * 0.6) : 0) +
       (hasMeta ? fSmall + Math.round(fSmall * 0.6) : 0) +
       (hasUser ? fSmall + Math.round(fSmall * 0.6) : 0);
     const top = H - blockH - pad * 0.6;
@@ -349,6 +358,12 @@ Page({
     const tw = ctx.measureText(right).width;
     ctx.fillText(right, W - pad - tw, y);
 
+    if (hasExtra) {
+      y += fSmall + Math.round(fSmall * 0.6);
+      ctx.fillStyle = "rgba(255,255,255,0.78)";
+      ctx.font = fSmall + "px sans-serif";
+      ctx.fillText(wm.weatherExtra, pad, y);
+    }
     if (hasMeta) {
       y += fSmall + Math.round(fSmall * 0.6);
       ctx.fillStyle = "rgba(255,255,255,0.82)";
@@ -388,9 +403,14 @@ Page({
         work: ed.work || "",
         note: ed.note || "",
         address: wm.place || "",
-        addressSource: wm.lat === null || wm.lat === undefined ? "project" : this.data.locSource,
+        addressSource: wm.addressSource || "project",
+        addressDetail: wm.addressDetail ? JSON.stringify(wm.addressDetail) : "",
         weather: wm.weather || "",
-        weatherSource: wm.weather ? "api" : "none",
+        weatherDetail: wm.weatherDetail ? JSON.stringify(wm.weatherDetail) : "",
+        weatherAt: (wm.weatherDetail && wm.weatherDetail.at) || "",
+        weatherSource: (wm.weatherDetail && wm.weatherDetail.source) || "none",
+        accuracy: wm.accuracy,
+        altitude: wm.altitude,
         lat: wm.lat,
         lng: wm.lng,
         shotAt,

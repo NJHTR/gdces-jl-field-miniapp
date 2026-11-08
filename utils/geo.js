@@ -22,9 +22,17 @@ function locate() {
   return new Promise((resolve) => {
     wx.getLocation({
       type: "gcj02",
-      isHighAccuracy: false,
+      isHighAccuracy: true,
+      highAccuracyExpireTime: 4000,
+      altitude: true,
       success: (res) => {
-        cachedLoc = { lat: res.latitude, lng: res.longitude };
+        cachedLoc = {
+          lat: res.latitude,
+          lng: res.longitude,
+          accuracy: res.accuracy,
+          altitude: res.altitude,
+          verticalAccuracy: res.verticalAccuracy,
+        };
         resolve(cachedLoc);
       },
       fail: () => resolve(null),
@@ -32,13 +40,23 @@ function locate() {
   });
 }
 
-/** 逆地理编码：坐标 → 中文地址（走自己的后端） */
+/**
+ * 逆地理：坐标 → 中文地址（走自己的后端）
+ * 返回 {address, source, detail}；source=project 表示只是项目地址兜底，不是 GPS 地址。
+ */
 function reverse(loc) {
-  if (!loc) return Promise.resolve(store.project().addr || "");
+  const p = store.project();
+  const projectAddr = p.addr || "";
+  if (!loc) return Promise.resolve({ address: projectAddr, source: "project" });
   return api
-    .get("/api/v1/geo/reverse?lat=" + loc.lat + "&lng=" + loc.lng)
-    .then((d) => (d && d.address) || store.project().addr || "")
-    .catch(() => store.project().addr || "");
+    .get("/api/v1/geo/reverse?projectId=" + encodeURIComponent(p.id || "") +
+         "&lat=" + loc.lat + "&lng=" + loc.lng)
+    .then((d) => ({
+      address: (d && d.address) || projectAddr,
+      source: (d && d.source) || "geo",
+      detail: d || null,
+    }))
+    .catch(() => ({ address: projectAddr, source: "project" }));
 }
 
 /** 天气（走自己的后端，key 不进小程序） */
@@ -49,15 +67,31 @@ function weather(loc) {
   return api
     .get("/api/v1/weather" + q)
     .then((d) => {
-      const w = {
-        text: (d && d.text) || "",
-        temp: d && typeof d.temp === "number" ? d.temp : null,
-      };
-      cachedWx = w;
+      cachedWx = Object.assign({ text: "", temp: null }, d || {});
       cachedAt = Date.now();
-      return w;
+      return cachedWx;
     })
     .catch(() => ({ text: "", temp: null }));
+}
+
+/** 把后端天气对象格式化成水印两行；缺数据就留空，绝不编 */
+function formatWeather(w) {
+  let text = "";
+  let extra = "";
+  if (w && (w.text || (w.temp !== null && w.temp !== undefined))) {
+    text = w.text || "";
+    if (w.temp !== null && w.temp !== undefined) {
+      text += (text ? " " : "") + w.temp + "℃";
+    }
+    const extras = [];
+    if (w.humidity !== null && w.humidity !== undefined) extras.push("湿度" + w.humidity + "%");
+    if (w.wind_dir_text) extras.push(w.wind_dir_text + (w.wind_level || ""));
+    if (w.precipitation !== null && w.precipitation !== undefined && Number(w.precipitation) > 0) {
+      extras.push("降水" + w.precipitation + "mm");
+    }
+    extra = extras.join(" · ");
+  }
+  return { text, extra };
 }
 
 /**
@@ -81,17 +115,26 @@ function watermark(opts) {
 
   // o.loc：外部指定的坐标（地图选点）；o.addr：外部指定的地址
   const locP = o.loc ? Promise.resolve(o.loc) : locate();
+  const addrP = o.addr ? Promise.resolve({ address: o.addr, source: "map" }) : null;
   return locP.then((loc) =>
-    Promise.all([o.addr ? Promise.resolve(o.addr) : reverse(loc), weather(loc)]).then(([addr, w]) => ({
-      project: p.name,
-      place: addr || p.addr || "",
-      time,
-      // 没有真实天气就留空（宁可不显示，也不编一个「多云 26℃」）
-      weather: w.temp === null ? w.text || "" : (w.text ? w.text + " " : "") + w.temp + "℃",
-      lat: loc ? loc.lat : null,
-      lng: loc ? loc.lng : null,
-    }))
+    Promise.all([addrP || reverse(loc), weather(loc)]).then(([addr, w]) => {
+      const fw = formatWeather(w);
+      return {
+        project: p.name,
+        place: (addr && addr.address) || p.addr || "",
+        addressSource: (addr && addr.source) || "project",
+        addressDetail: (addr && addr.detail) || null,
+        time,
+        weather: fw.text,
+        weatherExtra: fw.extra,
+        weatherDetail: w || null,
+        lat: loc ? loc.lat : null,
+        lng: loc ? loc.lng : null,
+        accuracy: loc ? loc.accuracy : null,
+        altitude: loc ? loc.altitude : null,
+      };
+    })
   );
 }
 
-module.exports = { locate, reverse, weather, watermark };
+module.exports = { locate, reverse, weather, formatWeather, watermark };
