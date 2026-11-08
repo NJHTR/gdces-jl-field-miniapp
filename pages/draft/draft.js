@@ -255,6 +255,7 @@ Page({
             };
           }
           const isRule = (b.kind || "rule") === "rule";
+          const isPhoto = b.kind === "photo";
           const ref = String(b.ref || "");
           let code = b.code || "";
           let clause = b.clause || "";
@@ -263,14 +264,15 @@ Page({
             code = m[1].replace(/\s+/g, " ").trim();
             clause = m[2];
           }
-          let t = ref || b.kind || "依据";
+          let t = (isPhoto && b.text) || ref || b.kind || "依据";
           if (isRule && b.std && clause) t = b.std + " 第 " + clause + " 条";
           else if (isRule && clause) t = (ref.split("#")[0] || "规范") + " 第 " + clause + " 条";
           return {
-            ic: b.kind === "photo" ? "cam" : "search",
+            ic: isPhoto ? "cam" : "search",
             kind: b.kind || "rule",
             t: t,
             body: b.quote || b.text || "",
+            img: isPhoto && ref ? API_BASE + "/api/v1/blobs/" + ref : "",
             ref: ref,
             code: code,
             clause: clause,
@@ -464,7 +466,7 @@ Page({
       wx.showToast({ title: "这份文书还没入库", icon: "none" });
       return;
     }
-    wx.showLoading({ title: "生成表格…", mask: true });
+    wx.showLoading({ title: "生成文件…", mask: true });
     api
       .post("/api/v1/reports/form", {
         projectId: store.project().id,

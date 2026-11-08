@@ -49,7 +49,7 @@
 
   <view class="dfoot" style="padding-bottom: {{bottomPad}}px;">
     <view class="fbtn ghost" wx:if="{{missingCount}}" bindtap="onFillAll" aria-label="补齐缺项">补齐 {{missingCount}} 项</view>
-    <view class="fbtn ghost" wx:if="{{docId}}" bindtap="onExportForm" aria-label="导出表格">导出表格</view>
+    <view class="fbtn ghost" wx:if="{{docId}}" bindtap="onExportForm" aria-label="导出文件">导出文件</view>
     <view class="fbtn" bindtap="onGenerate" aria-label="生成文书">生成文书</view>
   </view>
 </view>
