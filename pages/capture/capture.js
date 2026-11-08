@@ -420,14 +420,33 @@ Page({
         capturedBy: this.data.userName || "",
       };
 
-      // 从聊天「+ → 拍照（带水印）」进来：不回填现场影像，直接把水印图作为附件带回。
+      // 从聊天「+ → 拍照（带水印）」进来：先把这张图连同水印元数据登记进现场影像，
+      // 再把本地图作为聊天附件带回。否则 records/photos.md 里没有它，AI 会以为项目没照片。
       if (this._chatMode) {
-        try {
-          const ch = this.getOpenerEventChannel && this.getOpenerEventChannel();
-          if (ch && ch.emit) ch.emit("captured", { src: saved, meta });
-        } catch (e) {}
-        wx.showToast({ title: "照片已加入附件", icon: "none" });
-        setTimeout(() => wx.navigateBack({ delta: 1 }), 400);
+        const finish = (sha, url) => {
+          try {
+            const ch = this.getOpenerEventChannel && this.getOpenerEventChannel();
+            if (ch && ch.emit) ch.emit("captured", { src: saved, meta, sha: sha || "", url: url || "" });
+          } catch (e) {}
+          wx.showToast({ title: "照片已加入附件", icon: "none" });
+          setTimeout(() => wx.navigateBack({ delta: 1 }), 400);
+        };
+        uploader
+          .uploadFile(saved, "photo", meta)
+          .then((r) => {
+            try {
+              store.addPhoto({
+                id: "p" + Date.now(),
+                src: r.url || saved,
+                local: saved,
+                sha: r.sha || "",
+                project: wm.project,
+                ...meta,
+              });
+            } catch (e) {}
+            finish(r.sha, r.url);
+          })
+          .catch(() => finish("", ""));
         return;
       }
 
