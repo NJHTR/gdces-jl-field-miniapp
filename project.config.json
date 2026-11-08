@@ -17,7 +17,12 @@
   "compileType": "miniprogram",
   "simulatorPluginLibVersion": {},
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "folder", "value": "docs" },
+      { "type": "folder", "value": ".git" },
+      { "type": "folder", "value": "tools" },
+      { "type": "file", "value": "README.md" }
+    ],
     "include": []
   },
   "appid": "wx8a825eb12de461fb",
