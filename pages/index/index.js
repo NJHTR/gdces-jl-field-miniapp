@@ -1335,9 +1335,13 @@ Page({
 
   /* ---------------- 附件：图片 / 语音，可与文字自由组合 ---------------- */
 
-  /** 拍照 / 从相册选，可多张 */
+  /** 只允许相册走系统选择；任何“拍照”都走带水印的现场拍照页 */
   onAddPhoto(source) {
     fb.tap();
+    if (source !== "album") {
+      this.onWatermarkCamera();
+      return;
+    }
     const left = 9 - this.data.attach.filter((a) => a.kind === "photo").length;
     if (left <= 0) {
       wx.showToast({ title: "最多 9 张", icon: "none" });
@@ -1347,7 +1351,7 @@ Page({
     wx.chooseMedia({
       count: left,
       mediaType: ["image"],
-      sourceType: source === "album" ? ["album"] : source === "camera" ? ["camera"] : ["camera", "album"],
+      sourceType: ["album"],
       sizeType: ["compressed"],
       success: (res) => {
         const add = (res.tempFiles || []).map((f, i) => ({
@@ -1891,14 +1895,14 @@ Page({
     this.setData({ meSeg }, () => this.refreshViews(this.data.query));
   },
 
-  /** 拍照：直接走附件那条已经能用的链路（wx.chooseMedia → 上传） */
+  /** 拍照：统一走带水印的现场拍照页 */
   onCamera() {
     const app = getApp();
     if (!app.globalData.token) {
       wx.navigateTo({ url: "/pages/login/login?action=record" });
       return;
     }
-    this.onAddPhoto("camera");
+    this.onWatermarkCamera();
   },
 
   /** 占位：用于 catchtouchstart，阻止事件冒泡到"按住说话" */

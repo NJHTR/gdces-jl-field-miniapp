@@ -44,7 +44,7 @@
     </cover-view>
 
     <cover-view class="cam-fail" wx:if="{{camFailed}}" bindtap="onPickSystem">
-      相机没起来，点这里用系统相机
+      相机没起来，点这里重试（需允许相机权限）
     </cover-view>
   </view>
 

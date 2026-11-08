@@ -234,24 +234,12 @@ Page({
   },
 
   onPickSystem() {
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ["image"],
-      sourceType: ["camera"],
-      camera: "back",
-      sizeType: ["compressed"],
-      success: (res) => {
-        const f = res.tempFiles && res.tempFiles[0];
-        if (!f) return;
-        this.setData({ src: f.tempFilePath, camFailed: false, showCam: true });
-        this.loadWatermark(this._loc ? { loc: this._loc } : undefined);
-      },
-      fail: (err) => {
-        const msg = (err && err.errMsg) || "";
-        if (msg.indexOf("cancel") >= 0) return;
-        wx.showToast({ title: "打不开相机", icon: "none" });
-      },
-    });
+    // 不再回退到系统相机：系统相机无法叠加/烧入水印。
+    this.setData({ camFailed: false, showCam: true });
+    wx.showToast({ title: "请允许相机权限后重试", icon: "none" });
+    try {
+      wx.openSetting({});
+    } catch (e) {}
   },
 
   onRetake() {

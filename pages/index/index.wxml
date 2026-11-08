@@ -748,7 +748,7 @@
                   </view>
                 </view>
 
-                <view class="atile atile-add" wx:if="{{attach.length < 9}}" bindtap="onAddPhoto">
+                <view class="atile atile-add" wx:if="{{attach.length < 9}}" bindtap="onAddAttach">
                   <text class="atile-add-t">＋</text>
                 </view>
               </view>
