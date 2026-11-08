@@ -49,7 +49,14 @@ function write(key, value) {
 /* ---------------- 项目 ---------------- */
 
 function project() {
-  return Object.assign({}, DEFAULT_PROJECT, read(K_PROJECT, null) || {});
+  const saved = read(K_PROJECT, null);
+  if (!saved) return Object.assign({}, DEFAULT_PROJECT);
+  // 兼容历史：以前切项目只存了一个 id 字符串
+  if (typeof saved === "string") {
+    return Object.assign({}, DEFAULT_PROJECT, { id: saved });
+  }
+  // 有真实项目对象就不要再拿云谷的默认地址去补，否则水印会串项目
+  return Object.assign({}, saved);
 }
 
 function saveProject(obj) {

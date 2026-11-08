@@ -342,10 +342,13 @@ Page({
         this._loadedOnce = true;
         this._baseDocs = (d && d.docs) || [];
         this._maybeCoach();
+        const proj = this._mergeProject((d && d.project) || {});
+        // 关键：把当前完整项目对象存下来，水印/项目页读的是它，不是默认云谷
+        store.saveProject(proj);
         this.setData(
           {
             msgs: (d && d.msgs) || [],
-            project: this._mergeProject((d && d.project) || {}),
+            project: proj,
             records: (d && d.records) || [],
             docs: this._baseDocs.slice(),
             memos: (d && d.memos) || [],
@@ -400,10 +403,12 @@ Page({
         this._loadedOnce = true;
         this._baseDocs = (d && d.docs) || [];
         this._maybeCoach();
+        const proj = Object.assign({}, this.data.project, (d && d.project) || {});
+        store.saveProject(proj);
         this.setData(
           {
             msgs: (d && d.msgs) || [],
-            project: Object.assign({}, this.data.project, (d && d.project) || {}),
+            project: proj,
             records: (d && d.records) || [],
             docs: this._baseDocs.slice(),
             memos: (d && d.memos) || [],
@@ -1757,8 +1762,9 @@ Page({
   /** 真的切：存起来、清干净、重新拉 */
   switchProject(proj) {
     fb.tap();
+    // 存完整项目对象（名称/地址/参建单位），不能只存 id；水印和项目页都读这里
     try {
-      wx.setStorageSync("jl_project", proj.id);
+      store.saveProject(proj);
     } catch (e) {}
 
     this._traceOpen = {};
@@ -2103,7 +2109,8 @@ Page({
     if (p.id) return p.id;
     try {
       const saved = wx.getStorageSync("jl_project");
-      if (saved) return saved;
+      if (saved && typeof saved === "string") return saved;
+      if (saved && saved.id) return saved.id;
     } catch (e) {}
     return "yun-gu-3qi";
   },
