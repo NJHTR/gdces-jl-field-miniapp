@@ -9,7 +9,21 @@
  * H5_BASE  —— 原型/H5 版本地址，web-view 直接加载它。
  *              必须带结尾斜杠，否则 nginx 的 location /lab/ 匹配不上。
  */
+function apiBase() {
+  // 手机真机调试时可在控制台设置：
+  //   wx.setStorageSync("jl_api_base", "http://10.48.53.146:8081")
+  // 或 Tailscale：http://100.112.199.126:8081
+  // 不设置时仍走本机 SSH 隧道（127.0.0.1:8081）。
+  try {
+    if (typeof wx !== "undefined") {
+      const v = wx.getStorageSync("jl_api_base");
+      if (v) return v;
+    }
+  } catch (e) {}
+  return "http://127.0.0.1:8081";
+}
+
 module.exports = {
-  API_BASE: "http://127.0.0.1:8081",
+  API_BASE: apiBase(),
   H5_BASE: "https://www.baize.gdces.cn/lab/",
 };
