@@ -1,5 +1,6 @@
 const store = require("../../utils/store");
 const api = require("../../utils/request");
+const { API_BASE } = require("../../utils/config");
 
 const DOCS = {
   旁站记录: {
@@ -454,5 +455,61 @@ Page({
         const msg = miss.length ? "还缺 " + miss.length + " 项：" + miss.join("、") : ((err && err.message) || "生成失败");
         wx.showToast({ title: msg, icon: "none", duration: 2400 });
       });
+  },
+
+  /** 按省统表模板生成 Word：记录详情页直接导出 */
+  onExportForm() {
+    const id = this.data.docId;
+    if (!id) {
+      wx.showToast({ title: "这份文书还没入库", icon: "none" });
+      return;
+    }
+    wx.showLoading({ title: "生成表格…", mask: true });
+    api
+      .post("/api/v1/reports/form", {
+        projectId: store.project().id,
+        docId: Number(id),
+      })
+      .then((d) => {
+        if (!d || !d.url) throw new Error("没有拿到文件地址");
+        return this._downloadForm(d.url, d.name);
+      })
+      .then((f) => {
+        wx.hideLoading();
+        wx.openDocument({
+          filePath: f.path,
+          fileType: "docx",
+          showMenu: true,
+          fail: () => wx.showToast({ title: "打不开文档", icon: "none" }),
+        });
+      })
+      .catch((err) => {
+        wx.hideLoading();
+        wx.showToast({
+          title: (err && (err.message || err.errMsg)) || "导出失败",
+          icon: "none",
+          duration: 2600,
+        });
+      });
+  },
+
+  _downloadForm(url, name) {
+    const full = /^https?:\/\//.test(url) ? url : API_BASE + url;
+    const token = wx.getStorageSync("token") || "";
+    return new Promise((resolve, reject) => {
+      wx.downloadFile({
+        url: full,
+        header: token ? { authorization: "Bearer " + token } : {},
+        timeout: 60000,
+        success: (res) => {
+          if (res.statusCode !== 200) {
+            reject(new Error("下载失败 HTTP " + res.statusCode));
+            return;
+          }
+          resolve({ path: res.tempFilePath, name: name || "表格.docx" });
+        },
+        fail: (err) => reject(new Error((err && err.errMsg) || "下载失败")),
+      });
+    });
   },
 });
