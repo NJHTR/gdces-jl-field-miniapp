@@ -235,16 +235,44 @@ Page({
         }
 
         // 依据：规范类显示「标准名 第 X 条」，点开看原文摘录；照片类显示能看大图
+        // 老文书可能把 bases 存成字符串（"GB 50204-2015 第 8.2.1 条"），
+        // 也可能只存 ref 不存 quote；这里统一归一，点开时再按 code/clause 补原文。
         const bases = (d.bases || []).map((b) => {
+          if (typeof b === "string") {
+            const ref = b.trim();
+            const m = ref.replace(/^standard:\/\//, "").match(
+              /((?:GB\/T|GB|JGJ\/T|JGJ|JG|DBJ|CJJ|CECS)[\s/]*[\d.]+(?:-\s*\d{4})?)\s*(?:#|第)\s*([\d.]+)/i
+            );
+            return {
+              ic: "search",
+              kind: "rule",
+              t: ref || "依据",
+              body: "",
+              ref: ref,
+              code: m ? m[1].replace(/\s+/g, " ").trim() : "",
+              clause: m ? m[2] : "",
+            };
+          }
           const isRule = (b.kind || "rule") === "rule";
-          let t = b.ref || b.kind || "依据";
-          if (isRule && b.std && b.clause) t = b.std + " 第 " + b.clause + " 条";
-          else if (isRule && b.clause) t = (b.ref || "").split("#")[0] + " 第 " + b.clause + " 条";
+          const ref = String(b.ref || "");
+          let code = b.code || "";
+          let clause = b.clause || "";
+          const m = ref.replace(/^standard:\/\//, "").match(/^(.+?)#([^#]+)$/);
+          if (!code && m) {
+            code = m[1].replace(/\s+/g, " ").trim();
+            clause = m[2];
+          }
+          let t = ref || b.kind || "依据";
+          if (isRule && b.std && clause) t = b.std + " 第 " + clause + " 条";
+          else if (isRule && clause) t = (ref.split("#")[0] || "规范") + " 第 " + clause + " 条";
           return {
             ic: b.kind === "photo" ? "cam" : "search",
             kind: b.kind || "rule",
             t: t,
             body: b.quote || b.text || "",
+            ref: ref,
+            code: code,
+            clause: clause,
           };
         });
 
@@ -355,10 +383,35 @@ Page({
       return;
     }
 
+    // 老文书只存了条号，原文不在 bases 里：点开时按 code/clause 现取
+    if (b.kind === "rule" && !b.body && b.code && b.clause) {
+      this.setData({
+        viewerOpen: true,
+        viewerTitle: "规范原文",
+        viewerBody: "正在取原文…",
+      });
+      api
+        .get("/api/v1/standard?code=" + encodeURIComponent(b.code) +
+             "&clause=" + encodeURIComponent(b.clause))
+        .then((d) => {
+          this.setData({
+            viewerTitle: (b.code || "规范") + " 第 " + b.clause + " 条" +
+                         (d && d.title ? " · " + d.title : ""),
+            viewerBody: (d && d.body) || "规范库里没有这条原文",
+          });
+        })
+        .catch(() => {
+          this.setData({ viewerBody: "原文取不到：规范库里没有这条，或网络异常" });
+        });
+      return;
+    }
+
     this.setData({
       viewerOpen: true,
       viewerTitle: b.kind === "rule" ? "规范原文" : b.kind === "memo" ? "你的记忆" : "原始记录",
-      viewerBody: b.body || b.t,
+      viewerBody: b.body || (b.kind === "rule"
+        ? "这条依据只存了条号，没有原文：" + (b.t || "")
+        : b.t || "没有内容"),
     });
   },
 

@@ -32,7 +32,7 @@
     <view class="basecard">
       <view class="basehead" bindtap="onToggleBases">
         <image class="basehead-i" src="/assets/icons/check-gray.png" mode="aspectFit" />
-        <text class="basehead-t">{{bases.length}} 条依据 · 记录 / 照片 / 规范 / 记忆</text>
+        <text class="basehead-t">{{bases.length ? bases.length + ' 条依据 · 记录 / 照片 / 规范 / 记忆' : '没有查到依据'}}</text>
         <text class="basehead-more">{{basesOpen ? '收起' : '展开'}}</text>
       </view>
       <view class="baselist" wx:if="{{basesOpen}}">
