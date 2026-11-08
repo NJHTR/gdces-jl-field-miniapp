@@ -20,6 +20,7 @@ Page({
     pending: 0,
     userName: "",
     showCam: true,
+    chatMode: false,
     locState: "idle", // idle | loading | ok | fail
     locNote: "",
     locSource: "gps", // gps | map | project
@@ -27,7 +28,8 @@ Page({
     edit: { place: "", work: "", note: "", shooter: "" },
   },
 
-  onLoad() {
+  onLoad(options) {
+    this._chatMode = !!(options && options.mode === "chat");
     let hdrTop = 60;
     try {
       const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
@@ -44,6 +46,7 @@ Page({
     this.setData({
       hdrTop,
       wm: {},
+      chatMode: this._chatMode,
       userName: u.name || "",
       edit: { place: "", work: "", note: "", shooter: u.name || "" },
     });
@@ -407,6 +410,17 @@ Page({
         edited: JSON.stringify(this._edited || []),
         capturedBy: this.data.userName || "",
       };
+
+      // 从聊天「+ → 拍照（带水印）」进来：不回填现场影像，直接把水印图作为附件带回。
+      if (this._chatMode) {
+        try {
+          const ch = this.getOpenerEventChannel && this.getOpenerEventChannel();
+          if (ch && ch.emit) ch.emit("captured", { src: saved, meta });
+        } catch (e) {}
+        wx.showToast({ title: "照片已加入附件", icon: "none" });
+        setTimeout(() => wx.navigateBack({ delta: 1 }), 400);
+        return;
+      }
 
       uploader
         .uploadFile(saved, "photo", meta)

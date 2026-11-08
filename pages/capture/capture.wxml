@@ -79,7 +79,7 @@
     <view class="cbtn ghost" wx:if="{{src}}" bindtap="onRetake">重拍</view>
     <view class="cbtn ghost" wx:if="{{!src}}" bindtap="onEditTap">补充信息</view>
     <view class="cbtn" wx:if="{{!src}}" bindtap="onShoot">拍照</view>
-    <view class="cbtn" wx:if="{{src}}" bindtap="onSave">保存到现场影像</view>
+    <view class="cbtn" wx:if="{{src}}" bindtap="onSave">{{chatMode ? "加入聊天附件" : "保存到现场影像"}}</view>
   </view>
 
   <view class="pending" wx:if="{{pending}}">待传 {{pending}} 张</view>

@@ -1371,13 +1371,36 @@ Page({
   onAddAttach() {
     fb.tap();
     wx.showActionSheet({
-      itemList: ["拍照", "从相册选", "录一段语音", "从聊天导入", "粘贴文字"],
+      itemList: ["拍照（带水印）", "从相册选", "录一段语音", "从聊天导入", "粘贴文字"],
       success: (res) => {
-        if (res.tapIndex === 0) this.onAddPhoto("camera");
+        if (res.tapIndex === 0) this.onWatermarkCamera();
         else if (res.tapIndex === 1) this.onAddPhoto("album");
         else if (res.tapIndex === 2) this.onAttachMicStart();
         else if (res.tapIndex === 3) this.onImportChatImage();
         else if (res.tapIndex === 4) this.onImportClipboard();
+      },
+    });
+  },
+
+  /** 聊天里拍照：走现场拍照页，水印烧进图后再作为附件 */
+  onWatermarkCamera() {
+    const left = 9 - this.data.attach.filter((a) => a.kind === "photo").length;
+    if (left <= 0) {
+      wx.showToast({ title: "最多 9 张", icon: "none" });
+      return;
+    }
+    wx.navigateTo({
+      url: "/pages/capture/capture?mode=chat",
+      events: {
+        captured: (p) => {
+          if (!p || !p.src) return;
+          this.setData({
+            attach: this.data.attach.concat([
+              { id: "a" + Date.now(), kind: "photo", src: p.src },
+            ]),
+          });
+          wx.showToast({ title: "已加入聊天附件", icon: "none" });
+        },
       },
     });
   },
