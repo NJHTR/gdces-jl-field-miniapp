@@ -572,7 +572,7 @@
               <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/folder-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">结构施工图 v3</text><text class="wsm">12 份</text></view>
               <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/folder-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">专项施工方案</text><text class="wsm">6 份</text></view>
               <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/warn-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">监理通知单</text><text class="wsm">5 份</text></view>
-              <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/cam-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">现场影像</text><text class="wsm">{{photoCount}} 张</text></view>
+              <view class="wsrow" data-label="现场影像" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/cam-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">现场影像</text><text class="wsm">{{photoCount}} 张</text></view>
             <view class="wsrow" bindtap="onImportChatImage">
               <image class="wsi-img" src="/assets/icons/folder-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
               <text class="wsn">从聊天导入图片</text>
@@ -609,7 +609,7 @@
               <view class="gi" data-label="图纸" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/grid-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>材料报验</text></view>
               <view class="gi" data-label="图纸" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/pen-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>检测报告</text></view>
               <view class="gi" data-label="图纸" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/check-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>验收资料</text></view>
-              <view class="gi" data-label="图纸" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/cam-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>现场影像</text></view>
+              <view class="gi" data-label="现场影像" bindtap="onDrawerItem"><image class="gi-img" src="/assets/icons/cam-blue.png" mode="aspectFit" style="width:40rpx;height:40rpx;" /><text>现场影像</text></view>
             </view>
           </block>
 
