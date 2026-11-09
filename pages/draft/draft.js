@@ -152,7 +152,6 @@ Page({
     groups: [],
     bases: [],
     basesOpen: false,
-    docFile: { exists: false },
     docFiles: [],
     fieldSheet: { open: false, key: "", type: "text", value: "" },
     viewerOpen: false,
@@ -310,7 +309,6 @@ Page({
           groups: groups,
           bases: bases,
           basesOpen: false,
-          docFile: d.file || (d.files && d.files[0]) || { exists: false },
           docFiles: d.files || [],
           missingCount: missing.length,
         });
@@ -584,14 +582,42 @@ Page({
       });
   },
 
-  /** 文件卡：已生成且未过期就直接打开，否则重新生成 */
-  onFileCardTap() {
-    const f = this.data.docFile || {};
-    if (f.exists && !f.stale) {
-      this._openDocFile(f);
+  /** 按省统表模板生成 Word：每次都是新版本，不判断是否已生成 */
+  onExportForm() {
+    const id = this.data.docId || this._routeDocId;
+    if (!id) {
+      wx.showToast({ title: "这条记录还没加载到编号，请回记录列表重新打开", icon: "none", duration: 2200 });
       return;
     }
-    this.onExportForm();
+    wx.showLoading({ title: "生成文件…", mask: true });
+    api
+      .post("/api/v1/reports/form", {
+        projectId: store.project().id,
+        docId: Number(id),
+      })
+      .then((d) => {
+        if (!d || !d.url) throw new Error("没有拿到文件地址");
+        return this._downloadForm(d.url, d.name);
+      })
+      .then((f) => {
+        wx.hideLoading();
+        // 生成后刷新历史文件列表；本次生成的文件已经直接打开
+        this._loadDoc(id, this.data.title);
+        wx.openDocument({
+          filePath: f.path,
+          fileType: "docx",
+          showMenu: true,
+          fail: () => wx.showToast({ title: "打不开文档", icon: "none" }),
+        });
+      })
+      .catch((err) => {
+        wx.hideLoading();
+        wx.showToast({
+          title: (err && (err.message || err.errMsg)) || "导出失败",
+          icon: "none",
+          duration: 2600,
+        });
+      });
   },
 
   _openDocFile(f) {
@@ -617,44 +643,6 @@ Page({
     const f = (this.data.docFiles || [])[idx];
     if (!f) return;
     this._openDocFile(f);
-  },
-
-  /** 按省统表模板生成 Word：记录详情页直接导出 */
-  onExportForm() {
-    const id = this.data.docId || this._routeDocId;
-    if (!id) {
-      wx.showToast({ title: "这条记录还没加载到编号，请回记录列表重新打开", icon: "none", duration: 2200 });
-      return;
-    }
-    wx.showLoading({ title: "生成文件…", mask: true });
-    api
-      .post("/api/v1/reports/form", {
-        projectId: store.project().id,
-        docId: Number(id),
-      })
-      .then((d) => {
-        if (!d || !d.url) throw new Error("没有拿到文件地址");
-        return this._downloadForm(d.url, d.name);
-      })
-      .then((f) => {
-        wx.hideLoading();
-        // 生成后刷新“文件”卡，下一次进来可以直接打开
-        this._loadDoc(id, this.data.title);
-        wx.openDocument({
-          filePath: f.path,
-          fileType: "docx",
-          showMenu: true,
-          fail: () => wx.showToast({ title: "打不开文档", icon: "none" }),
-        });
-      })
-      .catch((err) => {
-        wx.hideLoading();
-        wx.showToast({
-          title: (err && (err.message || err.errMsg)) || "导出失败",
-          icon: "none",
-          duration: 2600,
-        });
-      });
   },
 
   _downloadForm(url, name) {

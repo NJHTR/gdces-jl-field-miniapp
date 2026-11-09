@@ -47,27 +47,27 @@
     <!-- 文件：生成的是 Word 文件，不是上面那条记录本身 -->
     <block wx:if="{{docId}}">
       <view class="sec">文件</view>
-      <view class="filecard" bindtap="onFileCardTap">
+      <view class="filecard" bindtap="onExportForm">
         <view class="fc-icon"><image class="fc-img" src="/assets/icons/doc-blue.png" mode="aspectFit" /></view>
         <view class="fc-body">
-          <text class="fc-t">{{docFile.exists ? (docFile.stale ? 'Word 文件已过期' : 'Word 文件已生成') : '生成 Word 文件'}}</text>
-          <text class="fc-s">{{docFile.exists ? (docFile.stale ? '字段已更新，建议重新生成' : (docFile.name + ' · 点击打开')) : '按省统表模板生成，可转发/保存'}}</text>
+          <text class="fc-t">生成 Word 文件</text>
+          <text class="fc-s">每次生成都会保留一个历史版本</text>
         </view>
-        <text class="fc-a">{{docFile.exists && !docFile.stale ? '打开' : (docFile.stale ? '重新生成' : '生成')}} ›</text>
+        <text class="fc-a">生成 ›</text>
       </view>
       <view class="attachrow" bindtap="onAddAttachment">
         <text class="ar-t">＋ 补充现场附件</text>
         <text class="ar-s">拍照或从相册选择</text>
       </view>
 
-      <view class="filehist" wx:if="{{docFiles.length > 1}}">
+      <view class="filehist" wx:if="{{docFiles.length}}">
         <view class="fh-head">
-          <text class="fh-title">历史文件</text>
+          <text class="fh-title">已生成文件</text>
           <text class="fh-count">{{docFiles.length}} 个版本</text>
         </view>
         <view class="fh-item" wx:for="{{docFiles}}" wx:key="url" data-idx="{{index}}" bindtap="onOpenHistoryFile">
           <view class="fh-main">
-            <text class="fh-v">{{item.version ? 'v' + item.version : '历史'}}{{item.stale ? ' · 已过期' : ''}}</text>
+            <text class="fh-v">{{item.version ? 'v' + item.version : '历史'}}</text>
             <text class="fh-time">{{item.generatedAt}}</text>
           </view>
           <text class="fh-a">打开 ›</text>
