@@ -328,6 +328,13 @@
           </view>
         </picker>
 
+        <!-- 筛选放在滚动容器外：向下滑时不会被吸顶日期条压住 -->
+        <view class="recfilters">
+          <view class="recfilter {{recFilter === 'all' ? 'on' : ''}}" data-f="all" bindtap="onRecFilter">全部</view>
+          <view class="recfilter {{recFilter === 'active' ? 'on' : ''}}" data-f="active" bindtap="onRecFilter">待处理</view>
+          <view class="recfilter {{recFilter === 'images' ? 'on' : ''}}" data-f="images" bindtap="onRecFilter">现场影像</view>
+        </view>
+
         <scroll-view
           class="list inboxlist"
           scroll-y
@@ -340,11 +347,6 @@
           refresher-triggered="{{refreshing}}"
           bindrefresherrefresh="onRefresh"
         >
-        <view class="recfilters">
-          <view class="recfilter {{recFilter === 'all' ? 'on' : ''}}" data-f="all" bindtap="onRecFilter">全部</view>
-          <view class="recfilter {{recFilter === 'active' ? 'on' : ''}}" data-f="active" bindtap="onRecFilter">待处理</view>
-          <view class="recfilter {{recFilter === 'images' ? 'on' : ''}}" data-f="images" bindtap="onRecFilter">现场影像</view>
-        </view>
         <block wx:if="{{recFilter !== 'images'}}">
         <view class="sec">共 {{recVisibleCount}} 条 · 待补 {{recordPending}} · 待签 {{recordWaiting}} · 已签 {{recordSigned}}</view>
         <block wx:for="{{recordsView}}" wx:key="id">

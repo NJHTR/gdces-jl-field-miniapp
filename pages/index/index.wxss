@@ -3616,9 +3616,10 @@ page {
 }
 
 .recfilters {
+  flex: none;
   display: flex;
   flex-direction: row;
-  margin: 14rpx 28rpx 2rpx;
+  margin: 14rpx 28rpx 8rpx;
   padding: 4rpx;
   border-radius: 18rpx;
   background: rgba(120, 134, 155, 0.11);
