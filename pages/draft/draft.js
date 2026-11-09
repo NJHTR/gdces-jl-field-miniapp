@@ -152,6 +152,7 @@ Page({
     groups: [],
     bases: [],
     basesOpen: false,
+    docFile: { exists: false },
     fieldSheet: { open: false, key: "", type: "text", value: "" },
     viewerOpen: false,
     viewerTitle: "",
@@ -308,6 +309,7 @@ Page({
           groups: groups,
           bases: bases,
           basesOpen: false,
+          docFile: d.file || { exists: false },
           missingCount: missing.length,
         });
       })
@@ -580,6 +582,34 @@ Page({
       });
   },
 
+  /** 文件卡：已生成且未过期就直接打开，否则重新生成 */
+  onFileCardTap() {
+    const f = this.data.docFile || {};
+    if (f.exists && !f.stale) {
+      this._openDocFile(f);
+      return;
+    }
+    this.onExportForm();
+  },
+
+  _openDocFile(f) {
+    wx.showLoading({ title: "打开文件…", mask: true });
+    this._downloadForm(f.url, f.name)
+      .then((res) => {
+        wx.hideLoading();
+        wx.openDocument({
+          filePath: res.path,
+          fileType: "docx",
+          showMenu: true,
+          fail: () => wx.showToast({ title: "打不开文档", icon: "none" }),
+        });
+      })
+      .catch((err) => {
+        wx.hideLoading();
+        wx.showToast({ title: (err && err.message) || "文件打开失败", icon: "none" });
+      });
+  },
+
   /** 按省统表模板生成 Word：记录详情页直接导出 */
   onExportForm() {
     const id = this.data.docId || this._routeDocId;
@@ -599,6 +629,8 @@ Page({
       })
       .then((f) => {
         wx.hideLoading();
+        // 生成后刷新“文件”卡，下一次进来可以直接打开
+        this._loadDoc(id, this.data.title);
         wx.openDocument({
           filePath: f.path,
           fileType: "docx",

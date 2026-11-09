@@ -47,13 +47,13 @@
     <!-- 文件：生成的是 Word 文件，不是上面那条记录本身 -->
     <block wx:if="{{docId}}">
       <view class="sec">文件</view>
-      <view class="filecard" bindtap="onExportForm">
+      <view class="filecard" bindtap="onFileCardTap">
         <view class="fc-icon"><image class="fc-img" src="/assets/icons/doc-blue.png" mode="aspectFit" /></view>
         <view class="fc-body">
-          <text class="fc-t">生成 Word 文件</text>
-          <text class="fc-s">按省统表模板生成，可转发/保存</text>
+          <text class="fc-t">{{docFile.exists ? (docFile.stale ? 'Word 文件已过期' : 'Word 文件已生成') : '生成 Word 文件'}}</text>
+          <text class="fc-s">{{docFile.exists ? (docFile.stale ? '字段已更新，建议重新生成' : (docFile.name + ' · 点击打开')) : '按省统表模板生成，可转发/保存'}}</text>
         </view>
-        <text class="fc-a">生成 ›</text>
+        <text class="fc-a">{{docFile.exists && !docFile.stale ? '打开' : (docFile.stale ? '重新生成' : '生成')}} ›</text>
       </view>
       <view class="attachrow" bindtap="onAddAttachment">
         <text class="ar-t">＋ 补充现场附件</text>
