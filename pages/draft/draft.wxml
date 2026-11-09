@@ -59,6 +59,20 @@
         <text class="ar-t">＋ 补充现场附件</text>
         <text class="ar-s">拍照或从相册选择</text>
       </view>
+
+      <view class="filehist" wx:if="{{docFiles.length > 1}}">
+        <view class="fh-head">
+          <text class="fh-title">历史文件</text>
+          <text class="fh-count">{{docFiles.length}} 个版本</text>
+        </view>
+        <view class="fh-item" wx:for="{{docFiles}}" wx:key="url" data-idx="{{index}}" bindtap="onOpenHistoryFile">
+          <view class="fh-main">
+            <text class="fh-v">{{item.version ? 'v' + item.version : '历史'}}{{item.stale ? ' · 已过期' : ''}}</text>
+            <text class="fh-time">{{item.generatedAt}}</text>
+          </view>
+          <text class="fh-a">打开 ›</text>
+        </view>
+      </view>
     </block>
 
     <view class="tb-pad"></view>

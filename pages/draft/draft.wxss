@@ -208,6 +208,67 @@ page {
   color: #8a94a6;
 }
 
+.filehist {
+  margin-top: 18rpx;
+}
+
+.fh-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+
+.fh-title {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #8a94a6;
+}
+
+.fh-count {
+  font-size: 20rpx;
+  color: #a2acba;
+}
+
+.fh-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+  padding: 18rpx 20rpx;
+  margin-bottom: 10rpx;
+  border-radius: 18rpx;
+  background: #f7f9fc;
+}
+
+.fh-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3rpx;
+}
+
+.fh-v {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #33405a;
+}
+
+.fh-time {
+  font-size: 20rpx;
+  color: #8a94a6;
+}
+
+.fh-a {
+  flex: none;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #0a6dff;
+}
+
 /* 底部 */
 .dfoot {
   flex: none;

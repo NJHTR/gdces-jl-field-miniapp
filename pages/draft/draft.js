@@ -153,6 +153,7 @@ Page({
     bases: [],
     basesOpen: false,
     docFile: { exists: false },
+    docFiles: [],
     fieldSheet: { open: false, key: "", type: "text", value: "" },
     viewerOpen: false,
     viewerTitle: "",
@@ -309,7 +310,8 @@ Page({
           groups: groups,
           bases: bases,
           basesOpen: false,
-          docFile: d.file || { exists: false },
+          docFile: d.file || (d.files && d.files[0]) || { exists: false },
+          docFiles: d.files || [],
           missingCount: missing.length,
         });
       })
@@ -608,6 +610,13 @@ Page({
         wx.hideLoading();
         wx.showToast({ title: (err && err.message) || "文件打开失败", icon: "none" });
       });
+  },
+
+  onOpenHistoryFile(e) {
+    const idx = Number(e.currentTarget.dataset.idx);
+    const f = (this.data.docFiles || [])[idx];
+    if (!f) return;
+    this._openDocFile(f);
   },
 
   /** 按省统表模板生成 Word：记录详情页直接导出 */
