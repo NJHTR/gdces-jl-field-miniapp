@@ -71,7 +71,7 @@ function cells(row) {
   let s = String(row || "").trim();
   if (s.startsWith("|")) s = s.slice(1);
   if (s.endsWith("|")) s = s.slice(0, -1);
-  return s.split("|").map((x) => x.trim());
+  return s.split("|").map((x) => x.trim().replace(/\*\*/g, "").replace(/`/g, ""));
 }
 
 /** 表格：模型有时按标准 Markdown 换行，有时把整张表压成一行（行间是 ||） */
@@ -112,11 +112,12 @@ function extractTables(raw) {
     if (!hm) continue;
     const start = last + hm.index;
     const bodyStart = sep.index + sep[0].length;
-    // 表体到下一个空行或加粗段为止（模型经常把表压成一行）
     let end = raw.length;
-    const b1 = raw.indexOf("**", bodyStart);
+    // 不能一见 ** 就结束：表头/首列经常是 **加粗**。
+    // 只把「表格最后一格后面的 |**」当正文结束标记。
+    const b1 = raw.indexOf("|**", bodyStart);
     const b2 = raw.indexOf("\n\n", bodyStart);
-    if (b1 >= 0) end = Math.min(end, b1);
+    if (b1 >= 0) end = Math.min(end, b1 + 1);
     if (b2 >= 0) end = Math.min(end, b2);
     const body = raw.slice(bodyStart, end);
     out += raw.slice(last, start) + "\n\u0000TABLE" + tables.length + "\u0000\n";
