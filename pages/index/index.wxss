@@ -6754,3 +6754,71 @@ page {
   color: #6b7280;
   background: #f3f4f6;
 }
+
+/* ============================================================
+   输入条左侧加号：和外壳胶囊同心
+   外胶囊：高约 136rpx，圆角 62rpx
+   内按钮：52rpx（半径 26）
+   左内边距 = 62 - 26 = 36rpx
+   ============================================================ */
+.capsule.composing-mode .holdbar.textrow {
+  padding-left: 18rpx;
+  padding-right: 12rpx;
+}
+
+.capsule.composing-mode .plusbtn {
+  flex: none;
+  width: 52rpx;
+  height: 52rpx;
+  min-width: 52rpx;
+  margin: 0;
+  padding: 0;
+  border-radius: 26rpx;
+  background: rgba(120, 134, 155, 0.10);
+  box-sizing: border-box;
+  transition: background 140ms ease, transform 140ms ease;
+}
+
+.capsule.composing-mode .plusbtn:active {
+  background: rgba(120, 134, 155, 0.18);
+  transform: scale(0.96);
+}
+
+.capsule.composing-mode .plusbtn.rec {
+  width: auto;
+  min-width: 0;
+  padding: 0 16rpx 0 12rpx;
+  border-radius: 26rpx;
+}
+
+.capsule.composing-mode .plusbars {
+  width: 20rpx;
+  height: 20rpx;
+}
+
+.capsule.composing-mode .pb-h {
+  width: 20rpx;
+}
+
+.capsule.composing-mode .pb-v {
+  height: 20rpx;
+}
+
+/* 右侧发送/语音与外胶囊同一条垂直中轴 */
+.capsule.composing-mode .send,
+.capsule.composing-mode .micmode {
+  width: 64rpx;
+  height: 64rpx;
+  min-width: 64rpx;
+  border-radius: 32rpx;
+}
+
+@media (prefers-color-scheme: dark) {
+  .capsule.composing-mode .plusbtn {
+    background: rgba(255, 255, 255, 0.10);
+  }
+
+  .capsule.composing-mode .plusbtn:active {
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
