@@ -324,7 +324,7 @@
           refresher-triggered="{{refreshing}}"
           bindrefresherrefresh="onRefresh"
         >
-        <view class="sec">共 7 条 · 待补 2 · 待签 3 · 已签 2</view>
+        <view class="sec">共 {{recordTotal}} 条 · 待补 {{recordPending}} · 待签 {{recordWaiting}} · 已签 {{recordSigned}}</view>
         <block wx:for="{{recordsView}}" wx:key="id">
           <view class="dayhd {{index === stickyIdx ? 'hide' : ''}}" id="sec{{index}}">
             <text class="dayhd-d">{{item.date}}</text>

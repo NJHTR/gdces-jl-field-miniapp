@@ -121,6 +121,12 @@ Page({
     pickDate: "",
     loadErr: "",
     docs: [],
+    recordTotal: 0,
+    recordPending: 0,
+    recordWaiting: 0,
+    recordSigned: 0,
+    docTotal: 0,
+    imageTotal: 0,
 
     meSeg: "mine",
     memos: [],
@@ -749,8 +755,8 @@ Page({
 
   pageMetaOf(tab) {
     const map = {
-      inbox: { t: "工作记录", s: "按日期 · 全部 · 7 条" },
-      docs: { t: "资料", s: "本周 12 份 · 原件在 A-3-2" },
+      inbox: { t: "工作记录", s: "按日期 · 全部 · " + (this.data.recordTotal || 0) + " 条" },
+      docs: { t: "资料", s: "文书 " + (this.data.docTotal || 0) + " 份 · 影像 " + (this.data.imageTotal || 0) + " 张" },
       me: { t: "我的", s: "AI 记住了什么 · 可逐条删改" },
     };
     return map[tab] || map.inbox;
@@ -910,6 +916,18 @@ Page({
       )
       .filter((r) => r.items.length);
 
+    // 头部统计用全量 records/docs，不用搜索过滤后的 recordsView/docsView。
+    const rawRecordItems = (this.data.records || []).reduce(
+      (a, g) => a.concat(g.items || []), []
+    );
+    const recordTotal = rawRecordItems.length;
+    const recordPending = rawRecordItems.filter((x) => x.state === "待补").length;
+    const recordWaiting = rawRecordItems.filter((x) => x.state === "待签").length;
+    const recordSigned = rawRecordItems.filter((x) => x.state === "已签").length;
+    const rawDocs = this.data.docs || [];
+    const docTotal = rawDocs.filter((x) => !x.visual).length;
+    const imageTotal = rawDocs.filter((x) => x.visual).length;
+
     // 影像这类"里面本来就有东西"的，用真实照片当封面：
     // 先按 id 对上后端那张（bootstrap 里影像卡 id 是 p+photoId），
     // 对不上退回最新一张（后端优先、本机次之），都没有才用示意图。
@@ -1001,6 +1019,18 @@ Page({
       docsView,
       memosView,
       projMemosView: this.data.projMemos.filter((m) => hit(m.text)).map(_deco),
+      recordTotal,
+      recordPending,
+      recordWaiting,
+      recordSigned,
+      docTotal,
+      imageTotal,
+      pageSub:
+        this.data.tab === "inbox"
+          ? "按日期 · 全部 · " + recordTotal + " 条"
+          : this.data.tab === "docs"
+          ? "文书 " + docTotal + " 份 · 影像 " + imageTotal + " 张"
+          : this.data.pageSub,
       searchCount: count,
       listEmpty,
       emptyText,
