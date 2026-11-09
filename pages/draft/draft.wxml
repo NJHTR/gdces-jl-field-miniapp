@@ -55,6 +55,10 @@
         </view>
         <text class="fc-a">生成 ›</text>
       </view>
+      <view class="attachrow" bindtap="onAddAttachment">
+        <text class="ar-t">＋ 补充现场附件</text>
+        <text class="ar-s">拍照或从相册选择</text>
+      </view>
     </block>
 
     <view class="tb-pad"></view>
@@ -76,5 +80,47 @@
     <scroll-view class="viewer-body" scroll-y>
       <text class="viewer-text">{{viewerBody}}</text>
     </scroll-view>
+  </view>
+</view>
+
+<!-- 字段编辑：日期用日期选择器，时间用时间选择器，附件拍照/相册 -->
+<view class="fsheet" wx:if="{{fieldSheet.open}}" catchtap="onFieldClose">
+  <view class="fs-card" catchtap="noop">
+    <view class="fs-head">
+      <text class="fs-title">{{fieldSheet.key}}</text>
+      <view class="fs-x" catchtap="onFieldClose"><text>✕</text></view>
+    </view>
+
+    <block wx:if="{{fieldSheet.type === 'date'}}">
+      <picker mode="date" value="{{fieldSheet.value}}" bindchange="onFieldDate">
+        <view class="fs-pick">
+          <text class="fs-pick-t">{{fieldSheet.value || '选择日期'}}</text>
+          <text class="fs-pick-a">›</text>
+        </view>
+      </picker>
+    </block>
+    <block wx:elif="{{fieldSheet.type === 'time'}}">
+      <picker mode="time" value="{{fieldSheet.value}}" bindchange="onFieldTime">
+        <view class="fs-pick">
+          <text class="fs-pick-t">{{fieldSheet.value || '选择时间'}}</text>
+          <text class="fs-pick-a">›</text>
+        </view>
+      </picker>
+    </block>
+    <block wx:elif="{{fieldSheet.type === 'photo'}}">
+      <text class="fs-hint">补充现场附件（照片）</text>
+      <view class="fs-photos">
+        <view class="fs-photo" data-source="camera" bindtap="onFieldPhoto">拍照</view>
+        <view class="fs-photo ghost" data-source="album" bindtap="onFieldPhoto">从相册选择</view>
+      </view>
+    </block>
+    <block wx:else>
+      <textarea class="fs-input" value="{{fieldSheet.value}}" bindinput="onFieldInput" auto-height maxlength="2000" placeholder="填「{{fieldSheet.key}}」" />
+    </block>
+
+    <view class="fs-actions">
+      <view class="fs-cancel" bindtap="onFieldClose">取消</view>
+      <view class="fs-save" wx:if="{{fieldSheet.type !== 'photo'}}" bindtap="onFieldSave">保存</view>
+    </view>
   </view>
 </view>

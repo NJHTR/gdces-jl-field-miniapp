@@ -1,5 +1,6 @@
 const store = require("../../utils/store");
 const api = require("../../utils/request");
+const uploader = require("../../utils/upload");
 const { API_BASE } = require("../../utils/config");
 
 const DOCS = {
@@ -151,6 +152,7 @@ Page({
     groups: [],
     bases: [],
     basesOpen: false,
+    fieldSheet: { open: false, key: "", type: "text", value: "" },
     viewerOpen: false,
     viewerTitle: "",
     viewerBody: "",
@@ -308,13 +310,13 @@ Page({
   },
 
   onFillAll() {
-    // 找第一个缺项，直接弹输入框补它
+    // 找第一个缺项，直接打开对应的控件补它
     const groups = this.data.groups || [];
     for (let gi = 0; gi < groups.length; gi++) {
       const rows = groups[gi].rows || [];
       for (let ri = 0; ri < rows.length; ri++) {
         if (rows[ri].missing) {
-          this._editField(rows[ri].k, "");
+          this._openField(rows[ri].k, "");
           return;
         }
       }
@@ -322,7 +324,7 @@ Page({
     wx.showToast({ title: "没有缺项了", icon: "none" });
   },
 
-  /** 点某一行字段 → 弹输入框 → 保存 */
+  /** 点某一行字段 → 按字段类型打开日期/时间/文字/附件控件 */
   onEditField(e) {
     const k = (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.k) || "";
     if (!k) return;
@@ -332,31 +334,115 @@ Page({
         if (r.k === k) cur = r.v || "";
       });
     });
-    this._editField(k, cur);
+    this._openField(k, cur);
   },
 
-  _editField(key, value) {
+  _fieldType(key) {
+    const k = String(key || "");
+    if (/(附件|照片|影像)/.test(k)) return "photo";
+    if (/日期/.test(k)) return "date";
+    if (/时间/.test(k)) return "time";
+    return "text";
+  },
+
+  _openField(key, value) {
+    const type = this._fieldType(key);
+    let v = String(value || "");
+    if (type === "date" && !v) {
+      const d = new Date();
+      const pad = (n) => (n < 10 ? "0" + n : "" + n);
+      v = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    }
+    if (type === "time" && !v) v = "09:00";
+    this.setData({
+      fieldSheet: { open: true, key: key, type: type, value: v },
+    });
+  },
+
+  onFieldInput(e) {
+    this.setData({ "fieldSheet.value": e.detail.value || "" });
+  },
+
+  onFieldDate(e) {
+    this.setData({ "fieldSheet.value": e.detail.value || "" });
+  },
+
+  onFieldTime(e) {
+    this.setData({ "fieldSheet.value": e.detail.value || "" });
+  },
+
+  onFieldClose() {
+    this.setData({ fieldSheet: { open: false, key: "", type: "text", value: "" } });
+  },
+
+  onFieldSave() {
+    const f = this.data.fieldSheet || {};
+    const v = String(f.value || "").trim();
+    if (!v) {
+      wx.showToast({ title: "还没填内容", icon: "none" });
+      return;
+    }
+    this.onFieldClose();
+    this._saveField(f.key, v);
+  },
+
+  onFieldPhoto(e) {
+    const source = (e.currentTarget.dataset.source || "album") === "camera" ? "camera" : "album";
     const that = this;
-    wx.showModal({
-      title: key,
-      editable: true,
-      placeholderText: "填「" + key + "」",
-      content: value || "",
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ["image"],
+      sourceType: [source],
       success(res) {
-        if (!res.confirm) return;
-        const v = String(res.content == null ? "" : res.content).trim();
-        if (!v) {
-          wx.showToast({ title: "没填内容", icon: "none" });
-          return;
-        }
-        that._saveField(key, v);
+        const f = (res.tempFiles || [])[0];
+        if (f && f.tempFilePath) that._attachPhoto(f.tempFilePath);
       },
     });
   },
 
+  /** 不依赖某个字段，直接给这份文书补充现场附件 */
+  onAddAttachment() {
+    const that = this;
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ["image"],
+      sourceType: ["camera", "album"],
+      success(res) {
+        const f = (res.tempFiles || [])[0];
+        if (f && f.tempFilePath) that._attachPhoto(f.tempFilePath);
+      },
+    });
+  },
+
+  _attachPhoto(path) {
+    const id = this.data.docId || this._routeDocId;
+    if (!id) {
+      wx.showToast({ title: "这条记录还没加载到编号", icon: "none" });
+      return;
+    }
+    wx.showLoading({ title: "上传附件…", mask: true });
+    uploader
+      .uploadFile(path, "photo", { note: "文书补充附件" })
+      .then((r) =>
+        api.put("/api/v1/docs/" + id, {
+          bases: [{ kind: "photo", ref: r.sha || "", text: "现场补充附件" }],
+        })
+      )
+      .then(() => {
+        wx.hideLoading();
+        this.onFieldClose();
+        wx.showToast({ title: "附件已补充", icon: "none" });
+        this._loadDoc(id, this.data.title);
+      })
+      .catch((err) => {
+        wx.hideLoading();
+        wx.showToast({ title: (err && err.message) || "附件上传失败", icon: "none" });
+      });
+  },
+
   /** 保存一个字段：PUT /docs/<id>（小程序不支持 PATCH，服务端已支持 PUT） */
   _saveField(key, value) {
-    const id = this.data.docId;
+    const id = this.data.docId || this._routeDocId;
     if (!id) return;
     const fields = {};
     fields[key] = value;

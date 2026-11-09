@@ -187,6 +187,27 @@ page {
   color: #0a6dff;
 }
 
+.attachrow {
+  margin-top: 14rpx;
+  padding: 22rpx;
+  border-radius: 20rpx;
+  background: #f7f9fc;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.ar-t {
+  font-size: 25rpx;
+  font-weight: 600;
+  color: #33405a;
+}
+
+.ar-s {
+  font-size: 20rpx;
+  color: #8a94a6;
+}
+
 /* 底部 */
 .dfoot {
   flex: none;
@@ -415,6 +436,167 @@ page {
   }
 
   .viewer-text {
+    color: #c9d4e3;
+  }
+}
+
+/* 字段补充面板 */
+.fsheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 80;
+  background: rgba(10, 14, 20, 0.42);
+  display: flex;
+  align-items: flex-end;
+}
+
+.fs-card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 30rpx 28rpx calc(30rpx + env(safe-area-inset-bottom));
+  border-radius: 32rpx 32rpx 0 0;
+  background: #ffffff;
+}
+
+.fs-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.fs-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #11131a;
+}
+
+.fs-x {
+  width: 52rpx;
+  height: 52rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a94a6;
+  font-size: 30rpx;
+}
+
+.fs-pick {
+  height: 96rpx;
+  border-radius: 20rpx;
+  background: #f3f6fa;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24rpx;
+}
+
+.fs-pick-t {
+  font-size: 30rpx;
+  color: #11131a;
+  font-weight: 600;
+}
+
+.fs-pick-a {
+  font-size: 32rpx;
+  color: #8a94a6;
+}
+
+.fs-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 160rpx;
+  padding: 20rpx 22rpx;
+  border-radius: 20rpx;
+  background: #f3f6fa;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: #11131a;
+}
+
+.fs-hint {
+  display: block;
+  font-size: 22rpx;
+  color: #8a94a6;
+  margin-bottom: 16rpx;
+}
+
+.fs-photos {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+}
+
+.fs-photo {
+  flex: 1;
+  height: 92rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a6dff;
+  color: #ffffff;
+  font-size: 27rpx;
+  font-weight: 600;
+}
+
+.fs-photo.ghost {
+  background: #eef4ff;
+  color: #0a6dff;
+}
+
+.fs-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  margin-top: 26rpx;
+}
+
+.fs-cancel,
+.fs-save {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.fs-cancel {
+  background: #f3f6fa;
+  color: #667085;
+}
+
+.fs-save {
+  background: linear-gradient(160deg, #2b96ff, #0060df);
+  color: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .fs-card {
+    background: #1c2430;
+  }
+
+  .fs-title,
+  .fs-pick-t,
+  .fs-input {
+    color: #eaf1fb;
+  }
+
+  .fs-pick,
+  .fs-input {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .fs-cancel {
+    background: rgba(255, 255, 255, 0.08);
     color: #c9d4e3;
   }
 }
