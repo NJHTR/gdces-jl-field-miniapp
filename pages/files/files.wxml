@@ -54,8 +54,8 @@
       <!-- 现场影像 -->
       <block wx:elif="{{tab === 'photos'}}">
         <view class="sec">现场影像 <text class="sec-n">{{photos.length}}</text></view>
-        <view class="pgrid" wx:if="{{photos.length}}">
-          <view class="pcell" wx:for="{{photos}}" wx:key="id" data-idx="{{index}}" bindtap="onPhotoTap">
+        <view class="pgrid" wx:if="{{photos.length}}" style="gap: {{photoGap}}px;">
+          <view class="pcell" wx:for="{{photos}}" wx:key="id" data-idx="{{index}}" bindtap="onPhotoTap" style="width: {{photoCellW}}px; height: {{photoCellW}}px;">
             <image class="pimg" src="{{item.thumb}}" mode="aspectFill" />
             <view class="pveil"></view>
             <text class="pdate">{{item.date}}</text>

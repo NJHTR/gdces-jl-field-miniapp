@@ -231,13 +231,12 @@ page {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 8rpx;
+  justify-content: flex-start;
 }
 
 .pcell {
   position: relative;
-  flex: 0 0 calc((100% - 16rpx) / 3);
-  height: 214rpx;
+  flex: none;
   border-radius: 16rpx;
   overflow: hidden;
   background: #dfe5ee;

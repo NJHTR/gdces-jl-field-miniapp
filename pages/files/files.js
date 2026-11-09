@@ -57,24 +57,45 @@ Page({
     photos: [],
     files: [],
     infoRows: [],
+    photoCols: 2,
+    photoGap: 8,
+    photoCellW: 160,
     loading: true,
     error: "",
   },
 
   onLoad(options) {
     let hdrTop = 60;
+    let photoGap = 8;
+    let photoCellW = 160;
+    let photoCols = 2;
     try {
       const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      const width = info.windowWidth || 375;
+      const rpx = width / 750;
       let top = (info.statusBarHeight || 44) + 48;
       try {
         const menu = wx.getMenuButtonBoundingClientRect();
         if (menu && menu.bottom) top = menu.bottom + 10;
       } catch (e) {}
       hdrTop = Math.round(top);
+
+      // 根据真实视口算列数：手机 2 列大图，平板/大屏 3 列。
+      // 不再用 flex-basis: calc(...)，Skyline 下会把三列挤成两列。
+      photoCols = width >= 520 ? 3 : 2;
+      photoGap = Math.round(8 * rpx);
+      const sidePad = 28 * rpx;
+      photoCellW = Math.floor((width - sidePad * 2 - photoGap * (photoCols - 1)) / photoCols);
     } catch (e) {}
 
     const pid = (options && options.projectId) || (store.project() || {}).id || "";
-    this.setData({ hdrTop, projectId: pid });
+    this.setData({
+      hdrTop,
+      projectId: pid,
+      photoCols,
+      photoGap,
+      photoCellW,
+    });
     this.load();
   },
 
