@@ -21,7 +21,10 @@
       { "type": "folder", "value": "docs" },
       { "type": "folder", "value": ".git" },
       { "type": "folder", "value": "tools" },
-      { "type": "file", "value": "README.md" }
+      { "type": "folder", "value": "scripts" },
+      { "type": "file", "value": "README.md" },
+      { "type": "file", "value": "preview-latest.png" },
+      { "type": "file", "value": "preview-latest.jpg" }
     ],
     "include": []
   },
