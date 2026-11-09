@@ -3,7 +3,7 @@
   <view class="glow g1"></view>
   <view class="glow g2"></view>
   <view class="glow g3"></view>
-  <view class="wm" wx:if="{{tab !== 'field'}}">
+  <view class="wm">
     <image class="wm-img" src="/assets/brand-mark.png" mode="aspectFit" />
     <text class="wm-name">{{project.name}}</text>
   </view>
