@@ -9,9 +9,15 @@
     <text class="close-x">✕</text>
   </view>
 
-  <!-- 品牌区 -->
+  <!-- 品牌区：图标落墨 → 单行公司名从左到右带出，1.2s 后静止 -->
   <view class="hero">
-    <image class="logo" src="/assets/brand-logo.png" mode="aspectFit" />
+    <view class="brand-lockup">
+      <view class="brand-ink"></view>
+      <image class="brand-icon" src="/assets/login-brand-icon.png" mode="aspectFit" />
+      <view class="brand-name-wrap">
+        <image class="brand-name" src="/assets/login-brand-name.png" mode="aspectFit" />
+      </view>
+    </view>
     <view class="title">监理现场助手</view>
     <view class="sub">{{action === 'record' ? '登录后就能开始记录' : '说一句话，文书自己长出来'}}</view>
   </view>

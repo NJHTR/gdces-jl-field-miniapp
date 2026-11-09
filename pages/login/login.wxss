@@ -53,10 +53,107 @@ page {
   align-items: center;
 }
 
-.logo {
-  width: 420rpx;
+.brand-lockup {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14rpx;
+  width: 390rpx;
   height: 56rpx;
   margin-bottom: 72rpx;
+}
+
+.brand-ink {
+  position: absolute;
+  left: -22rpx;
+  top: -25rpx;
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 55rpx;
+  background: radial-gradient(circle, rgba(51, 104, 190, 0.18), rgba(51, 104, 190, 0));
+  opacity: 0;
+  transform: scale(0.5);
+  animation: brand-ink 0.8s ease-out both;
+}
+
+.brand-icon {
+  width: 60rpx;
+  height: 56rpx;
+  flex: none;
+  opacity: 0;
+  transform: translateY(3rpx) scale(0.92);
+  animation: brand-icon 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.brand-name-wrap {
+  flex: none;
+  width: 0;
+  height: 56rpx;
+  overflow: hidden;
+  animation: brand-name 0.68s cubic-bezier(0.22, 0.61, 0.36, 1) 0.27s both;
+}
+
+.brand-name {
+  display: block;
+  width: 316rpx;
+  height: 56rpx;
+}
+
+@keyframes brand-icon {
+  0% {
+    opacity: 0;
+    transform: translateY(3rpx) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes brand-name {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 316rpx;
+  }
+}
+
+@keyframes brand-ink {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-icon,
+  .brand-ink,
+  .brand-name-wrap {
+    animation: none;
+  }
+
+  .brand-icon {
+    opacity: 1;
+    transform: none;
+  }
+
+  .brand-name-wrap {
+    width: 316rpx;
+  }
+
+  .brand-ink {
+    display: none;
+  }
 }
 
 .title {
