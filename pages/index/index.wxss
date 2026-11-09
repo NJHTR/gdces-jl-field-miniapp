@@ -6758,23 +6758,23 @@ page {
 /* ============================================================
    输入条左侧加号：和外壳胶囊同心
    外胶囊：高约 136rpx，圆角 62rpx
-   内按钮：52rpx（半径 26）
-   左内边距 = 62 - 26 = 36rpx
+   内按钮：60rpx（半径 30）
+   左内边距 = 62 - 30 = 32rpx
    ============================================================ */
 .capsule.composing-mode .holdbar.textrow {
-  padding-left: 18rpx;
+  padding-left: 14rpx;
   padding-right: 12rpx;
 }
 
 .capsule.composing-mode .plusbtn {
   flex: none;
-  width: 52rpx;
-  height: 52rpx;
-  min-width: 52rpx;
+  width: 60rpx;
+  height: 60rpx;
+  min-width: 60rpx;
   margin: 0;
   padding: 0;
-  border-radius: 26rpx;
-  background: rgba(120, 134, 155, 0.10);
+  border-radius: 30rpx;
+  background: rgba(120, 134, 155, 0.08);
   box-sizing: border-box;
   transition: background 140ms ease, transform 140ms ease;
 }
@@ -6788,20 +6788,20 @@ page {
   width: auto;
   min-width: 0;
   padding: 0 16rpx 0 12rpx;
-  border-radius: 26rpx;
+  border-radius: 30rpx;
 }
 
 .capsule.composing-mode .plusbars {
-  width: 20rpx;
-  height: 20rpx;
+  width: 24rpx;
+  height: 24rpx;
 }
 
 .capsule.composing-mode .pb-h {
-  width: 20rpx;
+  width: 24rpx;
 }
 
 .capsule.composing-mode .pb-v {
-  height: 20rpx;
+  height: 24rpx;
 }
 
 /* 右侧发送/语音与外胶囊同一条垂直中轴 */
