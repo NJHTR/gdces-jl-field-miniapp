@@ -3615,6 +3615,29 @@ page {
   position: relative;
 }
 
+.recfilters {
+  display: flex;
+  flex-direction: row;
+  gap: 10rpx;
+  padding: 8rpx 4rpx 2rpx;
+}
+
+.recfilter {
+  padding: 10rpx 22rpx;
+  border-radius: 999rpx;
+  background: rgba(120, 134, 155, 0.08);
+  color: #667085;
+  font-size: 22rpx;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.recfilter.on {
+  background: #0a6dff;
+  color: #ffffff;
+  font-weight: 600;
+}
+
 .stickybar {
   flex: none;
   height: 84rpx;

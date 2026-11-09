@@ -6,6 +6,10 @@ const seed = require("../../utils/seed");
 const md = require("../../utils/md");
 const { API_BASE } = require("../../utils/config");
 
+// 主界面只保留三个一级入口：现场 / 记录 / 我的。
+// “资料”不再是一级 tab，它的影像和文件收进记录页的筛选里。
+const TAB_IDS = ["field", "inbox", "me"];
+
 
 const win = (() => {
   try {
@@ -25,6 +29,9 @@ const SWALLOW_MS = 320;
 Page({
   data: {
     tab: "field",
+    recFilter: "all", // 记录页：all | active | images
+    recImages: [],
+    recVisibleCount: 0,
     logged: false,
     userName: "",
     userRole: "",
@@ -298,15 +305,15 @@ Page({
    * x       = index × (tabW + gap)
    */
   syncLens(animate) {
-    const ids = ["field", "inbox", "docs", "me"];
+    const ids = TAB_IDS;
     const idx = Math.max(0, ids.indexOf(this.data.tab));
     const gap = R(4);
     const padX = this.data.padX || 20;
     const tabbarW = this._tabbarW || win.windowWidth - padX * 2 - R(108) - R(18);
-    const tabW = Math.max(0, (tabbarW - gap * 3) / 4);
+    const tabW = Math.max(0, (tabbarW - gap * (ids.length - 1)) / ids.length);
 
     // 有实测位置就用实测，没有再用公式
-    const cand = this._tabs && this._tabs.length === 4 ? this._tabs[idx] : null;
+    const cand = this._tabs && this._tabs.length === ids.length ? this._tabs[idx] : null;
     const real = cand && cand.width > 10 ? cand : null;
     const x = real ? real.left : idx * (tabW + gap);
     const w = real ? real.width : tabW;
@@ -451,7 +458,7 @@ Page({
       if (!bar || !bar.width) return;
 
       if (bar.width > 50) this._tabbarW = bar.width;
-      if (tabs && tabs.length === 4) {
+      if (tabs && tabs.length === TAB_IDS.length) {
         const mapped = tabs.map((t) => ({
           left: t.left - bar.left,
           width: t.width,
@@ -473,8 +480,9 @@ Page({
     // 兜底宽度：屏宽 - 左右留白 - FAB - 间距
     const guessed = win.windowWidth - (this.data.padX || 20) * 2 - R(108) - R(18);
     const w = this._tabbarW || this.data.tabbarW || guessed;
-    const tabW = (w - gap * 3) / 4;
-    return [0, 1, 2, 3].map((i) => {
+    const n = TAB_IDS.length;
+    const tabW = (w - gap * (n - 1)) / n;
+    return TAB_IDS.map((_, i) => {
       const left = i * (tabW + gap);
       return { left, width: tabW, center: left + tabW / 2 };
     });
@@ -482,7 +490,7 @@ Page({
 
   /** 松手吸附：找中心最近的 tab（和原型完全一致） */
   snapToNearest(fingerX) {
-    const tabs = this._tabs && this._tabs.length === 4 ? this._tabs : this.fallbackTabs();
+    const tabs = this._tabs && this._tabs.length === TAB_IDS.length ? this._tabs : this.fallbackTabs();
     const center = fingerX + this.data.lensW / 2;
     let best = 0;
     let bd = Infinity;
@@ -494,7 +502,7 @@ Page({
       }
     });
 
-    const ids = ["field", "inbox", "docs", "me"];
+    const ids = TAB_IDS;
     if (this._debug) console.log("[dock] snap ->", ids[best], "from", this.data.tab, "center=", Math.round(center), "tabs=", JSON.stringify(tabs.map(t => Math.round(t.center))));
     if (ids[best] !== this.data.tab) {
       this.switchTo(ids[best], fingerX < this.data.lensX ? "left" : "right");
@@ -622,7 +630,7 @@ Page({
   },
 
   snapToNearestTab(dx) {
-    const tabs = ["field", "inbox", "docs", "me"];
+    const tabs = TAB_IDS;
     const idx = tabs.indexOf(this.data.tab);
     const step = this.data.lensW || R(150);
     const next = Math.max(0, Math.min(tabs.length - 1, idx + Math.round(dx / step)));
@@ -716,7 +724,7 @@ Page({
   switchTo(tab, dir) {
     if (this.data.recording) this.onMicEnd();   // 切页先结束录音，别让它卡住
     if (this._debug) console.log("[tab] switchTo", this.data.tab, "->", tab);
-    const order = ["field", "inbox", "docs", "me"];
+    const order = TAB_IDS;
     const anim = "in-" + (dir || (order.indexOf(tab) > order.indexOf(this.data.tab) ? "left" : "right"));
     const meta = this.pageMetaOf(tab);
     this.setData(
@@ -738,7 +746,7 @@ Page({
         this.updateFab();
         this.refreshViews("");
         wx.nextTick(() => this.syncLens(true));
-        if (tab === "docs") this._loadPhotos();
+        if (tab === "inbox") this._loadPhotos();
       }
     );
     setTimeout(() => this.setData({ anim: "" }), 260);
@@ -753,10 +761,19 @@ Page({
     this.switchTo(next);
   },
 
+  onRecFilter(e) {
+    const f = e.currentTarget.dataset.f || "all";
+    if (f === this.data.recFilter) return;
+    fb.tap();
+    this.setData({ recFilter: f }, () => {
+      this.refreshViews("");
+      if (f === "images") this._loadPhotos();
+    });
+  },
+
   pageMetaOf(tab) {
     const map = {
       inbox: { t: "工作记录", s: "按日期 · 全部 · " + (this.data.recordTotal || 0) + " 条" },
-      docs: { t: "资料", s: "文书 " + (this.data.docTotal || 0) + " 份 · 影像 " + (this.data.imageTotal || 0) + " 张" },
       me: { t: "我的", s: "AI 记住了什么 · 可逐条删改" },
     };
     return map[tab] || map.inbox;
@@ -766,7 +783,6 @@ Page({
     return {
       field: "搜索说过的内容",
       inbox: "搜索记录、文书、部位",
-      docs: "搜索文件名、编号、状态",
       me: "搜索我记住的东西",
     }[tab];
   },
@@ -932,6 +948,7 @@ Page({
         Object.assign({}, r, {
           items: r.items
             .filter((it) => hit(it.kind + it.obj + (it.tags || []).join("")))
+            .filter((it) => this.data.recFilter !== "active" || it.state !== "已签")
             .map((it) => Object.assign({}, it, { cov: it.cov || this.coverOf(it.kind) })),
         })
       )
@@ -981,6 +998,10 @@ Page({
           : d.state;
         return Object.assign({}, d, { cov, img, state });
       });
+    const recImages = docsView.filter((d) => d.visual);
+    const recVisibleCount = this.data.recFilter === "images"
+      ? recImages.length
+      : recordsView.reduce((n, r) => n + r.items.length, 0);
     const _memoMeta = (m) => {
       const src =
         m.source === "learned" ? "自动记的"
@@ -1000,8 +1021,11 @@ Page({
     // 当前页的命中数（搜索时显示在顶部）
     let count = 0;
     if (this.data.tab === "field") count = msgsView.filter((m) => !m.hidden).length;
-    else if (this.data.tab === "inbox") count = recordsView.reduce((n, r) => n + r.items.length, 0);
-    else if (this.data.tab === "docs") count = docsView.length;
+    else if (this.data.tab === "inbox") {
+      count = this.data.recFilter === "images"
+        ? recImages.length
+        : recordsView.reduce((n, r) => n + r.items.length, 0);
+    }
     // 「我的」页有两个分段：空状态和搜索计数要跟当前分段走，
     // 否则切到「项目的」时会拿「我的」的条数，空状态一直挂着
     else
@@ -1019,14 +1043,14 @@ Page({
       listEmpty = count === 0;
       emptyText = "还没有今天的记录";
       emptySub = "按住说话，或拍张照片";
+    } else if (this.data.tab === "inbox" && this.data.recFilter === "images") {
+      listEmpty = count === 0;
+      emptyText = "还没有现场影像";
+      emptySub = "现场拍照后会自动收进这里";
     } else if (this.data.tab === "inbox") {
       listEmpty = count === 0;
       emptyText = "还没有文书";
       emptySub = "现场说的话，会自动整理成文书";
-    } else if (this.data.tab === "docs") {
-      listEmpty = count === 0;
-      emptyText = "还没有资料";
-      emptySub = "图纸、方案、报验都会收进这里";
     } else if (this.data.meSeg === "pending") {
       listEmpty = count === 0;
       emptyText = "没有待确认的规矩";
@@ -1041,6 +1065,8 @@ Page({
       msgsView,
       recordsView,
       docsView,
+      recImages,
+      recVisibleCount,
       memosView,
       projMemosView: this.data.projMemos.filter((m) => hit(m.text)).map(_deco),
       recordTotal,
@@ -1052,8 +1078,6 @@ Page({
       pageSub:
         this.data.tab === "inbox"
           ? "按日期 · 全部 · " + recordTotal + " 条"
-          : this.data.tab === "docs"
-          ? "文书 " + docTotal + " 份 · 影像 " + imageTotal + " 张"
           : this.data.pageSub,
       searchCount: count,
       listEmpty,
