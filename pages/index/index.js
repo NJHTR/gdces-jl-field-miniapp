@@ -197,6 +197,49 @@ Page({
     } catch (e) {}
   },
 
+  /** 文书详情里提交待签后回到聊天：同步卡片/记录状态，别让旧状态挂着 */
+  _applyDocStateFromStorage() {
+    let st = null;
+    try {
+      st = wx.getStorageSync("jl_doc_state");
+    } catch (e) {}
+    if (!st || !st.id || Date.now() - (st.at || 0) > 60000) return;
+    try { wx.removeStorageSync("jl_doc_state"); } catch (e) {}
+    const id = String(st.id);
+    const state = st.state || "待签";
+    let changed = false;
+    const msgs = (this.data.msgs || []).map((m) => {
+      if (m.artifact && String(m.artifact.id) === id) {
+        changed = true;
+        return Object.assign({}, m, {
+          artifact: Object.assign({}, m.artifact, { state: state }),
+        });
+      }
+      return m;
+    });
+    const records = (this.data.records || []).map((g) =>
+      Object.assign({}, g, {
+        items: (g.items || []).map((it) => {
+          if (String(it.id) === "d" + id) {
+            changed = true;
+            return Object.assign({}, it, { state: state, st: state === "已签" ? "ok" : "wait" });
+          }
+          return it;
+        }),
+      })
+    );
+    const docs = (this.data.docs || []).map((d) => {
+      if (String(d.id) === "f" + id) {
+        changed = true;
+        return Object.assign({}, d, { state: state, tone: state === "已签" ? "ok" : "wait" });
+      }
+      return d;
+    });
+    if (changed) {
+      this.setData({ msgs, records, docs }, () => this.refreshViews(this.data.query));
+    }
+  },
+
   onHide() {
     this._unbindKeyboard();
     this.setData({ kbHeight: 0 });
@@ -204,6 +247,7 @@ Page({
 
   onShow() {
     if (this.data.kbHeight !== 0) this.setData({ kbHeight: 0 });
+    this._applyDocStateFromStorage();
     // 切走再回来：没跑完的任务继续盯着
     if (!this.data.busy) this._resumeInflight();
     this._bindKeyboard();

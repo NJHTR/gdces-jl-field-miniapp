@@ -446,14 +446,23 @@ Page({
       this.onFillAll();
       return;
     }
+    if (this.data.state === "待签") {
+      wx.showToast({ title: "已经是待签状态，可直接生成 Word 文件", icon: "none", duration: 1800 });
+      return;
+    }
 
     const that = this;
     api
       .put("/api/v1/docs/" + id, { state: "待签" })
       .then(() => {
-        wx.showToast({ title: "已提交，待签发", icon: "none", duration: 1200 });
+        // 不要自动退回聊天：否则用户会觉得“东西提交完就消失了”。
+        // 停在详情页，让状态、文件入口和下一步都看得见。
+        try {
+          wx.setStorageSync("jl_doc_state", { id: String(id), state: "待签", at: Date.now() });
+        } catch (e) {}
+        that.setData({ state: "待签" });
+        wx.showToast({ title: "已提交待签，可继续生成 Word 文件", icon: "none", duration: 2200 });
         that._loadDoc(id, that.data.title);
-        setTimeout(() => wx.navigateBack({ delta: 1 }), 1200);
       })
       .catch((err) => {
         // 缺项被拒时，服务端会带回 missing

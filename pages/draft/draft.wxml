@@ -62,7 +62,7 @@
 
   <view class="dfoot" style="padding-bottom: {{bottomPad}}px;">
     <view class="fbtn ghost" wx:if="{{missingCount}}" bindtap="onFillAll" aria-label="补齐缺项">补齐 {{missingCount}} 项</view>
-    <view class="fbtn" bindtap="onGenerate" aria-label="提交待签">提交待签</view>
+    <view class="fbtn" bindtap="onGenerate" aria-label="提交待签">{{state === '待签' ? '已提交待签' : '提交待签'}}</view>
   </view>
 </view>
 
