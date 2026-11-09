@@ -386,7 +386,7 @@ Page({
       lensW: w,
       lensScale: 1,
       lensAnim: animate
-        ? "left .46s cubic-bezier(.34,1.56,.64,1), width .46s cubic-bezier(.34,1.56,.64,1)"
+        ? "left .30s cubic-bezier(.22,.61,.36,1), width .30s cubic-bezier(.22,.61,.36,1)"
         : "none",
     });
   },
