@@ -887,11 +887,14 @@ Page({
       const photos = (m.photos || []).map((p) =>
         typeof p === "string" && p.indexOf("/api/") === 0 ? API_BASE + p : p
       );
+      const ans = this._answerOf(m);
+      const artifact = m.artifact || (ans && ans.artifact) || null;
       // 模型会用 Markdown（**加粗**、- 列表、### 小标题），按块渲染，
       // 没有语法就还用原来的纯文本/富文本
       const mdBlocks = m.type === "agent" && md.hasMarkdown(m.text) ? md.parse(m.text) : null;
       return Object.assign({}, m, {
         photos: photos,
+        artifact: artifact,
         md: mdBlocks,
         reviewOpen: !!openMap[m.id + ":rv"],
         hidden: !!q && !hit(text),
