@@ -169,9 +169,26 @@ Page({
         this.setData({ draft: saved, draftSeed: saved, hasDraft: true });
       }
     } catch (e) {}
+    // 附件也要跟着草稿留下来：切走再点回输入框还能看到刚才的图
+    try {
+      const savedAttach = wx.getStorageSync("jl_attach");
+      if (Array.isArray(savedAttach) && savedAttach.length) {
+        this.setData({ attach: savedAttach, imMode: "text" });
+      }
+    } catch (e) {}
     this.setData({ hapticOn: fbState.haptic, soundOn: fbState.sound });
     this.refreshViews("");
     this._loadPhotos();
+  },
+
+  _persistAttach() {
+    try {
+      if (this.data.attach && this.data.attach.length) {
+        wx.setStorageSync("jl_attach", this.data.attach);
+      } else {
+        wx.removeStorageSync("jl_attach");
+      }
+    } catch (e) {}
   },
 
   /** 只认系统级键盘事件：它一定会在键盘真正收起时发 0 */
@@ -844,7 +861,7 @@ Page({
 
     if (this.data.tab === "field") {
       // 有草稿就直接进文字态，让人看到自己没发出去的东西
-      this.setData({ imMode: (this._draft || this.data.draftSeed) ? "text" : "voice" });
+      this.setData({ imMode: (this._draft || this.data.draftSeed || this.data.attach.length) ? "text" : "voice" });
       this.setMode("input");
     } else {
       this.setData({ drawerH: DRAWER_MAX, drawerOpen: true });
@@ -1497,7 +1514,7 @@ Page({
           kind: "photo",
           src: f.tempFilePath,
         }));
-        this.setData({ attach: this.data.attach.concat(add) });
+        this.setData({ attach: this.data.attach.concat(add) }, () => this._persistAttach());
       },
       fail: () => {},
     });
@@ -1506,7 +1523,7 @@ Page({
   onRemoveAttach(e) {
     const id = e.currentTarget.dataset.id;
     fb.tap();
-    this.setData({ attach: this.data.attach.filter((a) => a.id !== id) });
+    this.setData({ attach: this.data.attach.filter((a) => a.id !== id) }, () => this._persistAttach());
   },
 
   /** ＋ 按钮：一个入口，五种附件 */
@@ -1540,7 +1557,7 @@ Page({
             attach: this.data.attach.concat([
               { id: "a" + Date.now(), kind: "photo", src: p.src },
             ]),
-          });
+          }, () => this._persistAttach());
           wx.showToast({ title: "已加入聊天附件", icon: "none" });
         },
       },
@@ -1604,7 +1621,7 @@ Page({
     }
     this.setData({
       attach: this.data.attach.concat([{ id: "v" + Date.now(), kind: "audio", dur, src }]),
-    });
+    }, () => this._persistAttach());
   },
   /* ---------------- 气泡长按菜单 ---------------- */
 
@@ -1725,10 +1742,9 @@ Page({
   },
   /* ---------------- 从微信导入 ---------------- */
 
-  /** 从聊天会话里挑图片（wx.chooseMessageFile） */
+  /** 从聊天会话里挑图片，放进输入框附件栏（不直接入库、不收起输入框） */
   onImportChatImage() {
     fb.tap();
-    this.collapseDrawer();
 
     wx.chooseMessageFile({
       count: 9,
@@ -1737,39 +1753,33 @@ Page({
         const files = res.tempFiles || [];
         if (!files.length) return;
 
-        const wm = store.watermarkInfo();
+        const add = [];
         files.forEach((f) => {
           let saved = f.path;
           try {
             saved = wx.getFileSystemManager().saveFileSync(f.path);
           } catch (e) {}
-          uploader
-            .upload(saved)
-            .then((remote) =>
-              store.addPhoto({
-                id: "p" + Date.now() + Math.random().toString(36).slice(2, 6),
-                src: remote || saved,
-                local: saved,
-                project: wm.project,
-                place: wm.place,
-                time: wm.time,
-                weather: wm.weather,
-                from: "chat",
-              })
-            )
-            .then(() => {
-              // 本机图片已经能用了，先把资料页刷一遍；后端影像再补一次
-              this.setData({ photoCount: store.photos().length });
-              this.refreshViews(this.data.query);
-              this._loadPhotos();
+          if (saved) {
+            add.push({
+              id: "a" + Date.now() + Math.random().toString(36).slice(2, 5),
+              kind: "photo",
+              src: saved,
             });
+          }
         });
+        if (!add.length) return;
 
+        this.setData({
+          attach: this.data.attach.concat(add),
+          imMode: "text",
+        });
+        // 选完图必须回到输入态，否则会落回底部 tabbar，看起来像“图片丢了”
+        this.setMode("input");
+        this._persistAttach();
         try {
           wx.vibrateShort({ type: "medium" });
         } catch (e) {}
-        this.setData({ photoCount: store.photos().length });
-        wx.showToast({ title: "已导入 " + files.length + " 张", icon: "none" });
+        wx.showToast({ title: "已加入输入框，可继续输入文字", icon: "none", duration: 1800 });
       },
       fail: () => {},
     });
@@ -2327,7 +2337,7 @@ Page({
         const taskId = d && d.taskId;
         if (!taskId) throw new Error("服务器没有返回任务号");
         // 真发出去了才清附件，失败时留着让用户重试
-        this.setData({ attach: [] });
+        this.setData({ attach: [] }, () => this._persistAttach());
         console.log("[send] 任务", taskId, "开始轮询");
         this.setData({ busy: Object.assign({}, this.data.busy, { taskId }) });
         this._saveInflight({ taskId, pendingId, startedAt: Date.now() });
