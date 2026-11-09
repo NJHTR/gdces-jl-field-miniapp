@@ -1,0 +1,109 @@
+<view class="page">
+  <view class="fhdr" style="padding-top: {{hdrTop}}px;">
+    <view class="back" bindtap="onBack" aria-label="返回">
+      <image class="back-img" src="/assets/icons/back-dark.png" mode="aspectFit" />
+    </view>
+    <view class="htitle">
+      <text class="h1">项目资料</text>
+      <text class="h2">{{project.name || '当前项目'}}</text>
+    </view>
+  </view>
+
+  <view class="segments">
+    <view
+      class="segment {{tab === item.k ? 'on' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="k"
+      data-tab="{{item.k}}"
+      bindtap="switchTab"
+    >{{item.t}}</view>
+  </view>
+
+  <scroll-view class="fbody" scroll-y show-scrollbar="{{false}}">
+    <view class="loading" wx:if="{{loading}}">
+      <view class="spinner"></view>
+      <text class="loading-t">正在整理项目资料…</text>
+    </view>
+
+    <view class="error" wx:elif="{{error}}">
+      <text class="error-t">{{error}}</text>
+      <view class="retry" bindtap="load">重新加载</view>
+    </view>
+
+    <block wx:else>
+      <!-- 文书 -->
+      <block wx:if="{{tab === 'docs'}}">
+        <view class="sec">文书 <text class="sec-n">{{docs.length}}</text></view>
+        <view class="group" wx:if="{{docs.length}}">
+          <view class="row" wx:for="{{docs}}" wx:key="id" data-idx="{{index}}" bindtap="onDocTap">
+            <view class="row-ic doc"><image src="/assets/icons/doc-blue.png" mode="aspectFit" /></view>
+            <view class="row-main">
+              <text class="row-t">{{item.name}}</text>
+              <text class="row-s">{{item.date}}</text>
+            </view>
+            <text class="pill {{item.state === '已签' ? 'ok' : (item.state === '待补' ? 'todo' : 'wait')}}">{{item.state}}</text>
+            <image class="chev" src="/assets/icons/chev-gray.png" mode="aspectFit" />
+          </view>
+        </view>
+        <view class="empty" wx:else>
+          <text class="empty-t">还没有文书</text>
+          <text class="empty-s">在现场说一句话，记录会出现在这里</text>
+        </view>
+      </block>
+
+      <!-- 现场影像 -->
+      <block wx:elif="{{tab === 'photos'}}">
+        <view class="sec">现场影像 <text class="sec-n">{{photos.length}}</text></view>
+        <view class="pgrid" wx:if="{{photos.length}}">
+          <view class="pcell" wx:for="{{photos}}" wx:key="id" data-idx="{{index}}" bindtap="onPhotoTap">
+            <image class="pimg" src="{{item.thumb}}" mode="aspectFill" />
+            <view class="pveil"></view>
+            <text class="pdate">{{item.date}}</text>
+          </view>
+        </view>
+        <view class="empty" wx:else>
+          <text class="empty-t">还没有现场影像</text>
+          <text class="empty-s">拍照后会自动收进这里</text>
+        </view>
+      </block>
+
+      <!-- 导出文件 -->
+      <block wx:elif="{{tab === 'files'}}">
+        <view class="sec">已生成文件 <text class="sec-n">{{files.length}}</text></view>
+        <view class="group" wx:if="{{files.length}}">
+          <view class="row" wx:for="{{files}}" wx:key="id" data-idx="{{index}}" bindtap="onFileTap">
+            <view class="row-ic file"><image src="/assets/icons/doc-blue.png" mode="aspectFit" /></view>
+            <view class="row-main">
+              <text class="row-t">{{item.docName}}</text>
+              <text class="row-s">v{{item.version}} · {{item.date}} · {{item.size}}</text>
+            </view>
+            <text class="open">打开</text>
+          </view>
+        </view>
+        <view class="empty" wx:else>
+          <text class="empty-t">还没有导出文件</text>
+          <text class="empty-s">在记录详情里生成 Word 后，会出现在这里</text>
+        </view>
+      </block>
+
+      <!-- 项目概况 -->
+      <block wx:else>
+        <view class="sec">项目概况</view>
+        <view class="group" wx:if="{{infoRows.length}}">
+          <view class="orow" wx:for="{{infoRows}}" wx:key="k">
+            <text class="ok">{{item.label}}</text>
+            <text class="ov">{{item.value}}</text>
+          </view>
+        </view>
+        <view class="empty" wx:else>
+          <text class="empty-t">还没有项目概况</text>
+          <text class="empty-s">填好工程名称、参建单位，水印和文书会自动用</text>
+        </view>
+        <view class="ghostbtn" bindtap="onEditProject">编辑项目概况</view>
+      </block>
+
+      <view class="tb-pad" wx:if="{{!(tab === 'photos' && photos.length)}}"></view>
+      <view class="pg-pad" wx:if="{{tab === 'photos' && photos.length}}"></view>
+    </block>
+  </scroll-view>
+</view>

@@ -4,6 +4,7 @@
     "pages/webview/webview",
     "pages/login/login",
     "pages/draft/draft",
+    "pages/files/files",
     "pages/project/project",
     "pages/capture/capture",
       "pages/report/report"

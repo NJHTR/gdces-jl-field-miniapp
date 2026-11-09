@@ -538,6 +538,13 @@
             </view>
             <image class="pref-arrow" src="/assets/icons/chev-dark.png" mode="aspectFit" style="width:28rpx;height:28rpx;" />
           </view>
+          <view class="prefrow" bindtap="onOpenProjectFiles">
+            <view class="pref-body">
+              <text class="pref-t">项目资料</text>
+              <text class="pref-s">文书 · 现场影像 · 导出文件</text>
+            </view>
+            <image class="pref-arrow" src="/assets/icons/chev-dark.png" mode="aspectFit" style="width:28rpx;height:28rpx;" />
+          </view>
         </view>
 
         <view class="sec">偏好</view>
@@ -610,10 +617,12 @@
           <block wx:if="{{tab === 'field'}}">
             <text class="dp-label">工作区 · {{project.name}}</text>
             <view class="ws-list">
-              <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/folder-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">结构施工图 v3</text><text class="wsm">12 份</text></view>
-              <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/folder-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">专项施工方案</text><text class="wsm">6 份</text></view>
-              <view class="wsrow" data-label="工作区文件" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/warn-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">监理通知单</text><text class="wsm">5 份</text></view>
-              <view class="wsrow" data-label="现场影像" bindtap="onDrawerItem"><image class="wsi-img" src="/assets/icons/cam-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" /><text class="wsn">现场影像</text><text class="wsm">{{photoCount}} 张</text></view>
+              <view class="wsrow" bindtap="onOpenProjectFiles">
+                <image class="wsi-img" src="/assets/icons/folder-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
+                <text class="wsn">项目资料</text>
+                <text class="wsm">文书 · 影像 · 文件</text>
+              </view>
+            </view>
             <view class="wsrow" bindtap="onImportChatImage">
               <image class="wsi-img" src="/assets/icons/folder-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
               <text class="wsn">从聊天导入图片</text>
@@ -624,7 +633,6 @@
               <image class="wsi-img" src="/assets/icons/pen-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />
               <text class="wsn">粘贴群里的一段话</text>
               <text class="wsm">先复制，再点这里</text>
-            </view>
             </view>
           </block>
 

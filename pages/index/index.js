@@ -1837,6 +1837,15 @@ Page({
     wx.navigateTo({ url: "/pages/project/project" });
   },
 
+  /** 项目资料：文书 / 影像 / 导出文件 / 概况，只读归档视图 */
+  onOpenProjectFiles() {
+    fb.tap();
+    const p = store.project() || {};
+    wx.navigateTo({
+      url: "/pages/files/files?projectId=" + encodeURIComponent(p.id || ""),
+    });
+  },
+
   /** 退出登录 */
   onLogout() {
     wx.showModal({
