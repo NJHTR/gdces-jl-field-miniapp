@@ -412,6 +412,16 @@ page {
   margin-left: 8rpx;
 }
 
+.basedel {
+  flex: none;
+  font-size: 20rpx;
+  line-height: 1.4;
+  color: #d92c20;
+  padding: 4rpx 10rpx;
+  border-radius: 10rpx;
+  background: rgba(217, 44, 32, 0.08);
+}
+
 .baserow:active {
   opacity: 0.9;
 }

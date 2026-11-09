@@ -486,6 +486,31 @@ Page({
       });
   },
 
+  /** 移除误关联的现场照片（只从这份文书的依据里移除，不删原图） */
+  onRemovePhotoBase(e) {
+    const idx = Number(e.currentTarget.dataset.idx);
+    const b = (this.data.bases || [])[idx];
+    if (!b || b.kind !== "photo" || !b.ref) return;
+    const id = this.data.docId || this._routeDocId;
+    if (!id) return;
+    wx.showModal({
+      title: "移除这张照片？",
+      content: "只从这份文书的关联影像里移除，原图仍保留在现场影像。",
+      confirmText: "移除",
+      confirmColor: "#d92c20",
+      success: (r) => {
+        if (!r.confirm) return;
+        api
+          .put("/api/v1/docs/" + id, { removeBases: [b.ref] })
+          .then(() => {
+            wx.showToast({ title: "已移除", icon: "none" });
+            this._loadDoc(id, this.data.title);
+          })
+          .catch((err) => wx.showToast({ title: (err && err.message) || "移除失败", icon: "none" }));
+      },
+    });
+  },
+
   /** 点依据 → 看原文（照片直接看大图） */
   onBasisTap(e) {
     const idx = Number(e.currentTarget.dataset.idx);

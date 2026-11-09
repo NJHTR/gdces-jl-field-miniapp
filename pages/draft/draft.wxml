@@ -39,6 +39,7 @@
         <view class="baserow" wx:for="{{bases}}" wx:key="t" data-idx="{{index}}" bindtap="onBasisTap">
           <image class="basei" src="/assets/icons/{{item.ic}}-gray.png" mode="aspectFit" />
           <text class="baset">{{item.t}}</text>
+          <text class="basedel" wx:if="{{item.kind === 'photo'}}" data-idx="{{index}}" catchtap="onRemovePhotoBase">移除</text>
           <text class="basearrow">›</text>
         </view>
       </view>
