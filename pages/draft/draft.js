@@ -447,7 +447,7 @@ Page({
     api
       .put("/api/v1/docs/" + id, { state: "待签" })
       .then(() => {
-        wx.showToast({ title: "已生成，待签发", icon: "none", duration: 1200 });
+        wx.showToast({ title: "已提交，待签发", icon: "none", duration: 1200 });
         that._loadDoc(id, that.data.title);
         setTimeout(() => wx.navigateBack({ delta: 1 }), 1200);
       })
