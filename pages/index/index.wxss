@@ -40,7 +40,7 @@ page {
 .wm {
   position: absolute;
   left: 50%;
-  top: 46%;
+  top: 34%;
   width: 300rpx;
   height: 240rpx;
   margin-left: -150rpx;
