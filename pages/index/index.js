@@ -1907,8 +1907,14 @@ Page({
     fb.tap();
     const kind = e.currentTarget.dataset.kind || "";
     const obj = e.currentTarget.dataset.obj || "";
+    // 记录卡 id 是 d<docId>；必须把真实 doc id 传过去，否则详情页会
+    // 退回原型数据，点“提交待签”就会报“这份文书还没入库”。
+    const rawId = String(e.currentTarget.dataset.id || "");
+    const docId = rawId.charAt(0) === "d" ? rawId.slice(1) : "";
     wx.navigateTo({
-      url: "/pages/draft/draft?kind=" + encodeURIComponent(kind) + "&obj=" + encodeURIComponent(obj),
+      url: "/pages/draft/draft?kind=" + encodeURIComponent(kind) +
+           "&obj=" + encodeURIComponent(obj) +
+           (docId ? "&id=" + encodeURIComponent(docId) : ""),
     });
   },
 

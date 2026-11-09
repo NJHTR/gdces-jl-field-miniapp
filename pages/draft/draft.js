@@ -189,6 +189,10 @@ Page({
 
     // 有文书 id 就查真数据；没有（比如从记录点进来）才用原型数据
     if (docId) {
+      this._routeDocId = String(docId);
+      // 先把 id 落到 data：详情还在请求时用户点“提交待签”，
+      // 不能因为 data.docId 还是空就误报“这份文书还没入库”。
+      this.setData({ docId: String(docId) });
       this._loadDoc(docId, kind);
       return;
     }
@@ -430,11 +434,11 @@ Page({
   },
 
   onGenerate() {
-    const id = this.data.docId;
+    const id = this.data.docId || this._routeDocId;
     const left = this.data.missingCount || 0;
 
     if (!id) {
-      wx.showToast({ title: "这份文书还没入库", icon: "none" });
+      wx.showToast({ title: "这条记录还没加载到编号，请回记录列表重新打开", icon: "none", duration: 2200 });
       return;
     }
     if (left) {
@@ -461,9 +465,9 @@ Page({
 
   /** 按省统表模板生成 Word：记录详情页直接导出 */
   onExportForm() {
-    const id = this.data.docId;
+    const id = this.data.docId || this._routeDocId;
     if (!id) {
-      wx.showToast({ title: "这份文书还没入库", icon: "none" });
+      wx.showToast({ title: "这条记录还没加载到编号，请回记录列表重新打开", icon: "none", duration: 2200 });
       return;
     }
     wx.showLoading({ title: "生成文件…", mask: true });
