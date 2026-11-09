@@ -3663,6 +3663,15 @@ page {
   }
 }
 
+.recsummary {
+  flex: none;
+  padding: 0 40rpx 10rpx;
+  font-size: 21rpx;
+  line-height: 1.4;
+  color: #8a94a6;
+  letter-spacing: 0.2rpx;
+}
+
 .stickybar {
   flex: none;
   height: 84rpx;

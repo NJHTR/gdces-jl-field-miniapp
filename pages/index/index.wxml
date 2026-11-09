@@ -334,6 +334,8 @@
           <view class="recfilter {{recFilter === 'active' ? 'on' : ''}}" data-f="active" bindtap="onRecFilter">待处理</view>
           <view class="recfilter {{recFilter === 'images' ? 'on' : ''}}" data-f="images" bindtap="onRecFilter">现场影像</view>
         </view>
+        <view class="recsummary" wx:if="{{recFilter !== 'images'}}">共 {{recVisibleCount}} 条 · 待补 {{recordPending}} · 待签 {{recordWaiting}} · 已签 {{recordSigned}}</view>
+        <view class="recsummary" wx:else>共 {{recImages.length}} 张现场影像</view>
 
         <scroll-view
           class="list inboxlist"
@@ -348,7 +350,6 @@
           bindrefresherrefresh="onRefresh"
         >
         <block wx:if="{{recFilter !== 'images'}}">
-        <view class="sec">共 {{recVisibleCount}} 条 · 待补 {{recordPending}} · 待签 {{recordWaiting}} · 已签 {{recordSigned}}</view>
         <block wx:for="{{recordsView}}" wx:key="id">
           <view class="dayhd {{index === stickyIdx ? 'hide' : ''}}" id="sec{{index}}">
             <text class="dayhd-d">{{item.date}}</text>
@@ -403,7 +404,6 @@
         </block>
         </block>
         <block wx:if="{{recFilter === 'images'}}">
-          <view class="sec">共 {{recImages.length}} 张现场影像</view>
           <block wx:for="{{recImages}}" wx:key="id">
             <view class="dcard" data-name="{{item.name}}" data-id="{{item.id}}" bindtap="onDocTap" bindlongpress="onDocLong">
               <view class="dcard-body">
