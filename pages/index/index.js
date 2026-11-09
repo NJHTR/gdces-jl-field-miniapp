@@ -987,10 +987,13 @@ Page({
       // 模型会用 Markdown（**加粗**、- 列表、### 小标题），按块渲染，
       // 没有语法就还用原来的纯文本/富文本
       const mdBlocks = m.type === "agent" && md.hasMarkdown(m.text) ? md.parse(m.text) : null;
+      // 复核意见也是模型写的 Markdown，不能原样当纯文本显示
+      const reviewMd = m.review && md.hasMarkdown(m.review) ? md.parse(m.review) : null;
       return Object.assign({}, m, {
         photos: photos,
         artifact: artifact,
         md: mdBlocks,
+        reviewMd: reviewMd,
         reviewOpen: !!openMap[m.id + ":rv"],
         hidden: !!q && !hit(text),
         bw: m.pending

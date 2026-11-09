@@ -217,7 +217,48 @@
           <text class="rvtitle">复核意见</text>
           <text class="rvmore">{{item.reviewOpen ? '收起' : '展开'}}</text>
         </view>
-        <view class="rvbody" wx:if="{{item.reviewOpen}}">{{item.review}}</view>
+        <view class="rvbody" wx:if="{{item.reviewOpen}}">
+          <block wx:if="{{item.reviewMd && item.reviewMd.length}}">
+            <block wx:for="{{item.reviewMd}}" wx:for-item="rb" wx:for-index="rbi" wx:key="rbi">
+              <view wx:if="{{rb.t === 'p'}}" class="md-p">
+                <text><text wx:for="{{rb.items[0].segs}}" wx:for-item="sg" wx:key="v"
+                  class="{{sg.b ? 'md-b' : (sg.c ? 'md-code' : '')}}">{{sg.v}}</text></text>
+              </view>
+              <view wx:elif="{{rb.t === 'h'}}" class="md-h md-h{{rb.lv}}">
+                <text wx:for="{{rb.items[0].segs}}" wx:for-item="sg" wx:key="v"
+                  class="{{sg.b ? 'md-b' : ''}}">{{sg.v}}</text>
+              </view>
+              <view wx:elif="{{rb.t === 'ul'}}" class="md-ul">
+                <view class="md-li" wx:for="{{rb.items}}" wx:for-item="it" wx:key="index">
+                  <text class="md-dot">·</text>
+                  <text class="md-lit"><text wx:for="{{it.segs}}" wx:for-item="sg" wx:key="v"
+                    class="{{sg.b ? 'md-b' : (sg.c ? 'md-code' : '')}}">{{sg.v}}</text></text>
+                </view>
+              </view>
+              <view wx:elif="{{rb.t === 'ol'}}" class="md-ul">
+                <view class="md-li" wx:for="{{rb.items}}" wx:for-item="it" wx:key="index">
+                  <text class="md-dot">{{index + 1}}.</text>
+                  <text class="md-lit"><text wx:for="{{it.segs}}" wx:for-item="sg" wx:key="v"
+                    class="{{sg.b ? 'md-b' : (sg.c ? 'md-code' : '')}}">{{sg.v}}</text></text>
+                </view>
+              </view>
+              <view wx:elif="{{rb.t === 'table'}}" class="md-tablebox">
+                <scroll-view class="md-tablescroll" scroll-x enable-flex>
+                  <view class="md-table">
+                    <view class="md-tr md-thead">
+                      <text class="md-th" wx:for="{{rb.header}}" wx:for-item="cell" wx:key="*this">{{cell}}</text>
+                    </view>
+                    <view class="md-tr" wx:for="{{rb.rows}}" wx:for-item="row" wx:key="*this">
+                      <text class="md-td" wx:for="{{row}}" wx:for-item="cell" wx:key="*this">{{cell}}</text>
+                    </view>
+                  </view>
+                </scroll-view>
+              </view>
+              <view wx:elif="{{rb.t === 'hr'}}" class="md-hr"></view>
+            </block>
+          </block>
+          <text wx:else class="rvplain">{{item.review}}</text>
+        </view>
       <!-- 出稿已完成、复核还在后台 -->
       <view class="rvpending" wx:if="{{item.reviewState === 'pending' && !item.review}}">复核中…（文书已出，复核意见稍后补上）</view>
       </view>

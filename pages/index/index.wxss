@@ -6688,7 +6688,30 @@ page {
   font-size: 27rpx;
   line-height: 40rpx;
   color: #2a3240;
+  white-space: normal;
+}
+
+.rvbody .md-p {
+  font-size: 27rpx;
+  line-height: 40rpx;
+  color: #2a3240;
+  margin-bottom: 8rpx;
+}
+
+.rvbody .md-ul {
+  margin: 2rpx 0 8rpx;
+}
+
+.rvbody .md-h {
+  color: #2a3240;
+}
+
+.rvplain {
+  display: block;
   white-space: pre-wrap;
+  font-size: 27rpx;
+  line-height: 40rpx;
+  color: #2a3240;
 }
 
 /* 后端警示（有东西没入库之类） */
