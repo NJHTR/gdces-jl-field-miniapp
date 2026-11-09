@@ -888,7 +888,25 @@ Page({
         typeof p === "string" && p.indexOf("/api/") === 0 ? API_BASE + p : p
       );
       const ans = this._answerOf(m);
-      const artifact = m.artifact || (ans && ans.artifact) || null;
+      let artifact = m.artifact || (ans && ans.artifact) || null;
+      if (artifact) {
+        artifact = Object.assign({}, artifact);
+        const gaps = (ans && ans.gaps) || artifact.missing || [];
+        artifact.missingCount = gaps.length;
+        if (artifact.state === "已签") {
+          artifact.missText = "已签发";
+          artifact.ctaText = "查看";
+        } else if (artifact.missingCount) {
+          artifact.missText = "还缺 " + artifact.missingCount + " 项";
+          artifact.ctaText = "去补充";
+        } else if (artifact.state === "待补") {
+          artifact.missText = "打开补充";
+          artifact.ctaText = "去补充";
+        } else {
+          artifact.missText = "字段齐全，待签发";
+          artifact.ctaText = "查看";
+        }
+      }
       // 模型会用 Markdown（**加粗**、- 列表、### 小标题），按块渲染，
       // 没有语法就还用原来的纯文本/富文本
       const mdBlocks = m.type === "agent" && md.hasMarkdown(m.text) ? md.parse(m.text) : null;

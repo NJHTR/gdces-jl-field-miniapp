@@ -275,15 +275,18 @@
 
                 <!-- 产出物 -->
                 <view class="artifact" wx:if="{{item.artifact}}" data-id="{{item.id}}" catchtap="onOpenArtifact">
-                  <view class="af-top">
+                  <view class="af-head">
                     <view class="af-icon"><image class="af-img" src="/assets/icons/doc-blue.png" mode="aspectFit" /></view>
-                    <text class="af-name">{{item.artifact.name}}</text>
+                    <view class="af-title">
+                      <text class="af-kind">{{item.artifact.kind || "文书"}}</text>
+                      <text class="af-name">{{item.artifact.obj || item.artifact.name}}</text>
+                    </view>
+                    <text class="af-state af-{{item.artifact.state === '已签' ? 'ok' : item.artifact.state === '待补' ? 'need' : 'wait'}}">{{item.artifact.state || "待补"}}</text>
                   </view>
-                  <view class="af-meta">
-                    <text class="af-tag af-{{item.artifact.state === '待签' ? 'ok' : 'wait'}}">{{item.artifact.state}}</text>
-                    <text class="af-sub">{{item.artifact.commit}} 已提交</text>
+                  <view class="af-foot">
+                    <text class="af-gap af-gap-{{item.artifact.missingCount ? 'need' : 'done'}}">{{item.artifact.missText || "字段齐全"}}</text>
+                    <text class="af-cta">{{item.artifact.ctaText || "查看"}} ›</text>
                   </view>
-                  <view class="af-more"><text class="af-more-t">查看文书 ›</text></view>
                 </view>
               </view>
 
