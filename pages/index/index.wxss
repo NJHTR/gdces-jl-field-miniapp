@@ -3571,6 +3571,12 @@ page {
   padding-right: 40rpx;
 }
 
+/* 现场影像卡：记录页是通栏滚动容器，卡片必须自己留出左右页边距 */
+.inboxlist .dcard {
+  margin-left: 40rpx;
+  margin-right: 40rpx;
+}
+
 .rcell {
   border-radius: 0;
   margin: 0 0 18rpx;
