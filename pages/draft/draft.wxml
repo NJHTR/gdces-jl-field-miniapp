@@ -10,7 +10,7 @@
     <view class="chip {{missingCount ? 'warn' : 'ok'}}">{{missingCount ? '缺 ' + missingCount + ' 项' : '已齐全'}}</view>
   </view>
 
-  <scroll-view class="dbody" scroll-y>
+  <scroll-view class="dbody" scroll-y show-scrollbar="{{false}}">
     <view class="dempty" wx:if="{{!groups.length}}">
       <image class="dempty-img" src="/assets/illus/empty.png" mode="aspectFit" />
       <text class="dempty-t">这份文书还没有内容</text>
@@ -85,7 +85,7 @@
 
 <!-- 字段编辑：日期用日期选择器，时间用时间选择器，附件拍照/相册 -->
 <view class="fsheet" wx:if="{{fieldSheet.open}}" catchtap="onFieldClose">
-  <view class="fs-card" catchtap="noop">
+  <view class="fs-card" catchtap="noop" style="margin-bottom: {{kbHeight}}px;">
     <view class="fs-head">
       <text class="fs-title">{{fieldSheet.key}}</text>
       <view class="fs-x" catchtap="onFieldClose"><text>✕</text></view>
@@ -115,7 +115,7 @@
       </view>
     </block>
     <block wx:else>
-      <textarea class="fs-input" value="{{fieldSheet.value}}" bindinput="onFieldInput" auto-height maxlength="2000" placeholder="填「{{fieldSheet.key}}」" />
+      <textarea class="fs-input" value="{{fieldSheet.value}}" bindinput="onFieldInput" auto-height maxlength="2000" adjust-position="{{false}}" cursor-spacing="24" placeholder="填「{{fieldSheet.key}}」" />
     </block>
 
     <view class="fs-actions">

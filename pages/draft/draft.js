@@ -161,10 +161,19 @@ Page({
     state: "",
     hdrTop: 52,
     bottomPad: 48,
+    kbHeight: 0,
   },
 
   onLoad(options) {
     const opt = options || {};
+    // 补充面板是 fixed 底部卡片；键盘弹出时手动把卡片抬起来，
+    // 否则输入“实测值”这类长文本会被键盘遮住。
+    this._onKb = (res) => {
+      this.setData({ kbHeight: Math.max(0, (res && res.height) || 0) });
+    };
+    try {
+      wx.onKeyboardHeightChange(this._onKb);
+    } catch (e) {}
 
     // 全局是自定义导航，详情页要自己让出状态栏和 Home 条
     try {
@@ -228,8 +237,14 @@ Page({
         const fields = d.fields || {};
         const missing = d.missing || [];
 
+        const PLACEHOLDERS = ["待补", "待定", "待填写", "待确认", "未知", "不详", "N/A", "n/a", "/", "-"];
         const filled = Object.keys(fields)
-          .filter((k) => String(fields[k] == null ? "" : fields[k]).trim())
+          .filter((k) => {
+            const v = String(fields[k] == null ? "" : fields[k]).trim();
+            // 值为“待补”的旧字段不要当成已填内容再显示一行；
+            // 真正的必填缺项在 missing 里，会显示成可点击的待补行。
+            return v && PLACEHOLDERS.indexOf(v) < 0;
+          })
           .map((k) => ({ k: k, v: String(fields[k]) }));
 
         const groups = [];
@@ -309,6 +324,12 @@ Page({
     wx.navigateBack({ delta: 1 });
   },
 
+  onUnload() {
+    try {
+      if (this._onKb) wx.offKeyboardHeightChange(this._onKb);
+    } catch (e) {}
+  },
+
   onFillAll() {
     // 找第一个缺项，直接打开对应的控件补它
     const groups = this.data.groups || [];
@@ -372,7 +393,8 @@ Page({
   },
 
   onFieldClose() {
-    this.setData({ fieldSheet: { open: false, key: "", type: "text", value: "" } });
+    try { wx.hideKeyboard(); } catch (e) {}
+    this.setData({ fieldSheet: { open: false, key: "", type: "text", value: "" }, kbHeight: 0 });
   },
 
   onFieldSave() {
