@@ -6541,6 +6541,83 @@ page {
   margin: 10rpx 0;
 }
 
+/* Markdown 表格：横向可滚，列宽固定，避免 6 列被挤成一团 */
+.md-tablebox {
+  width: 100%;
+  margin: 8rpx 0 14rpx;
+}
+
+.md-tablescroll {
+  width: 100%;
+}
+
+.md-table {
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  border: 1rpx solid rgba(120, 134, 155, 0.2);
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.md-tr {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1rpx solid rgba(120, 134, 155, 0.12);
+}
+
+.md-tr:last-child {
+  border-bottom: none;
+}
+
+.md-thead {
+  background: #f4f7fb;
+}
+
+.md-th,
+.md-td {
+  flex: 0 0 190rpx;
+  min-width: 150rpx;
+  box-sizing: border-box;
+  padding: 14rpx 12rpx;
+  font-size: 21rpx;
+  line-height: 1.45;
+  color: #33405a;
+  word-break: break-all;
+  white-space: normal;
+}
+
+.md-th {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #667085;
+}
+
+@media (prefers-color-scheme: dark) {
+  .md-table {
+    background: #1c2430;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .md-tr {
+    border-bottom-color: rgba(255, 255, 255, 0.09);
+  }
+
+  .md-thead {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .md-th,
+  .md-td {
+    color: #c9d4e3;
+  }
+
+  .md-th {
+    color: #9aa8ba;
+  }
+}
+
 /* ============================================================
    复核意见卡（默认收起）
    ============================================================ */

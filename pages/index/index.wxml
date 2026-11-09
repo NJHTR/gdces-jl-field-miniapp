@@ -251,6 +251,19 @@
           </view>
 
           <view wx:elif="{{b.t === 'hr'}}" class="md-hr"></view>
+
+          <view wx:elif="{{b.t === 'table'}}" class="md-tablebox">
+            <scroll-view class="md-tablescroll" scroll-x enable-flex>
+              <view class="md-table">
+                <view class="md-tr md-thead">
+                  <text class="md-th" wx:for="{{b.header}}" wx:for-item="cell" wx:key="*this">{{cell}}</text>
+                </view>
+                <view class="md-tr" wx:for="{{b.rows}}" wx:for-item="row" wx:key="*this">
+                  <text class="md-td" wx:for="{{row}}" wx:for-item="cell" wx:key="*this">{{cell}}</text>
+                </view>
+              </view>
+            </scroll-view>
+          </view>
         </block>
       </view>
 

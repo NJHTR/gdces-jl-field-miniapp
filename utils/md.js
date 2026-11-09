@@ -66,13 +66,76 @@ function inline(text) {
   return segs;
 }
 
+/** 把表格一行拆成单元格 */
+function cells(row) {
+  let s = String(row || "").trim();
+  if (s.startsWith("|")) s = s.slice(1);
+  if (s.endsWith("|")) s = s.slice(0, -1);
+  return s.split("|").map((x) => x.trim());
+}
+
+/** 表格：模型有时按标准 Markdown 换行，有时把整张表压成一行（行间是 ||） */
+function makeTable(head, sep, body) {
+  const header = cells(head);
+  const rows = [];
+  const b = String(body || "").trim();
+  if (b.includes("\n")) {
+    b.split("\n").forEach((ln) => {
+      const s = ln.trim();
+      if (s.startsWith("|")) rows.push(cells(s));
+    });
+  } else if (b) {
+    let s = b;
+    if (s.startsWith("|")) s = s.slice(1);
+    if (s.endsWith("|")) s = s.slice(0, -1);
+    s.split("||").forEach((part) => {
+      if (part.trim()) rows.push(cells("|" + part + "|"));
+    });
+  }
+  return { t: "table", header: header, rows: rows };
+}
+
+/**
+ * 把 Markdown 表格从正文里抽出来，正文用占位符代替。
+ * 表格不能当段落合并，否则会被 inline() 吃掉竖线。
+ */
+function extractTables(raw) {
+  const sepRe = /\|(?:\s*:?-{3,}:?\s*\|)+/g;
+  const tables = [];
+  let last = 0;
+  let out = "";
+  let sep;
+  while ((sep = sepRe.exec(raw))) {
+    // 分隔行前面的那一行才是表头
+    const before = raw.slice(last, sep.index);
+    const hm = before.match(/(\|(?:[^|\n]*\|)+)\s*$/);
+    if (!hm) continue;
+    const start = last + hm.index;
+    const bodyStart = sep.index + sep[0].length;
+    // 表体到下一个空行或加粗段为止（模型经常把表压成一行）
+    let end = raw.length;
+    const b1 = raw.indexOf("**", bodyStart);
+    const b2 = raw.indexOf("\n\n", bodyStart);
+    if (b1 >= 0) end = Math.min(end, b1);
+    if (b2 >= 0) end = Math.min(end, b2);
+    const body = raw.slice(bodyStart, end);
+    out += raw.slice(last, start) + "\n\u0000TABLE" + tables.length + "\u0000\n";
+    tables.push(makeTable(hm[1], sep[0], body));
+    last = end;
+    sepRe.lastIndex = end;
+  }
+  out += raw.slice(last);
+  return { text: out, tables: tables };
+}
+
 /** 解析全文 → blocks */
 function parse(text) {
   const raw = String(text || "").replace(/\r\n/g, "\n");
   if (!raw.trim()) return [];
 
+  const extracted = extractTables(raw);
   const blocks = [];
-  const lines = raw.split("\n");
+  const lines = extracted.text.split("\n");
   let cur = null; // 当前列表块
 
   const pushP = (s) => {
@@ -86,6 +149,15 @@ function parse(text) {
 
     if (!trimmed) {
       cur = null;
+      continue;
+    }
+
+    // 表格占位符
+    const tm = trimmed.match(/^\u0000TABLE(\d+)\u0000$/);
+    if (tm) {
+      cur = null;
+      const tb = extracted.tables[Number(tm[1])];
+      if (tb) blocks.push(tb);
       continue;
     }
 
@@ -146,7 +218,8 @@ function parse(text) {
 /** 有没有 Markdown 语法（没有的话前端还用原来的渲染） */
 function hasMarkdown(text) {
   const s = String(text || "");
-  return /\*\*[^*]+\*\*/.test(s) || /^\s*[-*•]\s+/m.test(s) || /^\s*#{1,4}\s+/m.test(s);
+  return /\*\*[^*]+\*\*/.test(s) || /^\s*[-*•]\s+/m.test(s) || /^\s*#{1,4}\s+/m.test(s) ||
+    /\|[-:|\s]+\|/.test(s);
 }
 
 module.exports = { parse, hasMarkdown };
