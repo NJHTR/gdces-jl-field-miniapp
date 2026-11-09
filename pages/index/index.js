@@ -950,7 +950,10 @@ Page({
         const cov = d.cov || this.docCoverOf(d.kind, d.name);
         const isPhoto = (d.kind || "").indexOf("影像") >= 0;
         const thumb = remoteById[d.id] || "";
-        const img = thumb || (isPhoto && latestPhoto ? latestPhoto : "/assets/covers/" + cov + ".jpg");
+        const serverThumb = d.url
+          ? (d.url.indexOf("/api/") === 0 ? API_BASE + d.url : d.url)
+          : "";
+        const img = thumb || serverThumb || (isPhoto && latestPhoto ? latestPhoto : "/assets/covers/" + cov + ".jpg");
         // 后端/示例数据自带 state（已上传 / 12 张）就别覆盖；只有缺的时候才按张数算
         const state = isPhoto
           ? d.state || (photoTotal ? photoTotal + " 张" : "还没有")
@@ -1346,11 +1349,16 @@ Page({
   onDocLong(e) {
     const id = e.currentTarget.dataset.id;
     const name = e.currentTarget.dataset.name || "";
+    const item = (this.data.docsView || []).filter((x) => x.id === id)[0] || null;
     fb.tap();
     wx.showActionSheet({
       itemList: ["预览", "从资料里移除"],
       success: (res) => {
         if (res.tapIndex === 0) {
+          if (item && item.visual) {
+            this._previewMaterial(item);
+            return;
+          }
           const docId = String(id || "").charAt(0) === "f" ? String(id).slice(1) : "";
           if (/^\d+$/.test(docId)) {
             wx.navigateTo({ url: "/pages/draft/draft?id=" + docId });
@@ -1860,10 +1868,30 @@ Page({
   },
 
   /** 资料行：打开真文书（后端文书 id 前面加了 f） */
+  _previewMaterial(item) {
+    if (!item || !item.img) {
+      wx.showToast({ title: "图片还没加载出来", icon: "none" });
+      return;
+    }
+    const urls = (this.data.docsView || [])
+      .filter((x) => x.visual && x.img)
+      .map((x) => x.img);
+    wx.previewImage({
+      current: item.img,
+      urls: urls.length ? urls : [item.img],
+    });
+  },
+
   onDocTap(e) {
     fb.tap();
     const id = String(e.currentTarget.dataset.id || "");
     const name = e.currentTarget.dataset.name || "";
+    const item = (this.data.docsView || []).filter((x) => x.id === id)[0] || null;
+    // “图纸与影像”里的图片不是文书，点开应该看图，而不是去找不存在的 doc
+    if (item && item.visual) {
+      this._previewMaterial(item);
+      return;
+    }
     const docId = id.charAt(0) === "f" ? id.slice(1) : "";
     if (!/^\d+$/.test(docId)) {
       wx.showToast({ title: name + "：这份没有关联文书", icon: "none" });

@@ -408,7 +408,7 @@
         </view>
 
         <!-- 文书资料 -->
-        <view class="sec">文书资料</view>
+        <view class="sec">文书资料（与记录同一批）</view>
         <block wx:for="{{docsView}}" wx:key="id">
           <view wx:if="{{!item.visual}}" class="dcard" data-name="{{item.name}}" data-id="{{item.id}}" bindtap="onDocTap" bindlongpress="onDocLong">
             <view class="dcard-body">
