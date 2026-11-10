@@ -5158,6 +5158,172 @@ page {
    多模态资产卡：证据 / 派生 / 示意
    一条消息一个主卡 + 最多 2 行 compact，不做九宫格
    ============================================================ */
+/* 图片资产：单图直接展示；多图叠放成一小摞，展开后纵向看全部 */
+.apile-card {
+  width: 100%;
+  margin-top: 16rpx;
+}
+
+.apile {
+  position: relative;
+  width: 100%;
+  height: 420rpx;
+}
+
+.apile-single {
+  height: 400rpx;
+}
+
+.apile-layer {
+  position: absolute;
+  width: 96%;
+  height: 92%;
+  border-radius: 22rpx;
+  box-shadow: 0 8rpx 24rpx -16rpx rgba(17, 24, 39, 0.4);
+}
+
+.apile-l2 {
+  left: 4rpx;
+  top: -8rpx;
+  z-index: 2;
+  opacity: 0.9;
+  transform: rotate(1.2deg);
+}
+
+.apile-l3 {
+  left: 8rpx;
+  top: -16rpx;
+  z-index: 1;
+  width: 92%;
+  opacity: 0.58;
+  transform: rotate(2.2deg);
+}
+
+.apile-main {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: 96%;
+  height: 100%;
+  border-radius: 22rpx;
+  box-shadow: 0 12rpx 30rpx -20rpx rgba(17, 24, 39, 0.45);
+  background: #eef1f5;
+}
+
+.apile-placeholder {
+  width: 100%;
+  height: 100%;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+.apile-count {
+  position: absolute;
+  z-index: 5;
+  right: 16rpx;
+  top: 16rpx;
+  min-width: 48rpx;
+  height: 48rpx;
+  padding: 0 12rpx;
+  border-radius: 24rpx;
+  background: rgba(10, 18, 32, 0.58);
+  color: #ffffff;
+  font-size: 22rpx;
+  line-height: 48rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.apile-expand {
+  position: absolute;
+  z-index: 5;
+  right: 16rpx;
+  bottom: 16rpx;
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.92);
+  color: #11131a;
+  font-size: 22rpx;
+  line-height: 1.2;
+  letter-spacing: 0.5rpx;
+  box-shadow: 0 6rpx 18rpx -12rpx rgba(17, 24, 39, 0.4);
+}
+
+.apile-foot {
+  padding: 14rpx 6rpx 8rpx;
+}
+
+.apile-head {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.apile-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #11131a;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+.apile-meta {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  line-height: 1.4;
+  color: #8a94a6;
+}
+
+.aexp-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6rpx 10rpx;
+}
+
+.aexp-title {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #11131a;
+}
+
+.aexp-toggle {
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(120, 134, 155, 0.12);
+  color: #5b6678;
+  font-size: 20rpx;
+  line-height: 1.2;
+}
+
+.aexp-list {
+  width: 100%;
+}
+
+.aexp-cell {
+  position: relative;
+  width: 100%;
+  margin-bottom: 10rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+  background: #eef1f5;
+}
+
+.aexp-img {
+  display: block;
+  width: 100%;
+  border-radius: 20rpx;
+}
+
 /* 图片资产卡：图片优先，1 张单图，2-4 张网格；卡片只做很轻的边框 */
 .ablock-imgcard {
   margin-top: 16rpx;

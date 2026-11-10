@@ -338,41 +338,80 @@
                 <!-- 多模态资产：一条消息最多一个主卡；同类折叠，其它类型最多 2 行 -->
                 <block wx:if="{{item.blocksView && item.blocksView.hasAny}}">
                   <block wx:if="{{item.blocksView.hasPrimary}}">
-                    <!-- 图片资产：图片优先，1 张单图 / 2-4 张网格，每张可点开预览 -->
-                    <view class="ablock-imgcard" wx:if="{{item.blocksView.primary.type === 'image'}}">
-                      <view class="aimg-grid aimg-n{{item.blocksView.primary.count > 4 ? 4 : item.blocksView.primary.count}}">
+                    <!-- 图片资产：单图直接看；多图先叠成一组，展开后纵向看全部 -->
+                    <view class="apile-card" wx:if="{{item.blocksView.primary.type === 'image'}}">
+                      <block wx:if="{{item.assetOpen && item.blocksView.primary.count > 1}}">
+                        <view class="aexp-head">
+                          <text class="aexp-title">现场照片 · {{item.blocksView.primary.count}} 张</text>
+                          <text class="aexp-toggle" catchtap="onAssetExpand" data-id="{{item.id}}">收起</text>
+                        </view>
+                        <view class="aexp-list">
+                          <view
+                            class="aexp-cell"
+                            wx:for="{{item.blocksView.primary.items}}"
+                            wx:for-item="it"
+                            wx:for-index="pi"
+                            wx:key="key"
+                            hover-class="aimg-hv"
+                            data-id="{{item.id}}"
+                            data-index="{{pi}}"
+                            catchtap="onAssetTap"
+                          >
+                            <image
+                              wx:if="{{!it.imgError}}"
+                              class="aexp-img"
+                              src="{{it.url}}"
+                              mode="widthFix"
+                              data-id="{{item.id}}"
+                              data-key="{{it.key}}"
+                              binderror="onAssetImgError"
+                            />
+                            <image wx:else class="aimg-ic" src="/assets/icons/cam-gray.png" mode="aspectFit" />
+                            <view class="aimg-no" wx:if="{{it.photoNo}}">{{it.photoNo}}</view>
+                          </view>
+                        </view>
+                      </block>
+
+                      <block wx:else>
                         <view
-                          class="aimg-cell"
-                          wx:for="{{item.blocksView.primary.items}}"
-                          wx:for-item="it"
-                          wx:for-index="pi"
-                          wx:key="key"
-                          wx:if="{{pi < 4}}"
-                          hover-class="aimg-hv"
-                          data-id="{{item.id}}"
-                          data-index="{{pi}}"
-                          catchtap="onAssetTap"
+                          class="apile {{item.blocksView.primary.count > 1 ? 'apile-multi' : 'apile-single'}}"
                         >
                           <image
-                            wx:if="{{!it.imgError}}"
-                            class="aimg"
-                            src="{{it.url}}"
+                            wx:if="{{item.blocksView.primary.count > 2}}"
+                            class="apile-layer apile-l3"
+                            src="{{item.blocksView.primary.items[2].url}}"
+                            mode="aspectFill"
+                          />
+                          <image
+                            wx:if="{{item.blocksView.primary.count > 1}}"
+                            class="apile-layer apile-l2"
+                            src="{{item.blocksView.primary.items[1].url}}"
+                            mode="aspectFill"
+                          />
+                          <image
+                            wx:if="{{!item.blocksView.primary.items[0].imgError}}"
+                            class="apile-main"
+                            src="{{item.blocksView.primary.items[0].url}}"
                             mode="aspectFill"
                             data-id="{{item.id}}"
-                            data-key="{{it.key}}"
+                            data-index="0"
+                            catchtap="onAssetTap"
+                            data-key="{{item.blocksView.primary.items[0].key}}"
                             binderror="onAssetImgError"
                           />
-                          <image wx:else class="aimg-ic" src="/assets/icons/cam-gray.png" mode="aspectFit" />
-                          <view class="aimg-no" wx:if="{{it.photoNo}}">{{it.photoNo}}</view>
-                          <view class="aimg-more" wx:if="{{pi === 3 && item.blocksView.primary.count > 4}}">+{{item.blocksView.primary.count - 4}}</view>
+                          <image wx:else class="apile-main apile-placeholder" src="/assets/icons/cam-gray.png" mode="aspectFit" />
+                          <view class="aimg-no" wx:if="{{item.blocksView.primary.items[0].photoNo}}">{{item.blocksView.primary.items[0].photoNo}}</view>
+                          <view class="apile-count" wx:if="{{item.blocksView.primary.count > 1}}" catchtap="onAssetExpand" data-id="{{item.id}}">{{item.blocksView.primary.count}}</view>
+                          <text class="apile-expand" wx:if="{{item.blocksView.primary.count > 1}}" catchtap="onAssetExpand" data-id="{{item.id}}">展开</text>
                         </view>
-                      </view>
-                      <view class="aimg-foot">
-                        <view class="aimg-head">
-                          <text class="aimg-title">{{item.blocksView.primary.count > 1 ? '现场照片 · ' + item.blocksView.primary.count + ' 张' : item.blocksView.primary.title}}</text>
+                      </block>
+
+                      <view class="apile-foot">
+                        <view class="apile-head">
+                          <text class="apile-title">{{item.blocksView.primary.count > 1 ? '现场照片 · ' + item.blocksView.primary.count + ' 张' : item.blocksView.primary.title}}</text>
                           <text class="ablock-badge {{item.blocksView.primary.badgeTone}}">{{item.blocksView.primary.badgeLabel}}</text>
                         </view>
-                        <text class="aimg-meta" wx:if="{{item.blocksView.primary.metaText}}">{{item.blocksView.primary.metaText}}</text>
+                        <text class="apile-meta" wx:if="{{item.blocksView.primary.metaText}}">{{item.blocksView.primary.metaText}}</text>
                       </view>
                     </view>
 

@@ -1048,6 +1048,7 @@ Page({
         photos: photos,
         artifact: artifact,
         blocksView: blocksView,
+        assetOpen: !!((this._assetOpen || {})[m.id]),
         md: mdBlocks,
         reviewMd: reviewMd,
         reviewOpen: !!openMap[m.id + ":rv"],
@@ -3027,6 +3028,17 @@ Page({
   },
 
   /** 主资产卡：按类型分发 */
+  /** 多图叠放：展开/收起为纵向列表 */
+  onAssetExpand(e) {
+    fb.tap();
+    const ds = e.currentTarget.dataset || {};
+    if (!ds.id) return;
+    const map = this._assetOpen || {};
+    map[ds.id] = !map[ds.id];
+    this._assetOpen = map;
+    this.refreshViews(this.data.query);
+  },
+
   onAssetTap(e) {
     fb.tap();
     const ds = e.currentTarget.dataset || {};
