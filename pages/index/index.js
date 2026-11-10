@@ -1072,7 +1072,8 @@ Page({
         : m.source === "confirmed" ? "你确认的规矩"
         : m.source === "correction" ? "从纠正里来的"
         : "手动记的";
-      return src + (m.hits ? " · 用过 " + m.hits + " 次" : " · 还没用过");
+      const scope = m.projectId ? "本项目 · " : "跨项目 · ";
+      return scope + src + (m.hits ? " · 用过 " + m.hits + " 次" : " · 还没用过");
     };
     const _deco = (m) =>
       Object.assign({}, m, {
@@ -1201,6 +1202,7 @@ Page({
         const list = (rows || []).map((m) => ({
           id: "m" + m.id,
           text: m.text,
+          projectId: m.project_id || null,
           meta:
             (m.source === "learned" ? "自动记的" : "手动添加") +
             (m.hits ? " · 用过 " + m.hits + " 次" : ""),
