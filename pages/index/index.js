@@ -2565,7 +2565,7 @@ Page({
     console.log("[send] 发出", clientId);
 
     // 先把图片和语音传上去换 sha，再发 parts —— 后端认 sha，不认本地路径。
-    this._uploadParts(text, photos, audios)
+    return this._uploadParts(text, photos, audios)
       .then((parts) => {
         if (!parts.length) throw new Error("没有可发送的内容");
         return api.post("/api/v1/chat", {
@@ -3044,19 +3044,71 @@ Page({
     }, 1000);
   },
 
-  /** 录音结束：把音频挂到刚插入的那条消息上 */
+  /** 录音结束：把音频真正发出去（上传 → ASR → /chat） */
   _attachAudio(r) {
-    if (this._recMode === "attach") return;   // 那是附件录音，别混进来
-    const id = this._audioForId;
-    const path = r && r.tempFilePath;
-    if (!id || !path) return;
+    if (this._recMode === "attach") return;   // 附件录音走 _attachAudioDone
+    let meta = this._voiceMeta;
+    this._voiceMeta = null;
 
-    uploader.upload(path).then((remote) => {
-      const msgs = this.data.msgs.map((m) =>
-        m.id === id ? Object.assign({}, m, { audio: remote || path, real: true }) : m
-      );
-      this.setData({ msgs }, () => this.refreshViews(this.data.query));
+    // 60 秒录音上限会自动 onStop，此时用户可能还按着；
+    // 没有 meta 就按“自动结束”处理，不能静默丢掉，也不能假装 0 秒。
+    if (!meta) {
+      if (this.data.recording) {
+        meta = { mode: "send", dur: this.data.recTime || "0:00" };
+        this.setData({ recording: false, cancel: false, recMode: "send" });
+        clearInterval(this._recTimer);
+        clearTimeout(this._recWatch);
+      } else {
+        return;
+      }
+    }
+    if (meta.mode === "cancel") return;
+
+    const path = r && r.tempFilePath;
+    if (!path) {
+      wx.showToast({ title: "没拿到录音，请重试", icon: "none" });
+      return;
+    }
+
+    const now = new Date();
+    const pad = (n) => (n < 10 ? "0" + n : "" + n);
+    const hhmm = pad(now.getHours()) + ":" + pad(now.getMinutes());
+    const msg = {
+      id: "n" + Date.now(),
+      type: "me",
+      voice: true,
+      dur: meta.dur,
+      text: "（语音 " + meta.dur + "）",
+      audio: path,
+      sync: false,
+      pendingAsr: true,
+    };
+    const myId = msg.id;
+    this.setData(
+      { msgs: this.data.msgs.concat([msg]) },
+      () => {
+        this.refreshViews(this.data.query);
+        this.scrollToBottom();
+      }
+    );
+    fb.tick();
+
+    const p = this._sendToServer({
+      text: "",
+      photos: [],
+      audios: [{ src: path, dur: meta.dur }],
+      hhmm,
     });
+    if (p && p.then) {
+      p.then(() => {
+        const next = this.data.msgs.map((m) =>
+          m.id === myId ? Object.assign({}, m, { sync: true, pendingAsr: false }) : m
+        );
+        this.setData({ msgs: next }, () => this.refreshViews(this.data.query));
+      }).catch(() => {
+        // _sendToServer 会自己把失败写进 pending agent 气泡；这里只保留本地语音
+      });
+    }
   },
 
   onMicMove(e) {
@@ -3080,42 +3132,37 @@ Page({
     if (this._debug) console.log("[mic] end, recording=", this.data.recording, "mode=", this.data.recMode);
     if (!this.data.recording) return;
 
-
     clearInterval(this._recTimer);
     clearTimeout(this._recWatch);
     const mode = this.data.recMode;
     const dur = this.data.recTime;
+    const sec = this._recSec || 0;
     this.setData({ recording: false, cancel: false, recMode: "send" });
 
-    // 取消：什么都不留
+    // 取消：录音停止后直接丢掉
     if (mode === "cancel") {
+      this._voiceMeta = { mode: "cancel", dur };
+      try { if (this._rec) this._rec.stop(); } catch (e) {}
       wx.showToast({ title: "已取消", icon: "none" });
       return;
     }
 
-    // 转写还没接（ASR 在后端做）。**绝不编内容**：
-    // 没转写就明说"转写待接入"，让人知道自己说了什么、系统还没识别。
-    const text = "（语音 " + dur + "，转写待接入）";
-    const msg = { id: "n" + Date.now(), type: "me", voice: true, dur, text, pendingAsr: true };
-    wx.showToast({ title: "语音已保存，转写待接入", icon: "none" });
-    fb.tick();
-    this._audioForId = msg.id;
+    // 太短：不产生消息，也不上传
+    if (sec < 1) {
+      this._voiceMeta = { mode: "cancel", dur };
+      try { if (this._rec) this._rec.stop(); } catch (e) {}
+      wx.showToast({ title: "说话时间太短", icon: "none" });
+      return;
+    }
+
+    // 真正的发送在 onStop 回调里做：上传音频 → ASR → /chat。
+    // 这里只记录本次录音的时长和模式，避免在拿到文件前先塞一条假消息。
+    this._voiceMeta = { mode: mode === "convert" ? "convert" : "send", dur };
     try {
       if (this._rec) this._rec.stop();
-    } catch (e) {}
-    const msgs = this.data.msgs.concat([msg]);
-    const myId = msgs[msgs.length - 1].id;
-    this.setData({ msgs }, () => {
-      this.refreshViews(this.data.query);
-      this.scrollToBottom();
-
-      // 上传完成（接后端后换成真实结果回调）
-      setTimeout(() => {
-        const next = this.data.msgs.map((m) => (m.id === myId ? Object.assign({}, m, { sync: true }) : m));
-        this.setData({ msgs: next }, () => this.refreshViews(this.data.query));
-      }, 900);
-    });
-    wx.showToast({ title: "已记下", icon: "none" });
+    } catch (e) {
+      wx.showToast({ title: "录音结束失败，请重试", icon: "none" });
+    }
   },
 
   onMic() {},
