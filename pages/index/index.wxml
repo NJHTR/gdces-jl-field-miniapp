@@ -605,7 +605,7 @@
                 <text class="dwhen">{{item.meta}}</text>
               </view>
               <view class="rcovwrap dcard-cov">
-                <image class="rcov" src="{{item.img}}" mode="aspectFill" />
+                <image class="rcov" src="{{item.img}}" mode="aspectFill" lazy-load="{{true}}" />
                 <view class="rfade"></view>
               </view>
             </view>
@@ -628,7 +628,7 @@
               <text class="dwhen">{{item.meta}}</text>
             </view>
             <view class="rcovwrap dcard-cov">
-              <image class="rcov" src="{{item.img}}" mode="aspectFill" />
+              <image class="rcov" src="{{item.img}}" mode="aspectFill" lazy-load="{{true}}" />
               <view class="rfade"></view>
             </view>
           </view>
@@ -653,7 +653,7 @@
               <text class="dwhen">{{item.meta}}</text>
             </view>
             <view class="rcovwrap dcard-cov">
-              <image class="rcov" src="{{item.img}}" mode="aspectFill" />
+              <image class="rcov" src="{{item.img}}" mode="aspectFill" lazy-load="{{true}}" />
               <view class="rfade"></view>
             </view>
           </view>
