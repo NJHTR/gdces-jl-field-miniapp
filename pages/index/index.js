@@ -1039,24 +1039,23 @@ Page({
           items.forEach((it) => {
             if (bad[m.id + ":" + it.key]) it.imgError = true;
           });
-          // 图片叠放：第一张完全正；后面几张缩小 + 轻微旋转 + 一点点右偏。
-          // 旋转/偏移以右边缘为锚点，左边缩进主图后面，只露右侧层次。
+          // 图片叠放：第一张完全正；后面的每一张都变小变矮 + 往右挪一点点。
+          // 以右边缘为锚点缩放，左边缩进主图后面，只露右侧一条边。
           const count = items.length;
           const maxLayers = Math.min(3, Math.max(0, count - 1));
           if (maxLayers > 0) {
             p.layers = [];
             for (let d = 1; d <= maxLayers; d++) {
-              const scale = Math.max(0.86, 1 - d * 0.045);
-              const tx = Math.round(8 + d * 4 + Math.min(8, count));
-              const rot = Math.min(10, 5 + d * 2);
+              const scale = Math.max(0.82, 1 - d * 0.06);
+              const tx = Math.round(14 + d * 12 + Math.min(8, count * 2));
               const op = Math.max(0.42, 0.92 - d * 0.14);
               p.layers.push({
                 url: items[d] ? items[d].url : "",
                 photoNo: items[d] ? items[d].photoNo : "",
                 style:
                   "transform-origin: 100% 50%; transform: translateX(" + tx +
-                  "rpx) rotate(" + rot + "deg) scale(" + scale + "); z-index:" +
-                  (4 - d) + "; opacity:" + op + ";",
+                  "rpx) scale(" + scale + "); z-index:" + (4 - d) +
+                  "; opacity:" + op + ";",
               });
             }
           }
