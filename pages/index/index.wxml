@@ -363,6 +363,7 @@
                             binderror="onAssetImgError"
                           />
                           <image wx:else class="aimg-ic" src="/assets/icons/cam-gray.png" mode="aspectFit" />
+                          <view class="aimg-no" wx:if="{{it.photoNo}}">{{it.photoNo}}</view>
                           <view class="aimg-more" wx:if="{{pi === 3 && item.blocksView.primary.count > 4}}">+{{item.blocksView.primary.count - 4}}</view>
                         </view>
                       </view>

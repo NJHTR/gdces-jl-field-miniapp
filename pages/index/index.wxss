@@ -5239,6 +5239,20 @@ page {
   box-sizing: border-box;
 }
 
+.aimg-no {
+  position: absolute;
+  left: 12rpx;
+  top: 12rpx;
+  padding: 0 10rpx;
+  height: 34rpx;
+  border-radius: 17rpx;
+  background: rgba(10, 18, 32, 0.48);
+  color: #ffffff;
+  font-size: 18rpx;
+  line-height: 34rpx;
+  letter-spacing: 0.5rpx;
+}
+
 .aimg-foot {
   padding: 14rpx 10rpx 8rpx;
 }

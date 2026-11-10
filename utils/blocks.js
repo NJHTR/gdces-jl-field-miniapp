@@ -182,6 +182,7 @@ function baseMeta(block, ctx) {
 function imageView(block, key, ctx) {
   const meta = baseMeta(block, ctx);
   const title = cleanText((block && (block.caption || block.name)) || "现场图片");
+  const no = String(title).match(/#\s*(\d+)/);
   return Object.assign(
     {
       key: key,
@@ -189,6 +190,7 @@ function imageView(block, key, ctx) {
       icon: "cam",
       iconPath: "/assets/icons/cam-blue.png",
       title: title,
+      photoNo: no ? "#" + no[1] : "",
       url: absoluteUrl(block && block.url),
       fileType: "",
       route: "",
