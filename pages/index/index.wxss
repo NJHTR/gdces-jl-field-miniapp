@@ -6909,6 +6909,11 @@ page {
 }
 
 .bubble.me.voice {
+  width: auto !important;
+  max-width: 82%;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 16rpx 22rpx;
   border-radius: 30rpx;
   border-bottom-right-radius: 12rpx;
