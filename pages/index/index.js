@@ -267,6 +267,23 @@ Page({
     }
   },
 
+  /** 当前消息里有没有多模态资产块 */
+  _hasAssetBlocks() {
+    return (this.data.msgs || []).some(
+      (m) => m && m.answer && Array.isArray(m.answer.blocks) && m.answer.blocks.length
+    );
+  },
+
+  /** 资产短签过期前静默重拉历史（文件不会过期，只有展示 URL 有 TTL） */
+  _refreshAssetUrlsIfStale() {
+    if (!this._loadedOnce || !this._hasAssetBlocks()) return;
+    const now = Date.now();
+    if (!this._assetSyncedAt) this._assetSyncedAt = now;
+    if (now - this._assetSyncedAt < 5 * 60 * 1000) return;
+    this._assetSyncedAt = now;
+    this.loadAll(null, true);
+  },
+
   onHide() {
     this._stopVoice();
     this._unbindKeyboard();
@@ -279,6 +296,9 @@ Page({
     // 切走再回来：没跑完的任务继续盯着
     if (!this.data.busy) this._resumeInflight();
     this._bindKeyboard();
+    // 资产文件是持久的，展示 URL 是短签；停留/后台回来超时后静默重拉，
+    // 换取新短签，避免图片看起来“消失”。
+    this._refreshAssetUrlsIfStale();
 
     // 回到前台：把还停在"复核中"的消息续上（切后台会中断 setTimeout 链）
     (this.data.msgs || []).forEach((m) => {
@@ -429,6 +449,8 @@ Page({
       .get("/api/v1/bootstrap?projectId=" + encodeURIComponent(id))
       .then((d) => {
         this._loadedOnce = true;
+        this._assetSyncedAt = Date.now();
+        this._assetBad = {};
         this._baseDocs = (d && d.docs) || [];
         this._maybeCoach();
         const proj = this._mergeProject((d && d.project) || {});
@@ -500,6 +522,8 @@ Page({
       .get("/api/v1/bootstrap?projectId=" + encodeURIComponent(this._projectId()))
       .then((d) => {
         this._loadedOnce = true;
+        this._assetSyncedAt = Date.now();
+        this._assetBad = {};
         this._baseDocs = (d && d.docs) || [];
         this._maybeCoach();
         const proj = Object.assign({}, this.data.project, (d && d.project) || {});
@@ -3188,6 +3212,13 @@ Page({
   onAssetImgError(e) {
     const ds = e.currentTarget.dataset || {};
     if (!ds.id || !ds.key) return;
+    // 短签过期时不要直接永久占位：先静默重拉一次历史换新 URL。
+    const now = Date.now();
+    if (!this._assetUrlRetryAt || now - this._assetUrlRetryAt > 30 * 1000) {
+      this._assetUrlRetryAt = now;
+      this.loadAll(null, true);
+      return;
+    }
     this._assetBad = this._assetBad || {};
     this._assetBad[ds.id + ":" + ds.key] = 1;
     this.refreshViews(this.data.query);
