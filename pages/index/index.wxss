@@ -7582,7 +7582,18 @@ page {
   text-align: left;
 }
 
-/* 长转写固定占 82% 宽度，确保在 Skyline 下也强制换行，不越出屏幕 */
+/* 长转写固定宽度，确保在 Skyline 下也强制换行，不越出屏幕 */
 .voice-transcript.long {
-  width: 82%;
+  width: 620rpx;
+  max-width: 620rpx;
+}
+
+/* Skyline 里纯 view 文本可能不换行，放一层 block text */
+.voice-transcript-t {
+  display: block;
+  width: 100%;
+  white-space: normal;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  text-align: left;
 }
