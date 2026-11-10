@@ -2629,17 +2629,25 @@ Page({
       });
 
       // 逐段转写；转写失败不影响发送，只是少了文字
-      const asrJobs = (audRes || []).map((r) => {
+      const asrJobs = (audRes || []).map((r, idx) => {
         if (!r || !r.sha) return Promise.resolve(null);
         return api
           .post("/api/v1/asr", { blob: r.sha, projectId: this._projectId() })
-          .then((d) => ({ blob: r.sha, transcript: (d && d.text) || "" }))
-          .catch(() => ({ blob: r.sha, transcript: "" }));
+          .then((d) => ({
+            blob: r.sha,
+            transcript: (d && d.text) || "",
+            dur: (audList[idx] && audList[idx].dur) || "",
+          }))
+          .catch(() => ({
+            blob: r.sha,
+            transcript: "",
+            dur: (audList[idx] && audList[idx].dur) || "",
+          }));
       });
 
       return Promise.all(asrJobs).then((auds) => {
         (auds || []).forEach((a) => {
-          if (a) parts.push({ type: "audio", blob: a.blob, transcript: a.transcript });
+          if (a) parts.push({ type: "audio", blob: a.blob, transcript: a.transcript, dur: a.dur });
           else failed += 1;
         });
         // 有附件没传上去时说清楚，别笼统地说"没有可发送的内容"
