@@ -1039,25 +1039,23 @@ Page({
           items.forEach((it) => {
             if (bad[m.id + ":" + it.key]) it.imgError = true;
           });
-          // 图片叠放：张数越多，层次越多、偏移/角度/缩放按数量动态计算。
-          // 第一张完全正；后面几张缩小 + 右偏 + 轻微旋转，左边缘藏住，只露右侧。
+          // 图片叠放：第一张完全正；后面几张只做“近大远小 + 右偏”，不旋转。
+          // 张数越多，层数和右偏量略增；左边缘缩进主图后面，只露右侧一条边。
           const count = items.length;
           const maxLayers = Math.min(3, Math.max(0, count - 1));
           if (maxLayers > 0) {
-            const spread = 10 + Math.min(18, count * 2);
+            const spread = 8 + Math.min(10, count * 1.2);
             p.layers = [];
             for (let d = 1; d <= maxLayers; d++) {
               const scale = Math.max(0.84, 1 - d * 0.04);
-              const tx = Math.round(6 + (d * spread) / maxLayers);
-              const rot = Math.min(9.5, 4 + d * 1.8);
-              const op = Math.max(0.45, 0.95 - d * 0.12);
+              const tx = Math.round(6 + d * spread);
+              const op = Math.max(0.42, 0.92 - d * 0.14);
               p.layers.push({
                 url: items[d] ? items[d].url : "",
                 photoNo: items[d] ? items[d].photoNo : "",
                 style:
-                  "transform: translateX(" + tx + "rpx) rotate(" + rot +
-                  "deg) scale(" + scale + "); z-index:" + (4 - d) +
-                  "; opacity:" + op + ";",
+                  "transform: translateX(" + tx + "rpx) scale(" + scale +
+                  "); z-index:" + (4 - d) + "; opacity:" + op + ";",
               });
             }
           }

@@ -5172,7 +5172,7 @@ page {
 }
 
 .apile-multi {
-  width: 78%;
+  width: 84%;
 }
 
 .apile-single {
@@ -5190,7 +5190,6 @@ page {
   box-shadow: 0 8rpx 24rpx -16rpx rgba(17, 24, 39, 0.4);
   transform-origin: center center;
 }
-
 .apile-main {
   position: absolute;
   left: 0;
