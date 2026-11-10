@@ -401,8 +401,10 @@
                           />
                           <image wx:else class="apile-main apile-placeholder" src="/assets/icons/cam-gray.png" mode="aspectFit" />
                           <view class="aimg-no" wx:if="{{item.blocksView.primary.items[0].photoNo}}">{{item.blocksView.primary.items[0].photoNo}}</view>
-                          <view class="apile-count" wx:if="{{item.blocksView.primary.count > 1}}" catchtap="onAssetExpand" data-id="{{item.id}}">{{item.blocksView.primary.count}}</view>
-                          <text class="apile-expand" wx:if="{{item.blocksView.primary.count > 1}}" catchtap="onAssetExpand" data-id="{{item.id}}">展开</text>
+                        </view>
+                        <view class="apile-action" wx:if="{{item.blocksView.primary.count > 1}}" catchtap="onAssetExpand" data-id="{{item.id}}">
+                          <text class="apile-action-t">展开</text>
+                          <text class="apile-action-n">{{item.blocksView.primary.count}}</text>
                         </view>
                       </block>
 
