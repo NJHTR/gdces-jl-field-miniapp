@@ -6891,6 +6891,23 @@ page {
 }
 
 /* ---------- 语音气泡：一条干净的单行，不把“转文字”做成大药丸 ---------- */
+.me-voice-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.voice-trans-outside {
+  flex: none;
+  margin-right: 14rpx;
+  padding: 8rpx 4rpx;
+  font-size: 22rpx;
+  color: #8a94a6;
+  letter-spacing: 0.5rpx;
+}
+
 .bubble.me.voice {
   padding: 16rpx 22rpx;
   border-radius: 30rpx;
@@ -6919,24 +6936,23 @@ page {
   color: rgba(255, 255, 255, 0.92);
 }
 
-.bubble.me.voice .voice-trans {
-  margin-left: 14rpx;
-  padding: 6rpx 0 6rpx 14rpx;
-  height: auto;
-  line-height: 1;
-  border-radius: 0;
-  border-left: 1rpx solid rgba(255, 255, 255, 0.26);
-  background: transparent;
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 20rpx;
-  white-space: nowrap;
-}
-
 .bubble.me.voice.has-text .voice-line {
   margin-bottom: 8rpx;
 }
 
-.bubble.me.voice .quote {
-  margin-top: 2rpx;
-  line-height: 1.4;
+/* 点“转文字”后，文字单独在气泡外，像一条轻的灰色文本气泡 */
+.voice-transcript {
+  align-self: flex-start;
+  max-width: 82%;
+  margin-top: 10rpx;
+  padding: 16rpx 22rpx;
+  border-radius: 26rpx;
+  border-bottom-left-radius: 10rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12rpx 28rpx -24rpx rgba(22, 38, 74, 0.4);
+  color: #11131a;
+  font-size: 28rpx;
+  line-height: 1.45;
+  word-break: break-all;
 }

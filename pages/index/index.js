@@ -950,8 +950,8 @@ Page({
   /** 气泡宽度：内容宽度 + 左右内边距 28，不超过可用宽度 */
   bubbleWidth(m, max) {
     const textW = Math.max(this.textWidth(m.text), this.textWidth(m.sub));
-    // 语音条：波形 + 时长 + 转文字，同一行放得下
-    const voiceW = m.voice ? (m.transcriptShown ? 118 : 150) : 0;
+    // 语音条只放波形 + 时长；“转文字”在气泡外，不参与气泡宽度
+    const voiceW = m.voice ? 110 : 0;
     return Math.min(max, Math.ceil(Math.max(textW, voiceW)) + 34);
   },
 

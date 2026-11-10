@@ -110,19 +110,31 @@
               />
             </view>
 
-            <view class="bubble me {{item.voice ? 'voice' : ''}} {{item.transcriptShown ? 'has-text' : ''}}" wx:if="{{item.text || item.voice}}" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
-              <view class="voice-line" wx:if="{{item.voice}}">
-                <view class="wave">
-                  <view wx:for="{{bars}}" wx:for-item="h" wx:key="*this" class="bar" style="height:{{h}}rpx"></view>
+            <block wx:if="{{item.voice}}">
+              <view class="me-voice-row">
+                <text class="voice-trans-outside" wx:if="{{item.audioSha && !item.transcriptShown}}" catchtap="onVoiceToText" data-id="{{item.id}}">转文字</text>
+                <view class="bubble me voice {{item.transcriptShown ? 'has-text' : ''}}" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
+                  <view class="voice-line">
+                    <view class="wave">
+                      <view wx:for="{{bars}}" wx:for-item="h" wx:key="*this" class="bar" style="height:{{h}}rpx"></view>
+                    </view>
+                    <text class="dur">{{item.dur}}</text>
+                  </view>
+                  <view class="qblock" wx:if="{{item.quote}}">
+                    <text class="qblock-who">{{item.quote.who}}</text>
+                    <text class="qblock-t">{{item.quote.text}}</text>
+                  </view>
                 </view>
-                <text class="dur">{{item.dur}}</text>
-                <text class="voice-trans" wx:if="{{item.audioSha && !item.transcriptShown}}" catchtap="onVoiceToText" data-id="{{item.id}}">转文字</text>
               </view>
+              <view class="voice-transcript" wx:if="{{item.transcriptShown}}">{{item.text}}</view>
+            </block>
+
+            <view class="bubble me" wx:elif="{{item.text}}" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
               <view class="qblock" wx:if="{{item.quote}}">
                 <text class="qblock-who">{{item.quote.who}}</text>
                 <text class="qblock-t">{{item.quote.text}}</text>
               </view>
-              <view class="quote" wx:if="{{!item.voice || item.transcriptShown}}">{{item.text}}</view>
+              <view class="quote">{{item.text}}</view>
             </view>
 
             <!-- 元信息：时间 + 同步状态 + 来源 -->
