@@ -160,6 +160,12 @@ Page({
 
   onLoad() {
     this._debug = true;   // 改成 false 就不打印手势日志
+    // 资产本地持久缓存：重启后优先用已保存文件，不再依赖短签 URL。
+    try {
+      this._assetLocal = wx.getStorageSync("jl_asset_files") || {};
+    } catch (e) {
+      this._assetLocal = {};
+    }
 
     const now = new Date();
     const pad = (n) => (n < 10 ? "0" + n : "" + n);
@@ -284,7 +290,40 @@ Page({
     this.loadAll(null, true);
   },
 
+  /** 从当前 blocks 的短签 e 参数算最早过期时间，提前 5 分钟无痕重签 */
+  _scheduleAssetRefresh() {
+    clearTimeout(this._assetRefreshTimer);
+    const msgs = this.data.msgs || [];
+    let minExp = Infinity;
+    msgs.forEach((m) => {
+      const blocks = (m.answer && m.answer.blocks) || m.blocks || [];
+      (Array.isArray(blocks) ? blocks : []).forEach((b) => {
+        const hit = b && typeof b.url === "string" && b.url.match(/[?&]e=(\d+)/);
+        if (hit) minExp = Math.min(minExp, Number(hit[1]));
+      });
+    });
+    if (!isFinite(minExp)) return;
+    const delay = Math.max(30 * 1000, (minExp - Math.floor(Date.now() / 1000) - 300) * 1000);
+    this._assetRefreshTimer = setTimeout(() => {
+      // 无痕：静默拉一次 bootstrap，换新短签；本地已缓存图片不受影响。
+      this._assetSyncedAt = 0;
+      this._refreshAssetUrlsIfStale();
+    }, delay);
+  },
+
+  _persistAssetLocal() {
+    try {
+      // 只保留最近 30 个，避免本地存储无限增长
+      const keys = Object.keys(this._assetLocal || {});
+      if (keys.length > 30) {
+        keys.slice(0, keys.length - 30).forEach((k) => delete this._assetLocal[k]);
+      }
+      wx.setStorageSync("jl_asset_files", this._assetLocal || {});
+    } catch (e) {}
+  },
+
   onHide() {
+    clearTimeout(this._assetRefreshTimer);
     this._stopVoice();
     this._unbindKeyboard();
     this.setData({ kbHeight: 0 });
@@ -299,6 +338,7 @@ Page({
     // 资产文件是持久的，展示 URL 是短签；停留/后台回来超时后静默重拉，
     // 换取新短签，避免图片看起来“消失”。
     this._refreshAssetUrlsIfStale();
+    this._scheduleAssetRefresh();
 
     // 回到前台：把还停在"复核中"的消息续上（切后台会中断 setTimeout 链）
     (this.data.msgs || []).forEach((m) => {
@@ -350,6 +390,7 @@ Page({
   },
 
   onUnload() {
+    clearTimeout(this._assetRefreshTimer);
     this._stopVoice();
     this._unbindKeyboard();
   },
@@ -470,6 +511,7 @@ Page({
           },
           () => {
             this.refreshViews(this.data.query);
+            this._scheduleAssetRefresh();
             this._loadPhotos();
             this._loadPendingCandidates();
             // 首次进现场页默认落在最后一条消息，而不是从顶部开始
@@ -544,6 +586,7 @@ Page({
           },
           () => {
             this.refreshViews(this.data.query);
+            this._scheduleAssetRefresh();
             this.setData({ refreshing: false });
             this._loadPhotos();
             this._loadPendingCandidates();
@@ -3237,9 +3280,18 @@ Page({
       success: (res) => {
         this._assetLoading[assetId] = false;
         if (res.statusCode === 200 && res.tempFilePath) {
-          this._assetLocal[assetId] = res.tempFilePath;
-          this._assetFail[assetId] = false;
-          this.refreshViews(this.data.query);
+          const usePath = (path, persist) => {
+            this._assetLocal[assetId] = path;
+            this._assetFail[assetId] = false;
+            if (persist) this._persistAssetLocal();
+            this.refreshViews(this.data.query);
+          };
+          // 持久化到用户文件目录：下次启动直接显示，不再依赖短签。
+          wx.saveFile({
+            tempFilePath: res.tempFilePath,
+            success: (r) => usePath(r.savedFilePath, true),
+            fail: () => usePath(res.tempFilePath, false),
+          });
         } else {
           this._assetFail[assetId] = true;
         }
