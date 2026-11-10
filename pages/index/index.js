@@ -1054,7 +1054,7 @@ Page({
                 photoNo: items[d] ? items[d].photoNo : "",
                 style:
                   "transform-origin: 100% 50%; transform: translateX(" + tx +
-                  "rpx) scale(" + scale + "); z-index:" + (4 - d) +
+                  "rpx) rotate(3deg) scale(" + scale + "); z-index:" + (4 - d) +
                   "; opacity:" + op + ";",
               });
             }
