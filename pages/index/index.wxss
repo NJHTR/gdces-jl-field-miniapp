@@ -6946,6 +6946,47 @@ page {
   to   { transform: scaleY(1.15); opacity: 1; }
 }
 
+/* 语音播放键：不画假波形，用一个克制的播放/暂停圆钮 */
+.vplay {
+  flex: none;
+  width: 40rpx;
+  height: 40rpx;
+  margin-left: 14rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.vplay.playing {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.vtri {
+  width: 0;
+  height: 0;
+  margin-left: 4rpx;
+  border-top: 8rpx solid transparent;
+  border-bottom: 8rpx solid transparent;
+  border-left: 12rpx solid rgba(255, 255, 255, 0.96);
+}
+
+.vpause {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.vpause-bar {
+  width: 4rpx;
+  height: 16rpx;
+  border-radius: 2rpx;
+  background: rgba(255, 255, 255, 0.96);
+}
+
 .bubble.me.voice .dur {
   font-size: 22rpx;
   letter-spacing: 0.5rpx;
