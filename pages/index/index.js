@@ -442,6 +442,10 @@ Page({
             this.refreshViews(this.data.query);
             this._loadPhotos();
             this._loadPendingCandidates();
+            // 首次进现场页默认落在最后一条消息，而不是从顶部开始
+            if (!quiet && this.data.tab === "field") {
+              setTimeout(() => this.scrollToBottom(), 40);
+            }
           }
         );
       })
@@ -824,6 +828,7 @@ Page({
         wx.nextTick(() => this.syncLens(true));
         if (tab === "inbox") this._loadPhotos();
         else if (tab === "me") this._loadPendingCandidates();
+        else if (tab === "field") setTimeout(() => this.scrollToBottom(), 40);
       }
     );
     setTimeout(() => this.setData({ anim: "" }), 260);
