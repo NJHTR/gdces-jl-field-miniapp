@@ -4,6 +4,7 @@ const api = require("../../utils/request");
 const uploader = require("../../utils/upload");
 const seed = require("../../utils/seed");
 const md = require("../../utils/md");
+const blocks = require("../../utils/blocks");
 const { API_BASE } = require("../../utils/config");
 
 // 主界面只保留三个一级入口：现场 / 记录 / 我的。
@@ -1023,16 +1024,36 @@ Page({
       const mdBlocks = m.type === "agent" && md.hasMarkdown(m.text) ? md.parse(m.text) : null;
       // 复核意见也是模型写的 Markdown，不能原样当纯文本显示
       const reviewMd = m.review && md.hasMarkdown(m.review) ? md.parse(m.review) : null;
+      // 多模态资产：answer.blocks → 资产卡；解析失败/字段缺失都不影响正文
+      let blocksView = null;
+      try {
+        blocksView = blocks.normalize((ans && ans.blocks) || m.blocks || null, {
+          projectName: (this.data.project && this.data.project.name) || "",
+          time: m.time || "",
+        });
+        // 图片加载失败过：换成占位图标，别让破图反复闪
+        const bad = this._assetBad || {};
+        if (blocksView && blocksView.primary && bad[m.id + ":" + blocksView.primary.key]) {
+          blocksView.primary = Object.assign({}, blocksView.primary, { imgError: true });
+        }
+      } catch (e) {
+        blocksView = null;
+      }
       return Object.assign({}, m, {
         photos: photos,
         artifact: artifact,
+        blocksView: blocksView,
         md: mdBlocks,
         reviewMd: reviewMd,
         reviewOpen: !!openMap[m.id + ":rv"],
         hidden: !!q && !hit(text),
         bw: m.pending
           ? Math.min(210, bwMax)
-          : Math.max(m.artifact ? 282 : 0, this.bubbleWidth(m, bwMax)),
+          : Math.max(
+              m.artifact ? 282 : 0,
+              blocksView && blocksView.hasPrimary ? bwMax : 0,
+              this.bubbleWidth(m, bwMax)
+            ),
         traceOpen: !!openMap[m.id],
         traceView: (m.trace || []).map(function (t, i) {
           const k = m.id + ":" + i;
@@ -2601,6 +2622,8 @@ Page({
           clientId,
           text,
           parts,
+          // 多模态 opt-in：不带 capabilities 后端不会返回 answer.blocks（旧客户端行为）
+          capabilities: ["answer.blocks"],
         });
       })
       .then((d) => {
@@ -2702,12 +2725,16 @@ Page({
               review: this._reviewOf(early),
               warning: this._warningOf(early),
               cites: early.cites || [],
+              // 多模态资产随 answer 一起到：先解析出来，别等整页刷新
+              answer: this._answerForPatch(early, d),
             });
           }
           if (st === "done") {
             const asst = list.filter((m) => m.role === "assistant").pop();
             const patch = {
               text: (asst && asst.text) || "这轮没有产出内容。",
+              // answer 里可能带多模态 blocks；保存下来，refreshViews 会做资产卡
+              answer: this._answerForPatch(asst, d),
               review: this._reviewOf(asst),
               warning: this._warningOf(asst),
               trace: (asst && asst.trace) || null,
@@ -2812,6 +2839,21 @@ Page({
       }
     }
     return ans || null;
+  },
+
+  /**
+   * 轮询任务时合成 answer：
+   *   · messages[].answer 里有完整结构
+   *   · 顶层 d.blocks 是同一份多模态块的便捷副本（短签最新）
+   * 两块合一，refreshViews 只读 answer.blocks。
+   */
+  _answerForPatch(asst, d) {
+    const ans = this._answerOf(asst) || (d && d.answer) || null;
+    const pollBlocks = d && Array.isArray(d.blocks) ? d.blocks : null;
+    if (!pollBlocks || !pollBlocks.length) return ans;
+    const out = ans && typeof ans === "object" ? Object.assign({}, ans) : {};
+    if (!Array.isArray(out.blocks) || !out.blocks.length) out.blocks = pollBlocks;
+    return out;
   },
 
   /** 就地填充这条气泡（幂等，轮询时每轮都能调） */
@@ -2971,6 +3013,122 @@ Page({
            "&obj=" + encodeURIComponent(a.obj || "") +
            "&id=" + (a.id || ""),
     });
+  },
+
+  /* ---------------- 多模态资产卡 ---------------- */
+
+  _assetMsgOf(id) {
+    return (this.data.msgsView || []).filter((x) => x.id === id)[0] || null;
+  },
+
+  /** 主资产卡：按类型分发 */
+  onAssetTap(e) {
+    fb.tap();
+    const ds = e.currentTarget.dataset || {};
+    const m = this._assetMsgOf(ds.id);
+    const v = m && m.blocksView && m.blocksView.primary;
+    if (!v) return;
+    this._openAssetGroup(v);
+  },
+
+  /** 主卡下面的 compact 行（其它类型） */
+  onAssetMoreTap(e) {
+    fb.tap();
+    const ds = e.currentTarget.dataset || {};
+    const m = this._assetMsgOf(ds.id);
+    const bv = m && m.blocksView;
+    if (!bv) return;
+    const row = (bv.secondary || []).filter((x) => x.type === ds.type)[0];
+    if (row) this._openAssetGroup(row);
+  },
+
+  /** 一组同类资产：图片左右滑；文件/卡片按数量决定直接开还是先选 */
+  _openAssetGroup(v) {
+    const items = Array.isArray(v.items) && v.items.length ? v.items : [v];
+    if (v.type === "image") {
+      if (v.imgError) {
+        wx.showToast({ title: "图片打不开", icon: "none" });
+        return;
+      }
+      const urls = items.map((x) => x.url).filter(Boolean);
+      if (!urls.length) {
+        wx.showToast({ title: "图片打不开", icon: "none" });
+        return;
+      }
+      wx.previewImage({ current: v.url || urls[0], urls: urls });
+      return;
+    }
+    if (items.length === 1) {
+      this._openAssetOne(items[0]);
+      return;
+    }
+    const list = items.slice(0, 6);
+    wx.showActionSheet({
+      itemList: list.map((x, i) =>
+        x.title || (v.type === "file" ? "文件 " + (i + 1) : "卡片 " + (i + 1))
+      ),
+      success: (res) => this._openAssetOne(list[res.tapIndex]),
+    });
+  },
+
+  _openAssetOne(v) {
+    if (!v) return;
+    if (v.type === "file") {
+      this._openAssetFile(v);
+      return;
+    }
+    if (v.type === "card") {
+      if (!v.route) {
+        wx.showToast({ title: "卡片打不开", icon: "none" });
+        return;
+      }
+      wx.navigateTo({
+        url: v.route,
+        fail: () => wx.showToast({ title: "卡片打不开", icon: "none" }),
+      });
+    }
+  },
+
+  /** 文件：复用 files.js 的下载 + openDocument；只有「证据」态放开转发菜单 */
+  _openAssetFile(v) {
+    if (!v || !v.url) {
+      wx.showToast({ title: "文件打不开", icon: "none" });
+      return;
+    }
+    const token = wx.getStorageSync("token") || "";
+    wx.showLoading({ title: "打开文件…", mask: true });
+    wx.downloadFile({
+      url: v.url,
+      header: token ? { authorization: "Bearer " + token } : {},
+      timeout: 60000,
+      success: (res) => {
+        wx.hideLoading();
+        if (res.statusCode !== 200) {
+          wx.showToast({ title: "文件下载失败", icon: "none" });
+          return;
+        }
+        const opt = {
+          filePath: res.tempFilePath,
+          showMenu: !!v.allowEvidence,
+          fail: () => wx.showToast({ title: "打不开文件", icon: "none" }),
+        };
+        if (v.fileType) opt.fileType = v.fileType;
+        wx.openDocument(opt);
+      },
+      fail: () => {
+        wx.hideLoading();
+        wx.showToast({ title: "文件下载失败", icon: "none" });
+      },
+    });
+  },
+
+  /** 图片加载失败：记下来换占位图标，不阻塞消息 */
+  onAssetImgError(e) {
+    const ds = e.currentTarget.dataset || {};
+    if (!ds.id || !ds.key) return;
+    this._assetBad = this._assetBad || {};
+    this._assetBad[ds.id + ":" + ds.key] = 1;
+    this.refreshViews(this.data.query);
   },
 
   _maybeReloadDocs() {

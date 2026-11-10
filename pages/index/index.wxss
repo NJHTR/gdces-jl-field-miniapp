@@ -5154,6 +5154,264 @@ page {
   color: #0a6dff;
 }
 
+/* ============================================================
+   多模态资产卡：证据 / 派生 / 示意
+   一条消息一个主卡 + 最多 2 行 compact，不做九宫格
+   ============================================================ */
+.ablock {
+  margin-top: 16rpx;
+  padding: 16rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  border: 1rpx solid rgba(17, 24, 39, 0.08);
+  box-shadow: 0 10rpx 30rpx rgba(17, 24, 39, 0.06);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ablock-hv {
+  background: rgba(240, 245, 252, 0.98);
+}
+
+.ablock-thumb {
+  flex: none;
+  width: 96rpx;
+  height: 96rpx;
+  margin-right: 16rpx;
+  border-radius: 18rpx;
+  overflow: hidden;
+  background: rgba(120, 134, 155, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ablock-img {
+  width: 96rpx;
+  height: 96rpx;
+}
+
+.ablock-ic {
+  width: 42rpx;
+  height: 42rpx;
+}
+
+.ablock-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ablock-top {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.ablock-t {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #11131a;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+.ablock-badge {
+  flex: none;
+  margin-left: 12rpx;
+  font-size: 18rpx;
+  line-height: 1.5;
+  font-weight: 600;
+  padding: 3rpx 12rpx;
+  border-radius: 999rpx;
+}
+
+.ablock-badge.evidence {
+  color: #0f6b36;
+  background: #e7f8ed;
+}
+
+.ablock-badge.derived {
+  color: #4c5a75;
+  background: #eef1f7;
+}
+
+.ablock-badge.generated {
+  color: #8a4b00;
+  background: #fff3d9;
+}
+
+.ablock-badge.neutral {
+  color: #6b7280;
+  background: #eef1f5;
+}
+
+.ablock-s {
+  margin-top: 6rpx;
+  font-size: 21rpx;
+  line-height: 1.35;
+  color: #8a94a6;
+}
+
+.ablock-more {
+  margin-top: 6rpx;
+  font-size: 21rpx;
+  line-height: 1.35;
+  color: #0a6dff;
+}
+
+.arow {
+  margin-top: 10rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1rpx solid rgba(17, 24, 39, 0.06);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.arow-ic {
+  flex: none;
+  width: 30rpx;
+  height: 30rpx;
+  margin-right: 12rpx;
+}
+
+.arow-t {
+  flex: 1;
+  min-width: 0;
+  font-size: 23rpx;
+  color: #33405a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.arow-badge {
+  flex: none;
+  margin-left: 10rpx;
+  font-size: 17rpx;
+  line-height: 1.5;
+  font-weight: 600;
+  padding: 2rpx 10rpx;
+  border-radius: 999rpx;
+}
+
+.arow-badge.evidence {
+  color: #0f6b36;
+  background: #e7f8ed;
+}
+
+.arow-badge.derived {
+  color: #4c5a75;
+  background: #eef1f7;
+}
+
+.arow-badge.generated {
+  color: #8a4b00;
+  background: #fff3d9;
+}
+
+.arow-badge.neutral {
+  color: #6b7280;
+  background: #eef1f5;
+}
+
+.arow-f {
+  flex: none;
+  margin-left: 10rpx;
+  font-size: 19rpx;
+  color: #8a94a6;
+}
+
+.arow-chev {
+  flex: none;
+  width: 18rpx;
+  height: 18rpx;
+  margin-left: 10rpx;
+}
+
+.ablock-fb {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 21rpx;
+  line-height: 1.5;
+  color: #8a94a6;
+  white-space: pre-wrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ablock,
+  .arow {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+  }
+
+  .ablock-hv {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .ablock-thumb {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .ablock-t {
+    color: #eaf1fb;
+  }
+
+  .arow-t {
+    color: #c9d4e3;
+  }
+
+  .ablock-s,
+  .arow-f,
+  .ablock-fb {
+    color: #9aa7ba;
+  }
+
+  .ablock-more {
+    color: #8fb6ff;
+  }
+
+  .ablock-badge.evidence,
+  .arow-badge.evidence {
+    background: rgba(15, 138, 60, 0.18);
+    color: #7ce0a0;
+  }
+
+  .ablock-badge.derived,
+  .arow-badge.derived {
+    background: rgba(154, 167, 186, 0.16);
+    color: #c9d4e3;
+  }
+
+  .ablock-badge.generated,
+  .arow-badge.generated {
+    background: rgba(138, 75, 0, 0.24);
+    color: #ffcf8a;
+  }
+
+  .ablock-badge.neutral,
+  .arow-badge.neutral {
+    background: rgba(154, 167, 186, 0.16);
+    color: #c3ccda;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .tstep-t.on {
     color: #c9d4e3;

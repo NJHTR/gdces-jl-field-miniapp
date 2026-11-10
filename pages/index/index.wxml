@@ -335,6 +335,61 @@
                 <view class="quote" wx:else>{{item.text}}</view>
                 <view class="sub" wx:if="{{item.sub}}">{{item.sub}}</view>
 
+                <!-- 多模态资产：一条消息最多一个主卡；同类折叠，其它类型最多 2 行 -->
+                <block wx:if="{{item.blocksView && item.blocksView.hasAny}}">
+                  <view
+                    class="ablock"
+                    wx:if="{{item.blocksView.hasPrimary}}"
+                    hover-class="ablock-hv"
+                    data-id="{{item.id}}"
+                    catchtap="onAssetTap"
+                  >
+                    <view class="ablock-thumb">
+                      <block wx:if="{{item.blocksView.primary.type === 'image'}}">
+                        <image
+                          wx:if="{{!item.blocksView.primary.imgError}}"
+                          class="ablock-img"
+                          src="{{item.blocksView.primary.url}}"
+                          mode="aspectFill"
+                          data-id="{{item.id}}"
+                          data-key="{{item.blocksView.primary.key}}"
+                          binderror="onAssetImgError"
+                        />
+                        <image wx:else class="ablock-ic" src="/assets/icons/cam-gray.png" mode="aspectFit" />
+                      </block>
+                      <image wx:else class="ablock-ic" src="{{item.blocksView.primary.iconPath}}" mode="aspectFit" />
+                    </view>
+                    <view class="ablock-body">
+                      <view class="ablock-top">
+                        <text class="ablock-t">{{item.blocksView.primary.title}}</text>
+                        <text class="ablock-badge {{item.blocksView.primary.badgeTone}}">{{item.blocksView.primary.badgeLabel}}</text>
+                      </view>
+                      <text class="ablock-s" wx:if="{{item.blocksView.primary.metaText}}">{{item.blocksView.primary.metaText}}</text>
+                      <text class="ablock-more" wx:if="{{item.blocksView.primary.footText}}">{{item.blocksView.primary.footText}}</text>
+                    </view>
+                  </view>
+
+                  <view
+                    class="arow"
+                    wx:for="{{item.blocksView.secondary}}"
+                    wx:for-item="ab"
+                    wx:key="type"
+                    hover-class="ablock-hv"
+                    data-id="{{item.id}}"
+                    data-type="{{ab.type}}"
+                    catchtap="onAssetMoreTap"
+                  >
+                    <image class="arow-ic" src="{{ab.iconPath}}" mode="aspectFit" />
+                    <text class="arow-t">{{ab.title}}</text>
+                    <text class="arow-badge {{ab.badgeTone}}">{{ab.badgeLabel}}</text>
+                    <text class="arow-f" wx:if="{{ab.footText}}">{{ab.footText}}</text>
+                    <image class="arow-chev" src="/assets/icons/chev-gray.png" mode="aspectFit" />
+                  </view>
+
+                  <!-- 缺字段 / 坏 URL：留一行文字，不丢信息，也不显示破图 -->
+                  <text class="ablock-fb" wx:if="{{item.blocksView.fallbackText}}">{{item.blocksView.fallbackText}}</text>
+                </block>
+
                 <!-- 依据：论文式脚注，可点开原文 -->
                 <view class="cites" wx:if="{{item.cites && item.cites.length}}">
                   <view class="cite" wx:for="{{item.cites}}" wx:for-item="c" wx:key="clause"
