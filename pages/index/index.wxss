@@ -6775,6 +6775,33 @@ page {
   color: #fff;
   background: #2f6fed;
 }
+/* 次要动作（忽略 / 否决）：中性灰，不跟主按钮抢 */
+.rule-btn.mute {
+  color: #6b7280;
+  background: rgba(120, 134, 155, 0.12);
+}
+
+/* 记忆范围标签：跨项目=蓝，本项目/项目规矩=暖灰 */
+.scope-chip {
+  flex: none;
+  font-size: 20rpx;
+  font-weight: 600;
+  line-height: 1.6;
+  padding: 2rpx 14rpx;
+  margin-right: 12rpx;
+  border-radius: 999rpx;
+  color: #2f6fed;
+  background: rgba(47, 111, 237, 0.09);
+}
+.scope-chip.proj {
+  color: #8a4b00;
+  background: rgba(255, 233, 197, 0.95);
+}
+
+/* 待确认的两组卡（习惯候选 / 项目规矩）之间留一道呼吸 */
+.prefgroup + .prefgroup {
+  margin-top: 16rpx;
+}
 
 .rvpending {
   margin: 12rpx 24rpx 0;

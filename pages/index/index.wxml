@@ -532,45 +532,62 @@
         <view class="seg">
           <view class="seg-b {{meSeg === 'mine' ? 'on' : ''}}" data-seg="mine" bindtap="switchSeg">我的</view>
           <view class="seg-b {{meSeg === 'project' ? 'on' : ''}}" data-seg="project" bindtap="switchSeg">项目的</view>
-      <view class="seg-b {{meSeg === 'pending' ? 'on' : ''}}" data-seg="pending" bindtap="switchSeg">待确认{{pendingRules.length ? ' ' + pendingRules.length : ''}}</view>
+          <view class="seg-b {{meSeg === 'pending' ? 'on' : ''}}" data-seg="pending" bindtap="switchSeg">待确认{{pendingCount ? ' ' + pendingCount : ''}}</view>
         </view>
+        <!-- 待确认：习惯候选（接受即生效）+ 项目规矩（需总监确认），单手两键 -->
         <block wx:if="{{meSeg === 'pending'}}">
-    <view class="prefgroup" wx:if="{{pendingRules.length}}">
-      <view wx:for="{{pendingRules}}" wx:key="id" class="memo">
-        <view class="memo-t">{{item.text}}</view>
-        <view class="memo-m">
-          <text class="memo-mt">提案 · 还没生效</text>
-        </view>
-        <view class="rule-actions">
-          <view class="rule-btn on" data-id="{{item.id}}" data-act="accept" bindtap="onRuleDecide">采纳</view>
-          <view class="rule-btn" data-id="{{item.id}}" data-act="reject" bindtap="onRuleDecide">否决</view>
-        </view>
-      </view>
-    </view>
-  </block>
-  <block wx:if="{{meSeg === 'mine'}}">
-          <view class="prefgroup" wx:if="{{memosView.length}}">
-        <view wx:for="{{memosView}}" wx:key="id" class="memo" data-id="{{item.id}}" bindtap="onMemoTap">
-            <view class="memo-t">{{item.text}}</view>
-            <view class="memo-m">
-              <text class="memo-mt">{{item.meta}}</text>
-              <text class="memo-ok" wx:if="{{item.active}}">✓ 生效中</text>
-          <text class="memo-off" wx:else>已停用</text>
+          <view class="prefgroup" wx:if="{{pendingCandsView.length}}">
+            <view wx:for="{{pendingCandsView}}" wx:key="k" class="memo">
+              <view class="memo-t">{{item.text}}</view>
+              <view class="memo-m">
+                <text class="scope-chip {{item.scopeTone === 'proj' ? 'proj' : ''}}">{{item.scopeLabel}}</text>
+                <text class="memo-mt">{{item.evidence || item.hint}}</text>
+              </view>
+              <view class="rule-actions">
+                <view class="rule-btn on" data-id="{{item.id}}" data-act="accept" bindtap="onCandDecide">接受</view>
+                <view class="rule-btn mute" data-id="{{item.id}}" data-act="reject" bindtap="onCandDecide">忽略</view>
+              </view>
             </view>
           </view>
-        </view>
+          <view class="prefgroup" wx:if="{{pendingRulesView.length}}">
+            <view wx:for="{{pendingRulesView}}" wx:key="k" class="memo">
+              <view class="memo-t">{{item.text}}</view>
+              <view class="memo-m">
+                <text class="scope-chip proj">项目规矩</text>
+                <text class="memo-mt">{{item.hint}}</text>
+              </view>
+              <view class="rule-actions">
+                <view class="rule-btn on" data-id="{{item.id}}" data-act="accept" data-base="{{item.actBase}}" bindtap="onRuleDecide">采纳</view>
+                <view class="rule-btn mute" data-id="{{item.id}}" data-act="reject" data-base="{{item.actBase}}" bindtap="onRuleDecide">否决</view>
+              </view>
+            </view>
+          </view>
         </block>
-        <block wx:else>
-          <view class="prefgroup" wx:if="{{projMemosView.length}}">
-        <view wx:for="{{projMemosView}}" wx:key="id" class="memo" data-id="{{item.id}}" bindtap="onMemoTap">
-            <view class="memo-t">{{item.text}}</view>
-            <view class="memo-m">
-              <text class="memo-mt">{{item.meta}}</text>
-              <text class="memo-ok" wx:if="{{item.active}}">✓ 生效中</text>
-          <text class="memo-off" wx:else>已停用</text>
+        <block wx:if="{{meSeg === 'mine'}}">
+          <view class="prefgroup" wx:if="{{memosView.length}}">
+            <view wx:for="{{memosView}}" wx:key="id" class="memo" data-id="{{item.id}}" bindtap="onMemoTap">
+              <view class="memo-t">{{item.text}}</view>
+              <view class="memo-m">
+                <text class="scope-chip {{item.scopeTone === 'proj' ? 'proj' : ''}}">{{item.scopeLabel}}</text>
+                <text class="memo-mt">{{item.meta}}</text>
+                <text class="memo-ok" wx:if="{{item.active}}">✓ 生效中</text>
+                <text class="memo-off" wx:else>已停用</text>
+              </view>
             </view>
           </view>
-        </view>
+        </block>
+        <block wx:elif="{{meSeg === 'project'}}">
+          <view class="prefgroup" wx:if="{{projMemosView.length}}">
+            <view wx:for="{{projMemosView}}" wx:key="id" class="memo" data-id="{{item.id}}" bindtap="onMemoTap">
+              <view class="memo-t">{{item.text}}</view>
+              <view class="memo-m">
+                <text class="scope-chip proj">本项目</text>
+                <text class="memo-mt">{{item.meta}}</text>
+                <text class="memo-ok" wx:if="{{item.active}}">✓ 生效中</text>
+                <text class="memo-off" wx:else>已停用</text>
+              </view>
+            </view>
+          </view>
         </block>
         <view class="sec">项目</view>
         <view class="prefgroup">

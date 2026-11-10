@@ -139,6 +139,11 @@ Page({
     memos: [],
     projMemos: [],
     pendingRules: [],
+    // 待确认：项目规矩提案（rule_proposal）+ 个人习惯候选（memory-candidates）
+    pendingCands: [],
+    pendingRulesView: [],
+    pendingCandsView: [],
+    pendingCount: 0,
 
     /* 拖动过程量 */
     dragX0: 0,
@@ -405,10 +410,13 @@ Page({
     return merged;
   },
 
-  /** 首屏数据：走统一请求层，失败可重试 */
-  loadAll(pid) {
+  /**
+   * 首屏数据：走统一请求层，失败可重试。
+   * quiet = true 用于"处理完一条待确认后的静默同步"：不闪骨架屏。
+   */
+  loadAll(pid, quiet) {
     const id = pid || this._projectId();
-    this.setData({ pageState: "loading", loadErr: "" });
+    if (!quiet) this.setData({ pageState: "loading", loadErr: "" });
 
     api
       .get("/api/v1/bootstrap?projectId=" + encodeURIComponent(id))
@@ -433,10 +441,16 @@ Page({
           () => {
             this.refreshViews(this.data.query);
             this._loadPhotos();
+            this._loadPendingCandidates();
           }
         );
       })
       .catch((err) => {
+        if (quiet) {
+          // 静默同步失败：保留眼前的数据，别把整页打回"加载失败"
+          if (this._debug) console.log("[memory] 静默同步失败", err && err.message);
+          return;
+        }
         const msg =
           err && err.code === "UNAUTH"
             ? "登录已失效"
@@ -495,6 +509,7 @@ Page({
             this.refreshViews(this.data.query);
             this.setData({ refreshing: false });
             this._loadPhotos();
+            this._loadPendingCandidates();
           }
         );
       })
@@ -808,6 +823,7 @@ Page({
         this.refreshViews("");
         wx.nextTick(() => this.syncLens(true));
         if (tab === "inbox") this._loadPhotos();
+        else if (tab === "me") this._loadPendingCandidates();
       }
     );
     setTimeout(() => this.setData({ anim: "" }), 260);
@@ -1066,22 +1082,82 @@ Page({
     const recVisibleCount = this.data.recFilter === "images"
       ? recImages.length
       : recordsView.reduce((n, r) => n + r.items.length, 0);
-    const _memoMeta = (m) => {
-      const src =
-        m.source === "learned" ? "自动记的"
+    const _memoSrc = (m) =>
+      (m.source === "learned" ? "自动记的"
         : m.source === "confirmed" ? "你确认的规矩"
         : m.source === "correction" ? "从纠正里来的"
-        : "手动记的";
-      const scope = m.projectId ? "本项目 · " : "跨项目 · ";
-      return scope + src + (m.hits ? " · 用过 " + m.hits + " 次" : " · 还没用过");
-    };
-    const _deco = (m) =>
-      Object.assign({}, m, {
-        meta: _memoMeta(m),
+        : "手动记的") +
+      (m.hits ? " · 用过 " + m.hits + " 次" : " · 还没用过");
+    // kind="project"：本项目记忆 / 项目规矩；否则按 projectId 判断跨项目
+    const _deco = (m, kind) => {
+      const inProject = kind === "project" || !!m.projectId;
+      return Object.assign({}, m, {
+        meta: _memoSrc(m),
+        scopeLabel: inProject ? "本项目" : "跨项目",
+        scopeTone: inProject ? "proj" : "",
         stateText: m.status ? "✓ 生效中" : "已停用",
         active: !!m.status,
       });
-    const memosView = this.data.memos.filter((m) => hit(m.text)).map(_deco);
+    };
+    const memosView = this.data.memos.filter((m) => hit(m.text)).map((m) => _deco(m, "user"));
+    const projMemosView = this.data.projMemos
+      .filter((m) => hit(m.text))
+      .map((m) => _deco(m, "project"));
+
+    // 待确认：个人习惯候选（user / project_user）走 memory-candidates，
+    // 项目规矩走 rule_proposal；接口没上线时候选为空，只显示规矩提案。
+    const pendingCands = this.data.pendingCands || [];
+    const _ruleTexts = {};
+    (this.data.pendingRules || []).forEach((r) => {
+      _ruleTexts[r.text] = 1;
+    });
+    const _projHint = (ev) => {
+      const hint = "需总监确认";
+      const s = String(ev || "");
+      if (!s) return hint;
+      return hint + " · " + (s.length > 18 ? s.slice(0, 18) + "…" : s);
+    };
+    const pendingCandsView = pendingCands
+      .filter((c) => c.scope !== "project")
+      .filter((c) => hit(c.text + " " + c.evidence))
+      .map((c, i) =>
+        Object.assign({}, c, {
+          k: "c" + (c.id == null ? i : c.id),
+          scopeLabel: c.scope === "project_user" ? "本项目习惯" : "我的习惯",
+          scopeTone: c.scope === "user" ? "" : "proj",
+          hint: c.evidence
+            ? ""
+            : c.scope === "user"
+            ? "只对我生效"
+            : "只在这个项目生效",
+        })
+      );
+    const pendingRulesView = (this.data.pendingRules || [])
+      .filter((r) => hit(r.text))
+      .map((r, i) =>
+        Object.assign({}, r, {
+          k: "r" + (r.id == null ? i : r.id),
+          scopeLabel: "项目规矩",
+          scopeTone: "proj",
+          hint: _projHint(r.evidence),
+          actBase: "rule",
+        })
+      )
+      // 项目级候选（scope=project）和规矩提案同类：同文案时以提案为准，避免两张一样的卡
+      .concat(
+        pendingCands
+          .filter((c) => c.scope === "project" && !_ruleTexts[c.text])
+          .filter((c) => hit(c.text + " " + c.evidence))
+          .map((c, i) =>
+            Object.assign({}, c, {
+              k: "p" + (c.id == null ? i : c.id),
+              scopeLabel: "项目规矩",
+              scopeTone: "proj",
+              hint: _projHint(c.evidence),
+              actBase: "cand",
+            })
+          )
+      );
 
     // 当前页的命中数（搜索时显示在顶部）
     let count = 0;
@@ -1096,10 +1172,14 @@ Page({
     else
       count =
         this.data.meSeg === "pending"
-          ? this.data.pendingRules.length
+          ? pendingRulesView.length + pendingCandsView.length
           : this.data.meSeg === "project"
-          ? this.data.projMemos.filter((m) => hit(m.text)).length
+          ? projMemosView.length
           : memosView.length;
+    // 待确认角标：不跟搜索走，只数还没处理的
+    const pendingCount =
+      (this.data.pendingRules || []).length +
+      pendingCands.filter((c) => c.scope !== "project" || !_ruleTexts[c.text]).length;
 
     let listEmpty = false;
     let emptyText = "";
@@ -1118,8 +1198,8 @@ Page({
       emptySub = "现场说的话，会自动整理成文书";
     } else if (this.data.meSeg === "pending") {
       listEmpty = count === 0;
-      emptyText = "没有待确认的规矩";
-      emptySub = "模型提议的规矩会先出现在这里，你点了才生效";
+      emptyText = "没有待确认的";
+      emptySub = "模型学到的习惯、项目规矩会先放这里，你点了才生效";
     } else {
       listEmpty = count === 0;
       emptyText = "还没有记忆";
@@ -1133,7 +1213,10 @@ Page({
       recImages,
       recVisibleCount,
       memosView,
-      projMemosView: this.data.projMemos.filter((m) => hit(m.text)).map(_deco),
+      projMemosView,
+      pendingCandsView,
+      pendingRulesView,
+      pendingCount,
       recordTotal,
       recordPending,
       recordWaiting,
@@ -1153,6 +1236,47 @@ Page({
     if (this.data.tab === "inbox") {
       wx.nextTick(() => this.measureSections());
     }
+  },
+
+  /**
+   * 待确认的「习惯候选」：GET /api/v1/memory-candidates。
+   * 接口还没上线 / 网络不稳时静默降级——待确认段继续显示项目规矩提案，
+   * 不弹错、不挡住其它功能。
+   */
+  _loadPendingCandidates() {
+    const pid = this._projectId();
+    const uid = this._userId();
+    const path =
+      "/api/v1/memory-candidates?projectId=" + encodeURIComponent(pid) +
+      "&userId=" + encodeURIComponent(uid) +
+      "&status=pending";
+    return api
+      .get(path)
+      .then((rows) => {
+        // 拉的过程中项目切走了：这份结果属于上一个项目，丢掉
+        if (String(this._projectId()) !== String(pid)) return;
+        const list = Array.isArray(rows)
+          ? rows
+          : rows && Array.isArray(rows.items)
+          ? rows.items
+          : [];
+        const cands = list
+          .filter((c) => c && c.text)
+          .map((c) => {
+            const evidence = String(c.evidence || "");
+            return {
+              id: c.id,
+              text: String(c.text || ""),
+              scope: c.scope || "user",
+              projectId: c.projectId || c.project_id || null,
+              evidence: evidence.length > 42 ? evidence.slice(0, 42) + "…" : evidence,
+            };
+          });
+        this.setData({ pendingCands: cands }, () => this.refreshViews(this.data.query));
+      })
+      .catch((err) => {
+        if (this._debug) console.log("[memory] 候选接口暂不可用", err && err.message);
+      });
   },
 
   /** 我的页抽屉：记忆操作 */
@@ -1954,6 +2078,8 @@ Page({
         docs: [],
         memos: [],
         projMemos: [],
+        pendingRules: [],
+        pendingCands: [],
         query: "",
         quoting: null,
         busy: null,
@@ -2040,29 +2166,107 @@ Page({
     wx.navigateTo({ url: "/pages/draft/draft?id=" + docId });
   },
 
-  /** 记忆条目：停用 / 删除 */
-  /** 待确认规矩：确认才写进项目规矩，否决就作废 */
+  /**
+   * 待确认 · 项目规矩（含项目级候选）：
+   * 确认才写进项目规矩，否决就作废。
+   * 普通成员点接受会收到 403——这不是故障，是权限事实，提示「需总监确认」。
+   */
   onRuleDecide(e) {
     fb.tap();
-    const id = e.currentTarget.dataset.id;
-    const act = e.currentTarget.dataset.act;
+    const ds = e.currentTarget.dataset;
+    const id = ds.id;
+    const act = ds.act;
+    const isCand = ds.base === "cand";
+    if (!id || this._decideBusy) return;
+    this._decideBusy = true;
+    const path = isCand
+      ? "/api/v1/memory-candidates/" + id + "/" + act
+      : "/api/v1/rule-proposals/" + id + "/" + act;
+
     api
-      .post("/api/v1/rule-proposals/" + id + "/" + act, {})
+      .post(path, {})
       .then(() => {
+        this._decideBusy = false;
         wx.showToast({
           title: act === "accept" ? "已采纳，写进项目规矩" : "已否决",
           icon: "none",
         });
-        this.loadAll();
+        this._dropPending(isCand ? "cand" : "rule", id);
+        this.loadAll(null, true);
       })
-      .catch((err) =>
+      .catch((err) => {
+        this._decideBusy = false;
+        const code = err && err.code;
+        if (code === 403) {
+          // 提案继续留在待确认里，等总监来处理
+          wx.showToast({ title: "需总监确认", icon: "none" });
+          return;
+        }
+        if (code === 404 || code === 409) this.loadAll(null, true);
         wx.showToast({
           title: "没成：" + ((err && err.message) || "网络问题"),
           icon: "none",
-        })
-      );
+        });
+      });
   },
 
+  /** 待确认 · 个人习惯候选（user / project_user）：接受即生效，忽略即作废 */
+  onCandDecide(e) {
+    fb.tap();
+    const ds = e.currentTarget.dataset;
+    const id = ds.id;
+    const act = ds.act;
+    if (!id || this._decideBusy) return;
+    this._decideBusy = true;
+    const item =
+      (this.data.pendingCands || []).filter((c) => String(c.id) === String(id))[0] || {};
+
+    api
+      .post("/api/v1/memory-candidates/" + id + "/" + act, {})
+      .then(() => {
+        this._decideBusy = false;
+        const acceptTitle =
+          item.scope === "project_user" ? "已接受，本项目照这个来" : "已接受，以后照这个来";
+        wx.showToast({
+          title: act === "accept" ? acceptTitle : "已忽略",
+          icon: "none",
+        });
+        this._dropPending("cand", id);
+        // 接受后会多一条正式记忆：静默同步「我的 / 项目的」，不闪骨架屏
+        this.loadAll(null, true);
+      })
+      .catch((err) => {
+        this._decideBusy = false;
+        const code = err && err.code;
+        if (code === 403) {
+          wx.showToast({ title: "需总监确认", icon: "none" });
+          return;
+        }
+        if (code === 404 || code === 409) this.loadAll(null, true);
+        wx.showToast({
+          title: "没成：" + ((err && err.message) || "网络问题"),
+          icon: "none",
+        });
+      });
+  },
+
+  /** 决策成功后先在本地移除：列表立刻收起，不等整页刷新 */
+  _dropPending(kind, id) {
+    const sid = String(id);
+    if (kind === "cand") {
+      this.setData(
+        { pendingCands: (this.data.pendingCands || []).filter((c) => String(c.id) !== sid) },
+        () => this.refreshViews(this.data.query)
+      );
+    } else {
+      this.setData(
+        { pendingRules: (this.data.pendingRules || []).filter((r) => String(r.id) !== sid) },
+        () => this.refreshViews(this.data.query)
+      );
+    }
+  },
+
+  /** 记忆条目：停用 / 删除 */
   onMemoTap(e) {
     fb.tap();
     const id = e.currentTarget.dataset.id;
@@ -2102,7 +2306,11 @@ Page({
     if (meSeg === this.data.meSeg) return;
     // 切分段要重算 memosView / projMemosView / listEmpty，
     // 不然空状态和顶部条数还停在上一个分段
-    this.setData({ meSeg }, () => this.refreshViews(this.data.query));
+    this.setData({ meSeg }, () => {
+      this.refreshViews(this.data.query);
+      // 待确认段每次进来都拉一次候选：模型刚学到的能立刻看到
+      if (meSeg === "pending") this._loadPendingCandidates();
+    });
   },
 
   /** 拍照：统一走带水印的现场拍照页 */
