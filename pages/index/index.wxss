@@ -6922,7 +6922,8 @@ page {
 
 .bubble.me.voice .wave {
   flex-wrap: nowrap;
-  margin-right: 12rpx;
+  margin-right: 0;
+  margin-left: 12rpx;
 }
 
 .bubble.me.voice .bar {

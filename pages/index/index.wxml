@@ -115,10 +115,10 @@
                 <text class="voice-trans-outside" wx:if="{{item.audioSha && !item.transcriptShown}}" catchtap="onVoiceToText" data-id="{{item.id}}">转文字</text>
                 <view class="bubble me voice {{item.transcriptShown ? 'has-text' : ''}}" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
                   <view class="voice-line {{playingVoice === item.id ? 'playing' : ''}}" catchtap="onPlayVoice" data-id="{{item.id}}">
+                    <text class="dur">{{item.dur || '0:00'}}</text>
                     <view class="wave">
                       <view wx:for="{{bars}}" wx:for-item="h" wx:key="*this" class="bar" style="height:{{h}}rpx"></view>
                     </view>
-                    <text class="dur">{{item.dur || '0:00'}}</text>
                   </view>
                   <view class="qblock" wx:if="{{item.quote}}">
                     <text class="qblock-who">{{item.quote.who}}</text>
