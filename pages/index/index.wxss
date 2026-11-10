@@ -5158,6 +5158,119 @@ page {
    多模态资产卡：证据 / 派生 / 示意
    一条消息一个主卡 + 最多 2 行 compact，不做九宫格
    ============================================================ */
+/* 图片资产卡：图片优先，1 张单图，2-4 张网格；卡片只做很轻的边框 */
+.ablock-imgcard {
+  margin-top: 16rpx;
+  padding: 8rpx;
+  border-radius: 26rpx;
+  background: #ffffff;
+  border: 1rpx solid rgba(17, 24, 39, 0.07);
+  box-shadow: 0 10rpx 30rpx -18rpx rgba(17, 24, 39, 0.28);
+  box-sizing: border-box;
+  overflow: hidden;
+  width: 100%;
+}
+
+.aimg-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.aimg-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 18rpx;
+  background: #eef1f5;
+  box-sizing: border-box;
+}
+
+.aimg-cell:active,
+.aimg-hv {
+  opacity: 0.82;
+}
+
+.aimg-n1 .aimg-cell {
+  width: 100%;
+  height: 360rpx;
+}
+
+.aimg-n2 .aimg-cell,
+.aimg-n3 .aimg-cell,
+.aimg-n4 .aimg-cell {
+  width: calc((100% - 8rpx) / 2);
+  height: 210rpx;
+  margin-bottom: 8rpx;
+}
+
+.aimg-n2 .aimg-cell:nth-child(2n),
+.aimg-n3 .aimg-cell:nth-child(2n),
+.aimg-n4 .aimg-cell:nth-child(2n) {
+  margin-left: 8rpx;
+}
+
+.aimg {
+  width: 100%;
+  height: 100%;
+}
+
+.aimg-ic {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.aimg-more {
+  position: absolute;
+  right: 12rpx;
+  bottom: 12rpx;
+  min-width: 44rpx;
+  height: 44rpx;
+  padding: 0 10rpx;
+  border-radius: 22rpx;
+  background: rgba(10, 18, 32, 0.64);
+  color: #ffffff;
+  font-size: 20rpx;
+  line-height: 44rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.aimg-foot {
+  padding: 14rpx 10rpx 8rpx;
+}
+
+.aimg-head {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.aimg-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #11131a;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+.aimg-meta {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  line-height: 1.4;
+  color: #8a94a6;
+}
+
 .ablock {
   margin-top: 16rpx;
   padding: 16rpx;

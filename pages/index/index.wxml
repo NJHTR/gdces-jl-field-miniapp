@@ -337,37 +337,64 @@
 
                 <!-- 多模态资产：一条消息最多一个主卡；同类折叠，其它类型最多 2 行 -->
                 <block wx:if="{{item.blocksView && item.blocksView.hasAny}}">
-                  <view
-                    class="ablock"
-                    wx:if="{{item.blocksView.hasPrimary}}"
-                    hover-class="ablock-hv"
-                    data-id="{{item.id}}"
-                    catchtap="onAssetTap"
-                  >
-                    <view class="ablock-thumb">
-                      <block wx:if="{{item.blocksView.primary.type === 'image'}}">
-                        <image
-                          wx:if="{{!item.blocksView.primary.imgError}}"
-                          class="ablock-img"
-                          src="{{item.blocksView.primary.url}}"
-                          mode="aspectFill"
+                  <block wx:if="{{item.blocksView.hasPrimary}}">
+                    <!-- 图片资产：图片优先，1 张单图 / 2-4 张网格，每张可点开预览 -->
+                    <view class="ablock-imgcard" wx:if="{{item.blocksView.primary.type === 'image'}}">
+                      <view class="aimg-grid aimg-n{{item.blocksView.primary.count > 4 ? 4 : item.blocksView.primary.count}}">
+                        <view
+                          class="aimg-cell"
+                          wx:for="{{item.blocksView.primary.items}}"
+                          wx:for-item="it"
+                          wx:for-index="pi"
+                          wx:key="key"
+                          wx:if="{{pi < 4}}"
+                          hover-class="aimg-hv"
                           data-id="{{item.id}}"
-                          data-key="{{item.blocksView.primary.key}}"
-                          binderror="onAssetImgError"
-                        />
-                        <image wx:else class="ablock-ic" src="/assets/icons/cam-gray.png" mode="aspectFit" />
-                      </block>
-                      <image wx:else class="ablock-ic" src="{{item.blocksView.primary.iconPath}}" mode="aspectFit" />
-                    </view>
-                    <view class="ablock-body">
-                      <view class="ablock-top">
-                        <text class="ablock-t">{{item.blocksView.primary.title}}</text>
-                        <text class="ablock-badge {{item.blocksView.primary.badgeTone}}">{{item.blocksView.primary.badgeLabel}}</text>
+                          data-index="{{pi}}"
+                          catchtap="onAssetTap"
+                        >
+                          <image
+                            wx:if="{{!it.imgError}}"
+                            class="aimg"
+                            src="{{it.url}}"
+                            mode="aspectFill"
+                            data-id="{{item.id}}"
+                            data-key="{{it.key}}"
+                            binderror="onAssetImgError"
+                          />
+                          <image wx:else class="aimg-ic" src="/assets/icons/cam-gray.png" mode="aspectFit" />
+                          <view class="aimg-more" wx:if="{{pi === 3 && item.blocksView.primary.count > 4}}">+{{item.blocksView.primary.count - 4}}</view>
+                        </view>
                       </view>
-                      <text class="ablock-s" wx:if="{{item.blocksView.primary.metaText}}">{{item.blocksView.primary.metaText}}</text>
-                      <text class="ablock-more" wx:if="{{item.blocksView.primary.footText}}">{{item.blocksView.primary.footText}}</text>
+                      <view class="aimg-foot">
+                        <view class="aimg-head">
+                          <text class="aimg-title">{{item.blocksView.primary.count > 1 ? '现场照片 · ' + item.blocksView.primary.count + ' 张' : item.blocksView.primary.title}}</text>
+                          <text class="ablock-badge {{item.blocksView.primary.badgeTone}}">{{item.blocksView.primary.badgeLabel}}</text>
+                        </view>
+                        <text class="aimg-meta" wx:if="{{item.blocksView.primary.metaText}}">{{item.blocksView.primary.metaText}}</text>
+                      </view>
                     </view>
-                  </view>
+
+                    <view
+                      class="ablock"
+                      wx:else
+                      hover-class="ablock-hv"
+                      data-id="{{item.id}}"
+                      catchtap="onAssetTap"
+                    >
+                      <view class="ablock-thumb">
+                        <image class="ablock-ic" src="{{item.blocksView.primary.iconPath}}" mode="aspectFit" />
+                      </view>
+                      <view class="ablock-body">
+                        <view class="ablock-top">
+                          <text class="ablock-t">{{item.blocksView.primary.title}}</text>
+                          <text class="ablock-badge {{item.blocksView.primary.badgeTone}}">{{item.blocksView.primary.badgeLabel}}</text>
+                        </view>
+                        <text class="ablock-s" wx:if="{{item.blocksView.primary.metaText}}">{{item.blocksView.primary.metaText}}</text>
+                        <text class="ablock-more" wx:if="{{item.blocksView.primary.footText}}">{{item.blocksView.primary.footText}}</text>
+                      </view>
+                    </view>
+                  </block>
 
                   <view
                     class="arow"

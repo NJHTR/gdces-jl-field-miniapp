@@ -1033,8 +1033,13 @@ Page({
         });
         // 图片加载失败过：换成占位图标，别让破图反复闪
         const bad = this._assetBad || {};
-        if (blocksView && blocksView.primary && bad[m.id + ":" + blocksView.primary.key]) {
-          blocksView.primary = Object.assign({}, blocksView.primary, { imgError: true });
+        if (blocksView && blocksView.primary && blocksView.primary.type === "image") {
+          const p = blocksView.primary;
+          const items = Array.isArray(p.items) && p.items.length ? p.items : [p];
+          items.forEach((it) => {
+            if (bad[m.id + ":" + it.key]) it.imgError = true;
+          });
+          if (p.imgError) blocksView.primary = Object.assign({}, p, { imgError: true });
         }
       } catch (e) {
         blocksView = null;
@@ -3028,7 +3033,7 @@ Page({
     const m = this._assetMsgOf(ds.id);
     const v = m && m.blocksView && m.blocksView.primary;
     if (!v) return;
-    this._openAssetGroup(v);
+    this._openAssetGroup(v, Number(ds.index) || 0);
   },
 
   /** 主卡下面的 compact 行（其它类型） */
@@ -3043,7 +3048,7 @@ Page({
   },
 
   /** 一组同类资产：图片左右滑；文件/卡片按数量决定直接开还是先选 */
-  _openAssetGroup(v) {
+  _openAssetGroup(v, index) {
     const items = Array.isArray(v.items) && v.items.length ? v.items : [v];
     if (v.type === "image") {
       if (v.imgError) {
@@ -3055,7 +3060,8 @@ Page({
         wx.showToast({ title: "图片打不开", icon: "none" });
         return;
       }
-      wx.previewImage({ current: v.url || urls[0], urls: urls });
+      const cur = index >= 0 && index < items.length ? items[index].url : (v.url || urls[0]);
+      wx.previewImage({ current: cur || urls[0], urls: urls });
       return;
     }
     if (items.length === 1) {
