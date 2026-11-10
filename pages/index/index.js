@@ -1732,7 +1732,7 @@ Page({
     try {
       if (!this._rec) {
         this._rec = wx.getRecorderManager();
-        this._rec.onStop((res) => this._attachAudioDone(res));
+        this._rec.onStop((res) => this._onRecStop(res));
         this._rec.onError(() => {});
       }
       this._recMode = "attach";
@@ -3013,7 +3013,7 @@ Page({
     try {
       if (!this._rec) {
         this._rec = wx.getRecorderManager();
-        this._rec.onStop((r) => this._attachAudio(r));
+        this._rec.onStop((r) => this._onRecStop(r));
         this._rec.onError(() => {});
       }
       this._recMode = "voice";
@@ -3042,6 +3042,15 @@ Page({
       const s = this._recSec % 60;
       this.setData({ recTime: m + ":" + (s < 10 ? "0" : "") + s });
     }, 1000);
+  },
+
+  /** 录音管理器只有一个 onStop 分发口：按住说话 / 附件录音共用，按 _recMode 分派 */
+  _onRecStop(res) {
+    if (this._recMode === "attach") {
+      this._attachAudioDone(res);
+    } else {
+      this._attachAudio(res);
+    }
   },
 
   /** 录音结束：把音频真正发出去（上传 → ASR → /chat） */
