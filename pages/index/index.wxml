@@ -377,15 +377,13 @@
                           class="apile {{item.blocksView.primary.count > 1 ? 'apile-multi' : 'apile-single'}}"
                         >
                           <image
-                            wx:if="{{item.blocksView.primary.count > 2}}"
-                            class="apile-layer apile-l3"
-                            src="{{item.blocksView.primary.items[2].url}}"
-                            mode="aspectFill"
-                          />
-                          <image
-                            wx:if="{{item.blocksView.primary.count > 1}}"
-                            class="apile-layer apile-l2"
-                            src="{{item.blocksView.primary.items[1].url}}"
+                            wx:for="{{item.blocksView.primary.layers}}"
+                            wx:for-item="ly"
+                            wx:for-index="li"
+                            wx:key="li"
+                            class="apile-layer"
+                            style="{{ly.style}}"
+                            src="{{ly.url}}"
                             mode="aspectFill"
                           />
                           <image
