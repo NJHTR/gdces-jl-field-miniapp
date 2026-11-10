@@ -75,6 +75,9 @@ Page({
     /* 录音 */
     recording: false,
     playingVoice: "",
+    voiceElapsed: "",
+    voicePct: 0,
+    voicePlayLabel: "",
     draft: "",          // 兼容旧逻辑，真正的打字内容在 this._draft
     draftSeed: "",      // 只由程序设置：恢复草稿 / 粘贴 / 发送后清空
     hasDraft: false,    // 界面"有没有字"，用它决定发送键
@@ -3117,7 +3120,29 @@ Page({
         this._stopVoice();
         wx.showToast({ title: "语音播放失败", icon: "none" });
       });
-      this.setData({ playingVoice: id });
+      const total = Math.max(0, this._voiceSeconds(msg.dur));
+      const fmt = (sec) => {
+        const s = Math.max(0, Math.floor(sec));
+        return Math.floor(s / 60) + ":" + (s % 60 < 10 ? "0" : "") + (s % 60);
+      };
+      this._voiceStartedAt = Date.now();
+      this._voiceTotal = total;
+      this.setData({
+        playingVoice: id,
+        voiceElapsed: "0:00",
+        voicePct: 0,
+        voicePlayLabel: "0:00 / " + (msg.dur || "0:00"),
+      });
+      clearInterval(this._voiceTicker);
+      this._voiceTicker = setInterval(() => {
+        if (!this._voiceAudio) return;
+        const elapsed = Math.min(total, (Date.now() - this._voiceStartedAt) / 1000);
+        this.setData({
+          voiceElapsed: fmt(elapsed),
+          voicePct: total > 0 ? Math.min(100, Math.round((elapsed / total) * 100)) : 0,
+          voicePlayLabel: fmt(elapsed) + " / " + (msg.dur || "0:00"),
+        });
+      }, 200);
       ctx.play();
       fb.tap();
     } catch (err) {
@@ -3126,13 +3151,18 @@ Page({
   },
 
   _stopVoice() {
+    clearInterval(this._voiceTicker);
+    this._voiceTicker = null;
+    this._voiceStartedAt = 0;
     const ctx = this._voiceAudio;
     this._voiceAudio = null;
     if (ctx) {
       try { ctx.stop(); } catch (e) {}
       try { ctx.destroy(); } catch (e) {}
     }
-    if (this.data.playingVoice) this.setData({ playingVoice: "" });
+    if (this.data.playingVoice || this.data.voicePct) {
+      this.setData({ playingVoice: "", voiceElapsed: "", voicePct: 0, voicePlayLabel: "" });
+    }
   },
 
   /** 点语音气泡里的「转文字」：不自动展示，用户点了才展开 */

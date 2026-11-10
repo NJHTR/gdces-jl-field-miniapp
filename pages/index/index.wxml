@@ -115,7 +115,7 @@
                 <text class="voice-trans-outside" wx:if="{{item.audioSha && !item.transcriptShown}}" catchtap="onVoiceToText" data-id="{{item.id}}">转文字</text>
                 <view class="bubble me voice {{item.transcriptShown ? 'has-text' : ''}}" style="{{item.voice ? 'width:auto;' : 'width:' + item.bw + 'px;'}}" data-id="{{item.id}}" bindlongpress="onMsgLong">
                   <view class="voice-line {{playingVoice === item.id ? 'playing' : ''}}" catchtap="onPlayVoice" data-id="{{item.id}}">
-                    <text class="dur">{{item.dur || '0:00'}}</text>
+                    <text class="dur">{{playingVoice === item.id ? voicePlayLabel : (item.dur || '0:00')}}</text>
                     <view class="vplay {{playingVoice === item.id ? 'playing' : ''}}">
                       <view class="vtri" wx:if="{{playingVoice !== item.id}}"></view>
                       <view class="vpause" wx:else>
@@ -123,6 +123,9 @@
                         <view class="vpause-bar"></view>
                       </view>
                     </view>
+                  </view>
+                  <view class="voice-progress" wx:if="{{playingVoice === item.id}}">
+                    <view class="voice-progress-fill" style="width:{{voicePct}}%"></view>
                   </view>
                   <view class="qblock" wx:if="{{item.quote}}">
                     <text class="qblock-who">{{item.quote.who}}</text>
