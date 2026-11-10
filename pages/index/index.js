@@ -970,8 +970,8 @@ Page({
     // 语音条宽度只由语音时长决定；转写文本是独立气泡，不能把语音条撑长
     const textW = m.voice ? 0 : Math.max(this.textWidth(m.text), this.textWidth(m.sub));
     const sec = m.voice ? this._voiceSeconds(m.dur) : 0;
-    const voiceW = m.voice ? Math.min(220, 40 + Math.min(60, sec) * 2.4) : 0;
-    return Math.min(max, Math.ceil(Math.max(textW, voiceW)) + 34);
+    const voiceW = m.voice ? Math.max(46, 46 + Math.min(60, sec) * 1.6) : 0;
+    return Math.min(max, Math.ceil(Math.max(textW, voiceW)) + (m.voice ? 24 : 34));
   },
 
   /** 展开/收起复核意见 */
@@ -2798,6 +2798,11 @@ Page({
             wx.showToast({ title: "已完成", icon: "none", duration: 1200 });
             this._clearInflight();
             this._maybeReloadDocs();
+            // 轮询补丁偶尔会漏掉 answer.blocks：任务完成后静默拉一次
+            // bootstrap，确保历史消息里的多模态资产卡按服务端最新数据重渲染。
+            setTimeout(() => {
+              if (this.data.tab === "field") this.loadAll(null, true);
+            }, 350);
             // 出稿已完成，复核还在后台：轻量再轮询几次，把复核意见补上
             if (patch.reviewState === "pending") {
               this._pollReview(taskId, pendingId, 0);
