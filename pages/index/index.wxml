@@ -539,7 +539,7 @@
       <view wx:for="{{pendingRules}}" wx:key="id" class="memo">
         <view class="memo-t">{{item.text}}</view>
         <view class="memo-m">
-          <text class="memo-mt">模型提议 · 还没生效</text>
+          <text class="memo-mt">提案 · 还没生效</text>
         </view>
         <view class="rule-actions">
           <view class="rule-btn on" data-id="{{item.id}}" data-act="accept" bindtap="onRuleDecide">采纳</view>
@@ -707,7 +707,7 @@
 
           <!-- 我的：抽屉里放"记忆操作"，不是文件分类 -->
           <block wx:else>
-            <text class="dp-label">记忆 · 只影响我自己</text>
+            <text class="dp-label">记忆 · 我的习惯 / 项目规矩</text>
             <view class="mact-list">
               <view class="mact" hover-class="hv" data-act="write" bindtap="onMemoAction">
                 <image class="mact-img" src="/assets/icons/pen-dark.png" mode="aspectFit" style="width:34rpx;height:34rpx;" />

@@ -1163,6 +1163,30 @@ Page({
     const uid = this._userId();
     const pid = this._projectId();
     const ownerId = scope === "project" ? pid : uid;
+
+    // 项目规矩不是“我记住”就生效：先提交待确认，总监/管理员确认后才进 rules.md。
+    if (scope === "project") {
+      return api
+        .post("/api/v1/rule-proposals", {
+          projectId: pid,
+          text,
+          source: "manual",
+        })
+        .then(() => {
+          this.setData({ meSeg: "pending" }, () => {
+            this.loadAll();
+            this.refreshViews(this.data.query);
+          });
+          wx.showToast({ title: "已提交，等项目确认", icon: "none" });
+        })
+        .catch((err) => {
+          wx.showToast({
+            title: "没提交：" + ((err && err.message) || "网络问题"),
+            icon: "none",
+          });
+        });
+    }
+
     return api
       .post("/api/v1/memories", { scope, ownerId, text, source: "manual" })
       .then(() =>
@@ -1175,16 +1199,13 @@ Page({
       )
       .then((rows) => {
         const list = (rows || []).map((m) => ({
-          id: (scope === "project" ? "p" : "m") + m.id,
+          id: "m" + m.id,
           text: m.text,
           meta:
             (m.source === "learned" ? "自动记的" : "手动添加") +
             (m.hits ? " · 用过 " + m.hits + " 次" : ""),
         }));
-        this.setData(
-          scope === "project" ? { projMemos: list } : { memos: list },
-          () => this.refreshViews(this.data.query)
-        );
+        this.setData({ memos: list }, () => this.refreshViews(this.data.query));
         wx.showToast({ title: "已记住", icon: "none" });
       })
       .catch((err) => {
