@@ -133,7 +133,7 @@
                   </view>
                 </view>
               </view>
-              <view class="voice-transcript" wx:if="{{item.transcriptShown}}">{{item.text}}</view>
+              <view class="voice-transcript {{item.transcriptLong ? 'long' : ''}}" wx:if="{{item.transcriptShown}}">{{item.text}}</view>
             </block>
 
             <view class="bubble me" wx:elif="{{item.text}}" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">

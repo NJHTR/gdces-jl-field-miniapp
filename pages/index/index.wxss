@@ -7581,3 +7581,8 @@ page {
   overflow-wrap: anywhere;
   text-align: left;
 }
+
+/* 长转写固定占 82% 宽度，确保在 Skyline 下也强制换行，不越出屏幕 */
+.voice-transcript.long {
+  width: 82%;
+}

@@ -967,10 +967,10 @@ Page({
   },
 
   bubbleWidth(m, max) {
-    const textW = Math.max(this.textWidth(m.text), this.textWidth(m.sub));
-    // 语音气泡按时长轻微增长；只预留少量余量，避免短语音右侧一大片空白
+    // 语音条宽度只由语音时长决定；转写文本是独立气泡，不能把语音条撑长
+    const textW = m.voice ? 0 : Math.max(this.textWidth(m.text), this.textWidth(m.sub));
     const sec = m.voice ? this._voiceSeconds(m.dur) : 0;
-    const voiceW = m.voice ? Math.min(220, 56 + Math.min(60, sec) * 1.4) : 0;
+    const voiceW = m.voice ? Math.min(220, 40 + Math.min(60, sec) * 2.4) : 0;
     return Math.min(max, Math.ceil(Math.max(textW, voiceW)) + 34);
   },
 
@@ -1080,6 +1080,7 @@ Page({
         artifact: artifact,
         blocksView: blocksView,
         assetOpen: !!((this._assetOpen || {})[m.id]),
+        transcriptLong: !!(m.transcript && String(m.transcript).length > 28),
         md: mdBlocks,
         reviewMd: reviewMd,
         reviewOpen: !!openMap[m.id + ":rv"],
