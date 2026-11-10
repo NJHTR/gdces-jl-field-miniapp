@@ -451,6 +451,7 @@ Page({
         this._loadedOnce = true;
         this._assetSyncedAt = Date.now();
         this._assetBad = {};
+        this._assetFail = {};
         this._baseDocs = (d && d.docs) || [];
         this._maybeCoach();
         const proj = this._mergeProject((d && d.project) || {});
@@ -524,6 +525,7 @@ Page({
         this._loadedOnce = true;
         this._assetSyncedAt = Date.now();
         this._assetBad = {};
+        this._assetFail = {};
         this._baseDocs = (d && d.docs) || [];
         this._maybeCoach();
         const proj = Object.assign({}, this.data.project, (d && d.project) || {});
@@ -1060,8 +1062,16 @@ Page({
         if (blocksView && blocksView.primary && blocksView.primary.type === "image") {
           const p = blocksView.primary;
           const items = Array.isArray(p.items) && p.items.length ? p.items : [p];
+          const localAssets = this._assetLocal || {};
           items.forEach((it) => {
-            if (bad[m.id + ":" + it.key]) it.imgError = true;
+            if (it.assetId && localAssets[it.assetId]) {
+              // 已用 Bearer 下载到本地：不依赖短签 URL，重启后再重新下载。
+              it.url = localAssets[it.assetId];
+              it.imgError = false;
+            } else {
+              if (it.assetId) this._ensureAssetLocal(it.assetId);
+              if (bad[m.id + ":" + it.key]) it.imgError = true;
+            }
           });
           // 图片叠放的统一模型（归一化到层深度）：
           //   u = 层序号 / 总层数，L = min(3, 张数 - 1)
@@ -1085,6 +1095,7 @@ Page({
               const op = Math.max(0.40, 0.92 - d * 0.14);
               p.layers.push({
                 url: items[d] ? items[d].url : "",
+                assetId: items[d] ? items[d].assetId : "",
                 photoNo: items[d] ? items[d].photoNo : "",
                 style:
                   "transform-origin: 100% 50%; transform: translateX(" + tx +
@@ -3209,10 +3220,47 @@ Page({
   },
 
   /** 图片加载失败：记下来换占位图标，不阻塞消息 */
+  /** 资产图片用 Bearer 下载到本地，彻底摆脱短签 URL 过期问题 */
+  _ensureAssetLocal(assetId) {
+    if (!assetId || !API_BASE) return;
+    this._assetLocal = this._assetLocal || {};
+    this._assetLoading = this._assetLoading || {};
+    this._assetFail = this._assetFail || {};
+    if (this._assetLocal[assetId] || this._assetLoading[assetId] || this._assetFail[assetId]) return;
+    const app = getApp();
+    const token = (app && app.globalData && app.globalData.token) || "";
+    this._assetLoading[assetId] = true;
+    wx.downloadFile({
+      url: API_BASE + "/api/v1/assets/" + encodeURIComponent(assetId) + "/content",
+      header: token ? { authorization: "Bearer " + token } : {},
+      timeout: 60000,
+      success: (res) => {
+        this._assetLoading[assetId] = false;
+        if (res.statusCode === 200 && res.tempFilePath) {
+          this._assetLocal[assetId] = res.tempFilePath;
+          this._assetFail[assetId] = false;
+          this.refreshViews(this.data.query);
+        } else {
+          this._assetFail[assetId] = true;
+        }
+      },
+      fail: () => {
+        this._assetLoading[assetId] = false;
+        this._assetFail[assetId] = true;
+      },
+    });
+  },
+
   onAssetImgError(e) {
     const ds = e.currentTarget.dataset || {};
     if (!ds.id || !ds.key) return;
-    // 短签过期时不要直接永久占位：先静默重拉一次历史换新 URL。
+    // 先用 Bearer 下载原图；下载成功就换成本地路径，不再依赖短签。
+    if (ds.assetId) {
+      if (this._assetLocal) delete this._assetLocal[ds.assetId];
+      if (this._assetFail) delete this._assetFail[ds.assetId];
+      this._ensureAssetLocal(ds.assetId);
+      return;
+    }
     const now = Date.now();
     if (!this._assetUrlRetryAt || now - this._assetUrlRetryAt > 30 * 1000) {
       this._assetUrlRetryAt = now;

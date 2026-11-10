@@ -191,6 +191,7 @@ function imageView(block, key, ctx) {
       iconPath: "/assets/icons/cam-blue.png",
       title: title,
       photoNo: no ? "#" + no[1] : "",
+      assetId: (block && block.assetId) || "",
       url: absoluteUrl(block && block.url),
       fileType: "",
       route: "",

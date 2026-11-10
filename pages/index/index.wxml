@@ -366,6 +366,7 @@
                               mode="widthFix"
                               data-id="{{item.id}}"
                               data-key="{{it.key}}"
+                              data-asset-id="{{it.assetId}}"
                               binderror="onAssetImgError"
                             />
                             <image wx:else class="aimg-ic" src="/assets/icons/cam-gray.png" mode="aspectFit" />
@@ -386,6 +387,10 @@
                             class="apile-layer"
                             style="{{ly.style}}"
                             src="{{ly.url}}"
+                            data-id="{{item.id}}"
+                            data-key="{{ly.assetId}}"
+                            data-asset-id="{{ly.assetId}}"
+                            binderror="onAssetImgError"
                             mode="aspectFill"
                           />
                           <image
@@ -397,6 +402,7 @@
                             data-index="0"
                             catchtap="onAssetTap"
                             data-key="{{item.blocksView.primary.items[0].key}}"
+                            data-asset-id="{{item.blocksView.primary.items[0].assetId}}"
                             binderror="onAssetImgError"
                           />
                           <image wx:else class="apile-main apile-placeholder" src="/assets/icons/cam-gray.png" mode="aspectFit" />
