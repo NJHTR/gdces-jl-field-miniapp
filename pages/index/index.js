@@ -1049,11 +1049,11 @@ Page({
           const count = items.length;
           const maxLayers = Math.min(3, Math.max(0, count - 1));
           if (maxLayers > 0) {
-            const p = Math.min(1, Math.max(0, (count - 4) / 4));
+            const density = Math.min(1, Math.max(0, (count - 4) / 4));
             const baseX = 18 + Math.min(12, Math.max(0, count - 2) * 2);
-            const stepX = 12 + 2 * p;
-            const tilt = 2 + 0.5 * p;
-            const scaleDrop = 0.06 + 0.01 * p;
+            const stepX = 12 + 2 * density;
+            const tilt = 2 + 0.5 * density;
+            const scaleDrop = 0.06 + 0.01 * density;
             p.layers = [];
             for (let d = 1; d <= maxLayers; d++) {
               const scale = Math.max(0.78, 1 - scaleDrop * d);
