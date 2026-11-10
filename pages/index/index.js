@@ -1039,22 +1039,33 @@ Page({
           items.forEach((it) => {
             if (bad[m.id + ":" + it.key]) it.imgError = true;
           });
-          // 图片叠放：第一张完全正；后面的每一张都变小变矮 + 往右挪一点点。
-          // 以右边缘为锚点缩放，左边缩进主图后面，只露右侧一条边。
+          // 图片叠放的统一模型（归一化到层深度）：
+          //   u = 层序号 / 总层数，L = min(3, 张数 - 1)
+          //   p = clamp((张数 - 4) / 4, 0, 1)   // 2~4 张保持当前完美效果
+          //   scale = 1 - (0.06 + 0.01p) * 层序号
+          //   tilt  = 2° + 0.5° * p
+          //   x     = (18 + min(12, (张数-2)*2)) + (12 + 2p) * 层序号
+          // 第一张完全正；后层缩小 + 右移 + 轻微倾斜，左边缘藏在主图后。
           const count = items.length;
           const maxLayers = Math.min(3, Math.max(0, count - 1));
           if (maxLayers > 0) {
+            const p = Math.min(1, Math.max(0, (count - 4) / 4));
+            const baseX = 18 + Math.min(12, Math.max(0, count - 2) * 2);
+            const stepX = 12 + 2 * p;
+            const tilt = 2 + 0.5 * p;
+            const scaleDrop = 0.06 + 0.01 * p;
             p.layers = [];
             for (let d = 1; d <= maxLayers; d++) {
-              const scale = Math.max(0.82, 1 - d * 0.06);
-              const tx = Math.round(14 + d * 12 + Math.min(8, count * 2));
-              const op = Math.max(0.42, 0.92 - d * 0.14);
+              const scale = Math.max(0.78, 1 - scaleDrop * d);
+              const tx = Math.round(baseX + stepX * d);
+              const op = Math.max(0.40, 0.92 - d * 0.14);
               p.layers.push({
                 url: items[d] ? items[d].url : "",
                 photoNo: items[d] ? items[d].photoNo : "",
                 style:
                   "transform-origin: 100% 50%; transform: translateX(" + tx +
-                  "rpx) rotate(2deg) scale(" + scale + "); z-index:" + (4 - d) +
+                  "rpx) rotate(" + tilt.toFixed(1) + "deg) scale(" +
+                  scale.toFixed(3) + "); z-index:" + (4 - d) +
                   "; opacity:" + op + ";",
               });
             }
