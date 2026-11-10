@@ -3095,7 +3095,8 @@ Page({
       wx.showToast({ title: "文件打不开", icon: "none" });
       return;
     }
-    const token = wx.getStorageSync("token") || "";
+    const app = getApp();
+    const token = ((app && app.globalData && app.globalData.token) || "");
     wx.showLoading({ title: "打开文件…", mask: true });
     wx.downloadFile({
       url: v.url,
