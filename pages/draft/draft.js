@@ -363,7 +363,7 @@ Page({
   _fieldType(key) {
     const k = String(key || "");
     if (/(附件|照片|影像)/.test(k)) return "photo";
-    if (/日期/.test(k)) return "date";
+    if (/检查时间|日期/.test(k)) return "date";
     if (/时间/.test(k)) return "time";
     return "text";
   },
