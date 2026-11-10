@@ -74,6 +74,7 @@ Page({
 
     /* 录音 */
     recording: false,
+    playingVoice: "",
     draft: "",          // 兼容旧逻辑，真正的打字内容在 this._draft
     draftSeed: "",      // 只由程序设置：恢复草稿 / 粘贴 / 发送后清空
     hasDraft: false,    // 界面"有没有字"，用它决定发送键
@@ -263,6 +264,7 @@ Page({
   },
 
   onHide() {
+    this._stopVoice();
     this._unbindKeyboard();
     this.setData({ kbHeight: 0 });
   },
@@ -324,6 +326,7 @@ Page({
   },
 
   onUnload() {
+    this._stopVoice();
     this._unbindKeyboard();
   },
 
@@ -3073,6 +3076,56 @@ Page({
     } else {
       this._attachAudio(res);
     }
+  },
+
+  /** 点语音波形：播放/停止；同一时间只播一条 */
+  onPlayVoice(e) {
+    const id = (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.id) || "";
+    const msg = (this.data.msgs || []).filter((m) => m.id === id)[0];
+    if (!msg) return;
+
+    if (this.data.playingVoice === id) {
+      this._stopVoice();
+      return;
+    }
+
+    const sha = msg.audioSha || "";
+    const src = sha
+      ? (/^https?:\/\//.test(sha) ? sha : (API_BASE || "") + "/api/v1/blobs/" + sha)
+      : msg.audio;
+    if (!src) {
+      wx.showToast({ title: "这条语音没有可播放的文件", icon: "none" });
+      return;
+    }
+
+    this._stopVoice();
+    try {
+      const ctx = wx.createInnerAudioContext();
+      this._voiceAudio = ctx;
+      ctx.autoplay = true;
+      ctx.obeyMuteSwitch = false;
+      ctx.src = src;
+      ctx.onEnded(() => this._stopVoice());
+      ctx.onError(() => {
+        this._stopVoice();
+        wx.showToast({ title: "语音播放失败", icon: "none" });
+      });
+      this.setData({ playingVoice: id });
+      ctx.play();
+      fb.tap();
+    } catch (err) {
+      wx.showToast({ title: "当前环境不支持播放", icon: "none" });
+    }
+  },
+
+  _stopVoice() {
+    const ctx = this._voiceAudio;
+    this._voiceAudio = null;
+    if (ctx) {
+      try { ctx.stop(); } catch (e) {}
+      try { ctx.destroy(); } catch (e) {}
+    }
+    if (this.data.playingVoice) this.setData({ playingVoice: "" });
   },
 
   /** 点语音气泡里的「转文字」：不自动展示，用户点了才展开 */

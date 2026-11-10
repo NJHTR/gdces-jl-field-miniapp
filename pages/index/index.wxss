@@ -6928,6 +6928,16 @@ page {
 .bubble.me.voice .bar {
   width: 4rpx;
   margin-right: 3rpx;
+  transform-origin: center;
+}
+
+.voice-line.playing .bar {
+  animation: voice-bar 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes voice-bar {
+  from { transform: scaleY(0.55); opacity: 0.65; }
+  to   { transform: scaleY(1.15); opacity: 1; }
 }
 
 .bubble.me.voice .dur {
