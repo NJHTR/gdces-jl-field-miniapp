@@ -6889,3 +6889,54 @@ page {
     background: rgba(255, 255, 255, 0.18);
   }
 }
+
+/* ---------- 语音气泡：一条干净的单行，不把“转文字”做成大药丸 ---------- */
+.bubble.me.voice {
+  padding: 16rpx 22rpx;
+  border-radius: 30rpx;
+  border-bottom-right-radius: 12rpx;
+}
+
+.bubble.me.voice .voice-line {
+  flex-wrap: nowrap;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.bubble.me.voice .wave {
+  flex-wrap: nowrap;
+  margin-right: 12rpx;
+}
+
+.bubble.me.voice .bar {
+  width: 4rpx;
+  margin-right: 3rpx;
+}
+
+.bubble.me.voice .dur {
+  font-size: 22rpx;
+  letter-spacing: 0.5rpx;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.bubble.me.voice .voice-trans {
+  margin-left: 14rpx;
+  padding: 6rpx 0 6rpx 14rpx;
+  height: auto;
+  line-height: 1;
+  border-radius: 0;
+  border-left: 1rpx solid rgba(255, 255, 255, 0.26);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 20rpx;
+  white-space: nowrap;
+}
+
+.bubble.me.voice.has-text .voice-line {
+  margin-bottom: 8rpx;
+}
+
+.bubble.me.voice .quote {
+  margin-top: 2rpx;
+  line-height: 1.4;
+}

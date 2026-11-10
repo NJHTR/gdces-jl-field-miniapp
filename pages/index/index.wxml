@@ -110,7 +110,7 @@
               />
             </view>
 
-            <view class="bubble me" wx:if="{{item.text || item.voice}}" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
+            <view class="bubble me {{item.voice ? 'voice' : ''}} {{item.transcriptShown ? 'has-text' : ''}}" wx:if="{{item.text || item.voice}}" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
               <view class="voice-line" wx:if="{{item.voice}}">
                 <view class="wave">
                   <view wx:for="{{bars}}" wx:for-item="h" wx:key="*this" class="bar" style="height:{{h}}rpx"></view>
