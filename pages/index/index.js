@@ -968,9 +968,9 @@ Page({
 
   bubbleWidth(m, max) {
     const textW = Math.max(this.textWidth(m.text), this.textWidth(m.sub));
-    // 语音气泡只放波形 + 时长；按秒数增长，短语音不撑出大片空白
+    // 语音气泡按时长轻微增长；只预留少量余量，避免短语音右侧一大片空白
     const sec = m.voice ? this._voiceSeconds(m.dur) : 0;
-    const voiceW = m.voice ? Math.min(150, 78 + Math.min(60, sec) * 1.7) : 0;
+    const voiceW = m.voice ? Math.min(220, 56 + Math.min(60, sec) * 1.4) : 0;
     return Math.min(max, Math.ceil(Math.max(textW, voiceW)) + 34);
   },
 

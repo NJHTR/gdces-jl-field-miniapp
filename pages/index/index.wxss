@@ -7167,11 +7167,11 @@ page {
 }
 
 .bubble.me.voice {
-  width: auto !important;
   max-width: 82%;
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
+  box-sizing: border-box;
   padding: 16rpx 22rpx;
   border-radius: 30rpx;
   border-bottom-right-radius: 12rpx;
@@ -7273,8 +7273,12 @@ page {
 
 /* 点“转文字”后，文字单独在气泡外，右对齐；和我的语音在同一侧 */
 .voice-transcript {
+  display: block;
   align-self: flex-end;
+  width: auto;
   max-width: 82%;
+  min-width: 0;
+  box-sizing: border-box;
   margin-top: 10rpx;
   padding: 16rpx 22rpx;
   border-radius: 26rpx;
@@ -7285,6 +7289,8 @@ page {
   color: #11131a;
   font-size: 28rpx;
   line-height: 1.45;
+  white-space: normal;
   word-break: break-all;
+  overflow-wrap: anywhere;
   text-align: left;
 }
