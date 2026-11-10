@@ -118,7 +118,7 @@
                     <view class="wave">
                       <view wx:for="{{bars}}" wx:for-item="h" wx:key="*this" class="bar" style="height:{{h}}rpx"></view>
                     </view>
-                    <text class="dur">{{item.dur}}</text>
+                    <text class="dur">{{item.dur || '0:00'}}</text>
                   </view>
                   <view class="qblock" wx:if="{{item.quote}}">
                     <text class="qblock-who">{{item.quote.who}}</text>

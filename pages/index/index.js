@@ -956,10 +956,17 @@ Page({
   },
 
   /** 气泡宽度：内容宽度 + 左右内边距 28，不超过可用宽度 */
+  /** 语音时长 → 秒；用于按语音长短控制气泡宽度 */
+  _voiceSeconds(dur) {
+    const m = String(dur || "").match(/(\d+):(\d+)/);
+    return m ? Number(m[1]) * 60 + Number(m[2]) : 0;
+  },
+
   bubbleWidth(m, max) {
     const textW = Math.max(this.textWidth(m.text), this.textWidth(m.sub));
-    // 语音条只放波形 + 时长；“转文字”在气泡外，不参与气泡宽度
-    const voiceW = m.voice ? 110 : 0;
+    // 语音气泡只放波形 + 时长；按秒数增长，短语音不撑出大片空白
+    const sec = m.voice ? this._voiceSeconds(m.dur) : 0;
+    const voiceW = m.voice ? Math.min(150, 78 + Math.min(60, sec) * 1.7) : 0;
     return Math.min(max, Math.ceil(Math.max(textW, voiceW)) + 34);
   },
 
