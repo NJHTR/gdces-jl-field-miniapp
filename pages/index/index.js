@@ -1075,12 +1075,18 @@ Page({
       } catch (e) {
         blocksView = null;
       }
+      const transcriptText = String(m.transcript || (m.transcriptShown ? m.text : "") || "");
       return Object.assign({}, m, {
         photos: photos,
         artifact: artifact,
         blocksView: blocksView,
         assetOpen: !!((this._assetOpen || {})[m.id]),
-        transcriptLong: !!(m.transcript && String(m.transcript).length > 28),
+        // 转写气泡宽度在 JS 里直接算，不依赖 CSS 百分比在 Skyline 下的表现。
+        // 短文本按内容；超过 6 个字固定最多 620rpx，强制换行，绝不越出屏幕。
+        transcriptLong: transcriptText.length > 6,
+        transcriptW: transcriptText
+          ? Math.min(560, Math.max(120, 40 + transcriptText.length * 28))
+          : 0,
         md: mdBlocks,
         reviewMd: reviewMd,
         reviewOpen: !!openMap[m.id + ":rv"],

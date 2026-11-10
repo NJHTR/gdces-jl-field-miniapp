@@ -133,7 +133,7 @@
                   </view>
                 </view>
               </view>
-              <view class="voice-transcript {{item.transcriptLong ? 'long' : ''}}" wx:if="{{item.transcriptShown}}">
+              <view class="voice-transcript {{item.transcriptLong ? 'long' : ''}}" style="width:{{item.transcriptW}}rpx;" wx:if="{{item.transcriptShown}}">
                 <text class="voice-transcript-t">{{item.text}}</text>
               </view>
             </block>
