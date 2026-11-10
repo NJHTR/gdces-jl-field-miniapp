@@ -116,12 +116,13 @@
                   <view wx:for="{{bars}}" wx:for-item="h" wx:key="*this" class="bar" style="height:{{h}}rpx"></view>
                 </view>
                 <text class="dur">{{item.dur}}</text>
+                <text class="voice-trans" wx:if="{{item.audioSha && !item.transcriptShown}}" catchtap="onVoiceToText" data-id="{{item.id}}">转文字</text>
               </view>
               <view class="qblock" wx:if="{{item.quote}}">
                 <text class="qblock-who">{{item.quote.who}}</text>
                 <text class="qblock-t">{{item.quote.text}}</text>
               </view>
-              <view class="quote">{{item.text}}</view>
+              <view class="quote" wx:if="{{!item.voice || item.transcriptShown}}">{{item.text}}</view>
             </view>
 
             <!-- 元信息：时间 + 同步状态 + 来源 -->

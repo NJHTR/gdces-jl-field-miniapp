@@ -1867,10 +1867,16 @@ Page({
     const msg = this._menuMsg();
     this.setData({ menuOpen: false });
     if (!msg) return;
-    // 真机上这里有后端返回的转写文本，现在用同一条内容去掉语音条
-    const msgs = this.data.msgs.map((m) => (m.id === msg.id ? Object.assign({}, m, { voice: false }) : m));
+    if (!msg.transcript) {
+      this.onVoiceToText({ currentTarget: { dataset: { id: msg.id } } });
+      return;
+    }
+    const msgs = this.data.msgs.map((m) =>
+      m.id === msg.id
+        ? Object.assign({}, m, { text: m.transcript, transcriptShown: true })
+        : m
+    );
     this.setData({ msgs }, () => this.refreshViews(this.data.query));
-    wx.showToast({ title: "已转成文字", icon: "none" });
   },
 
   onMenuDelete() {
@@ -2534,7 +2540,7 @@ Page({
   },
 
   /** 发一条 → 挂一个"正在处理"的气泡 → 轮询任务 → 换成真回复 */
-  _sendToServer({ text, photos, audios, hhmm }) {
+  _sendToServer({ text, photos, audios, hhmm, onParts }) {
     const clientId = "c" + Date.now() + Math.random().toString(36).slice(2, 8);
     const pendingId = "p" + Date.now();
 
@@ -2568,6 +2574,9 @@ Page({
     return this._uploadParts(text, photos, audios)
       .then((parts) => {
         if (!parts.length) throw new Error("没有可发送的内容");
+        if (typeof onParts === "function") {
+          try { onParts(parts); } catch (e) {}
+        }
         return api.post("/api/v1/chat", {
           projectId: this._projectId(),
           userId: this._userId(),
@@ -2623,7 +2632,7 @@ Page({
       const asrJobs = (audRes || []).map((r) => {
         if (!r || !r.sha) return Promise.resolve(null);
         return api
-          .post("/api/v1/asr", { blob: r.sha })
+          .post("/api/v1/asr", { blob: r.sha, projectId: this._projectId() })
           .then((d) => ({ blob: r.sha, transcript: (d && d.text) || "" }))
           .catch(() => ({ blob: r.sha, transcript: "" }));
       });
@@ -3053,6 +3062,44 @@ Page({
     }
   },
 
+  /** 点语音气泡里的「转文字」：不自动展示，用户点了才展开 */
+  onVoiceToText(e) {
+    const id = (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.id) || "";
+    const msg = (this.data.msgs || []).filter((m) => m.id === id)[0];
+    if (!msg) return;
+
+    if (msg.transcript) {
+      const msgs = this.data.msgs.map((m) =>
+        m.id === id ? Object.assign({}, m, { text: m.transcript, transcriptShown: true }) : m
+      );
+      this.setData({ msgs }, () => this.refreshViews(this.data.query));
+      return;
+    }
+
+    if (!msg.audioSha) {
+      wx.showToast({ title: "语音还在上传，稍等一下", icon: "none" });
+      return;
+    }
+
+    wx.showToast({ title: "正在转写", icon: "none", duration: 800 });
+    api
+      .post("/api/v1/asr", { blob: msg.audioSha, projectId: this._projectId() })
+      .then((d) => {
+        const text = (d && d.text) || "";
+        if (!text) {
+          wx.showToast({ title: "没识别到语音内容", icon: "none" });
+          return;
+        }
+        const msgs = this.data.msgs.map((m) =>
+          m.id === id
+            ? Object.assign({}, m, { transcript: text, text, transcriptShown: true })
+            : m
+        );
+        this.setData({ msgs }, () => this.refreshViews(this.data.query));
+      })
+      .catch(() => wx.showToast({ title: "转写失败，请重试", icon: "none" }));
+  },
+
   /** 录音结束：把音频真正发出去（上传 → ASR → /chat） */
   _attachAudio(r) {
     if (this._recMode === "attach") return;   // 附件录音走 _attachAudioDone
@@ -3087,8 +3134,11 @@ Page({
       type: "me",
       voice: true,
       dur: meta.dur,
-      text: "（语音 " + meta.dur + "）",
+      text: "",
       audio: path,
+      audioSha: "",
+      transcript: "",
+      transcriptShown: false,
       sync: false,
       pendingAsr: true,
     };
@@ -3107,6 +3157,19 @@ Page({
       photos: [],
       audios: [{ src: path, dur: meta.dur }],
       hhmm,
+      onParts: (parts) => {
+        const audio = (parts || []).filter((x) => x && x.type === "audio")[0] || {};
+        const next = this.data.msgs.map((m) =>
+          m.id === myId
+            ? Object.assign({}, m, {
+                audioSha: audio.blob || "",
+                transcript: audio.transcript || "",
+                pendingAsr: false,
+              })
+            : m
+        );
+        this.setData({ msgs: next }, () => this.refreshViews(this.data.query));
+      },
     });
     if (p && p.then) {
       p.then(() => {

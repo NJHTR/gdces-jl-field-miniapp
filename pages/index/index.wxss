@@ -259,6 +259,16 @@ page {
   font-size: 20rpx;
   color: rgba(255, 255, 255, 0.85);
 }
+.voice-trans {
+  margin-left: 16rpx;
+  padding: 0 12rpx;
+  height: 34rpx;
+  line-height: 34rpx;
+  border-radius: 17rpx;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 20rpx;
+}
 
 /* 照片 */
 .photos {
