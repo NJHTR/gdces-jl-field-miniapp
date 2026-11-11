@@ -375,6 +375,39 @@ function eventDuration(e, now) {
   return "";
 }
 
+function softWrapText(s) {
+  if (!s) return "";
+  // Skyline 对长段中文/URL 的自动换行不稳定：按显示宽度插入软换行，
+  // 优先在空格/标点处断开，避免把英文单词或 URL 切得过碎。
+  return String(s)
+    .split("\n")
+    .map(function (line) {
+      let rest = line;
+      let out = "";
+      while (rest.length > 28) {
+        const win = rest.slice(0, 28);
+        const at = Math.max(
+          win.lastIndexOf(" "),
+          win.lastIndexOf("，"),
+          win.lastIndexOf("。"),
+          win.lastIndexOf("；"),
+          win.lastIndexOf("："),
+          win.lastIndexOf("、"),
+          win.lastIndexOf(",")
+        );
+        const cut = at >= 12 ? at + 1 : 28;
+        out += rest.slice(0, cut) + "\n";
+        rest = rest.slice(cut);
+      }
+      return out + rest;
+    })
+    .join("\n");
+}
+
+function toLines(s) {
+  return softWrapText(s).split("\n").filter(function (x) { return x.length > 0; });
+}
+
 function eventView(e, open, ctx, agg) {
   const meta = statusMeta(e.status);
   const phase = phaseMeta(e.phase);
@@ -416,16 +449,21 @@ function eventView(e, open, ctx, agg) {
     retryText: retryText,
     retried: !!retryText,
     hadFailure: hadFailure,
-    failureText: failureText,
+    failureText: softWrapText(failureText),
+    failureLines: toLines(failureText),
     summary: e.summary || "",
+    summaryLines: toLines(e.summary || ""),
     open: !!open,
-    inputText: clippedIn.text,
+    inputText: softWrapText(clippedIn.text),
+    inputLines: toLines(clippedIn.text),
     inputMore: clippedIn.cut,
-    outputText: linesOut,
+    outputText: softWrapText(linesOut),
+    outputLines: toLines(linesOut),
     outputMore: locallyCut,
     truncated: truncated,
     sizeText: truncated ? size : "",
-    errorText: e.error || "",
+    errorText: softWrapText(e.error || ""),
+    errorLines: toLines(e.error || ""),
     artifacts: (e.artifacts || []).map(function (a) {
       return {
         type: a.type,

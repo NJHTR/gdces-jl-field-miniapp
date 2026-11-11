@@ -38,9 +38,11 @@
         <view class="tr-step-line">
           <view class="tr-ic tr-ic-fail"><text>!</text></view>
           <view class="tr-step-main">
+            <text class="tr-step-phase">{{item.phaseLabel}}</text>
+            <text class="tr-step-sep">·</text>
             <text class="tr-step-name">{{item.name}}</text>
             <view class="tr-step-meta">
-              <text class="tr-meta">失败 · {{item.phaseLabel}}</text>
+              <text class="tr-meta">失败</text>
               <text class="tr-meta" wx:if="{{item.retryText}}">· {{item.retryText}}</text>
               <text class="tr-meta" wx:if="{{item.durText}}">· {{item.durText}}</text>
             </view>
@@ -50,20 +52,20 @@
         <view class="tr-l3" wx:if="{{item.open}}">
           <view class="tr-l3-block" wx:if="{{item.inputText}}">
             <text class="tr-l3-k">输入</text>
-            <text class="tr-l3-pre" selectable>{{item.inputText}}</text>
+            <view class="tr-l3-pre"><text class="tr-l3-line" wx:for="{{item.inputLines}}" wx:for-item="ln" wx:key="*this">{{ln}}</text></view>
           </view>
           <view class="tr-l3-block" wx:if="{{item.summary}}">
             <text class="tr-l3-k">摘要</text>
-            <text class="tr-l3-pre" selectable>{{item.summary}}</text>
+            <view class="tr-l3-pre"><text class="tr-l3-line" wx:for="{{item.summaryLines}}" wx:for-item="ln" wx:key="*this">{{ln}}</text></view>
           </view>
           <view class="tr-l3-block" wx:if="{{item.outputText}}">
             <text class="tr-l3-k">输出</text>
-            <text class="tr-l3-pre" selectable>{{item.outputText}}</text>
+            <view class="tr-l3-pre"><text class="tr-l3-line" wx:for="{{item.outputLines}}" wx:for-item="ln" wx:key="*this">{{ln}}</text></view>
           </view>
           <text class="tr-trunc" wx:if="{{item.truncated}}" data-seq="{{item.seq}}" catchtap="onLoadDetail">已截断 · {{item.sizeText || '较大'}} · 查看完整</text>
           <view class="tr-l3-block" wx:if="{{item.errorText}}">
             <text class="tr-l3-k tr-l3-k-err">错误</text>
-            <text class="tr-l3-pre tr-l3-pre-err" selectable>{{item.errorText}}</text>
+            <view class="tr-l3-pre tr-l3-pre-err"><text class="tr-l3-line" wx:for="{{item.errorLines}}" wx:for-item="ln" wx:key="*this">{{ln}}</text></view>
           </view>
           <view class="tr-arts" wx:if="{{item.artifacts.length}}">
             <block wx:for="{{item.artifacts}}" wx:for-item="a" wx:key="name">
@@ -85,10 +87,6 @@
     </view>
 
     <view class="tr-phase" wx:for="{{phases}}" wx:for-item="ph" wx:key="key">
-      <view class="tr-ph-h">
-        <text class="tr-ph-t">{{ph.label}}</text>
-      </view>
-
       <view
         class="tr-step"
         wx:for="{{ph.steps}}"
@@ -103,6 +101,8 @@
         <view class="tr-step-line">
           <view class="tr-ic tr-ic-{{st.statusTone}}"><text>{{st.statusGlyph}}</text></view>
           <view class="tr-step-main">
+            <text class="tr-step-phase">{{st.phaseLabel}}</text>
+            <text class="tr-step-sep">·</text>
             <text class="tr-step-name">{{st.name}}</text>
             <view class="tr-step-meta">
               <text class="tr-meta tr-meta-{{st.statusTone}}">{{st.statusLabel}}</text>
@@ -117,24 +117,24 @@
         <view class="tr-l3" wx:if="{{st.open}}">
           <view class="tr-l3-block" wx:if="{{st.inputText}}">
             <text class="tr-l3-k">输入</text>
-            <text class="tr-l3-pre" selectable>{{st.inputText}}</text>
+            <view class="tr-l3-pre"><text class="tr-l3-line" wx:for="{{st.inputLines}}" wx:for-item="ln" wx:key="*this">{{ln}}</text></view>
           </view>
           <view class="tr-l3-block" wx:if="{{st.summary}}">
             <text class="tr-l3-k">摘要</text>
-            <text class="tr-l3-pre" selectable>{{st.summary}}</text>
+            <view class="tr-l3-pre"><text class="tr-l3-line" wx:for="{{st.summaryLines}}" wx:for-item="ln" wx:key="*this">{{ln}}</text></view>
           </view>
           <view class="tr-l3-block" wx:if="{{st.outputText}}">
             <text class="tr-l3-k">输出</text>
-            <text class="tr-l3-pre" selectable>{{st.outputText}}</text>
+            <view class="tr-l3-pre"><text class="tr-l3-line" wx:for="{{st.outputLines}}" wx:for-item="ln" wx:key="*this">{{ln}}</text></view>
           </view>
           <text class="tr-trunc" wx:if="{{st.truncated}}" data-seq="{{st.seq}}" catchtap="onLoadDetail">已截断 · {{st.sizeText || '较大'}} · 查看完整</text>
           <view class="tr-l3-block" wx:if="{{st.errorText}}">
             <text class="tr-l3-k tr-l3-k-err">错误</text>
-            <text class="tr-l3-pre tr-l3-pre-err" selectable>{{st.errorText}}</text>
+            <view class="tr-l3-pre tr-l3-pre-err"><text class="tr-l3-line" wx:for="{{st.errorLines}}" wx:for-item="ln" wx:key="*this">{{ln}}</text></view>
           </view>
           <view class="tr-l3-block" wx:if="{{st.hadFailure && st.failureText}}">
             <text class="tr-l3-k tr-l3-k-err">上次失败</text>
-            <text class="tr-l3-pre tr-l3-pre-err" selectable>{{st.failureText}}</text>
+            <view class="tr-l3-pre tr-l3-pre-err"><text class="tr-l3-line" wx:for="{{st.failureLines}}" wx:for-item="ln" wx:key="*this">{{ln}}</text></view>
           </view>
           <view class="tr-arts" wx:if="{{st.artifacts.length}}">
             <block wx:for="{{st.artifacts}}" wx:for-item="a" wx:key="name">
@@ -166,7 +166,7 @@
         <text class="tr-modal-x" bindtap="onCloseDetail" aria-role="button">关闭</text>
       </view>
       <scroll-view class="tr-modal-scroll" scroll-y>
-        <text class="tr-modal-body" selectable>{{detailText}}</text>
+        <text class="tr-modal-body">{{detailText}}</text>
         <text class="tr-modal-loading" wx:if="{{detailLoading}}">加载中…</text>
       </scroll-view>
       <view class="tr-modal-f">

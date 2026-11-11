@@ -124,18 +124,7 @@
 }
 
 .tr-ph-h {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: 40rpx;
-  padding: 4rpx 8rpx 0;
-}
-
-.tr-ph-t {
-  font-size: 19rpx;
-  font-weight: 400;
-  color: #a7afba;
-  letter-spacing: 1rpx;
+  display: none;
 }
 
 .tr-step,
@@ -204,6 +193,21 @@
   display: flex;
   flex-direction: row;
   align-items: baseline;
+}
+
+.tr-step-phase {
+  flex: none;
+  font-size: 19rpx;
+  line-height: 1.4;
+  color: #a7afba;
+}
+
+.tr-step-sep {
+  flex: none;
+  margin: 0 4rpx;
+  font-size: 19rpx;
+  line-height: 1.4;
+  color: #c0c7d0;
 }
 
 .tr-step-name {
@@ -285,6 +289,9 @@
 
 /* ---------- L3 单步详情：正文式缩进，不套灰盒 ---------- */
 .tr-l3 {
+  width: calc(100% - 32rpx);
+  max-width: calc(100% - 32rpx);
+  box-sizing: border-box;
   margin: 2rpx 0 6rpx 32rpx;
   padding: 2rpx 14rpx 4rpx 14rpx;
   border-radius: 0;
@@ -323,9 +330,23 @@
   line-height: 1.55;
   color: #5c6776;
   word-break: break-all;
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  white-space: pre-line;
   overflow: hidden;
+}
+
+.tr-l3-line {
+  display: block;
+  width: 100%;
+  font-size: 21rpx;
+  line-height: 1.55;
+  color: #5c6776;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.tr-l3-pre-err .tr-l3-line {
+  color: #ad5a53;
 }
 
 .tr-l3-pre-err {
@@ -484,9 +505,13 @@
   .tr-h-meta,
   .tr-h-sum,
   .tr-h-cur,
-  .tr-ph-t,
+  .tr-step-phase,
   .tr-meta {
     color: #8f9aa9;
+  }
+
+  .tr-step-sep {
+    color: #6f7a8a;
   }
 
   .tr-step-name,
@@ -510,6 +535,14 @@
 
   .tr-l3-pre {
     color: #c9d4e3;
+  }
+
+  .tr-l3-line {
+    color: #c9d4e3;
+  }
+
+  .tr-l3-pre-err .tr-l3-line {
+    color: #ff9c93;
   }
 
   .tr-ic-done,
