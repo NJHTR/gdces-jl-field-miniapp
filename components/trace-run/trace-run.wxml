@@ -12,12 +12,14 @@
     <view class="tr-h-main">
       <view class="tr-h-line">
         <text class="tr-h-title">{{run.title}}</text>
-        <text class="tr-h-meta" wx:if="{{run.metaText}}">{{run.metaText}}</text>
+        <text class="tr-h-meta" wx:if="{{run.elapsedText}}">· 用时 {{run.elapsedText}}</text>
+        <text class="tr-h-meta" wx:if="{{run.stepCount}}">· 步数 {{run.stepCount}}</text>
+        <text class="tr-h-meta" wx:if="{{run.toolCount}}">· 工具数 {{run.toolCount}}</text>
       </view>
       <text class="tr-h-sum" wx:if="{{run.summary && run.running}}">{{run.summary}}</text>
       <text class="tr-h-cur" wx:if="{{!openRun && run.currentStep}}">正在：{{run.currentStep}}</text>
     </view>
-    <view class="tr-chev {{openRun ? 'up' : ''}}"></view>
+    <text class="tr-toggle">{{openRun ? '收起' : '展开'}}</text>
   </view>
 
   <!-- L2：阶段分组 + 步骤行；L3 用 wx:if 挂载，收起即卸载 -->
@@ -47,7 +49,7 @@
               <text class="tr-meta" wx:if="{{item.durText}}">· {{item.durText}}</text>
             </view>
           </view>
-          <text class="tr-caret">{{item.open ? '⌃' : '⌄'}}</text>
+          <text class="tr-caret-wrap"><image class="tr-caret {{item.open ? 'up' : ''}}" src="/assets/icons/chev-gray.png" mode="aspectFit" /></text>
         </view>
         <view class="tr-l3" wx:if="{{item.open}}">
           <view class="tr-l3-block" wx:if="{{item.inputText}}">
@@ -115,7 +117,7 @@
               <text class="tr-meta tr-meta-fail" wx:if="{{st.hadFailure}}">· 曾失败</text>
             </view>
           </view>
-          <text class="tr-caret">{{st.open ? '⌃' : '⌄'}}</text>
+          <text class="tr-caret-wrap"><image class="tr-caret {{st.open ? 'up' : ''}}" src="/assets/icons/chev-gray.png" mode="aspectFit" /></text>
         </view>
 
         <view class="tr-l3" wx:if="{{st.open}}">
