@@ -199,7 +199,9 @@ function normalizeEvent(e) {
   if (!e || typeof e !== "object") return null;
   const seq = Number(e.seq);
   if (!isFinite(seq)) return null;
-  const stepId = cleanText(e.stepId || e.step_id || ("s" + seq), 40) || "s" + seq;
+  const rawStepId = e.stepId != null ? e.stepId : e.step_id != null ? e.step_id : "";
+  const hasStepId = String(rawStepId).trim() !== "";
+  const stepId = cleanText(rawStepId, 40) || "s" + seq;
   const status = STATUS[e.status] ? e.status : "pending";
   const phase = PHASES.indexOf(e.phase) >= 0 ? e.phase : "act";
   let artifacts = [];
@@ -226,6 +228,7 @@ function normalizeEvent(e) {
   return {
     seq: seq,
     stepId: stepId,
+    hasStepId: hasStepId,
     parentSeq: e.parentSeq == null ? null : Number(e.parentSeq),
     kind: cleanText(e.kind || "status", 16),
     phase: phase,
@@ -442,11 +445,17 @@ function eventView(e, open, ctx, agg) {
 }
 
 function stepReps(events) {
-  // 只渲染根事件（parentSeq 为空/父事件缺失）；子智能体内部事件不嵌套
+  // 1) run 级 kind=status 只服务 L1，不进 L2：否则 845 会 4 步变 6 行、
+  //    844 的 133 步与 80+more 对不上。
+  // 2) 子智能体（kind=subagent）parentSeq 语义是「父 step」，不是嵌套：
+  //    必须作为一行独立摘要显示；子 agent 内部事件（parent 不同 stepId）才隐藏。
+  // 3) stepId=null 的单发事件用 "s"+seq 兜底；同 stepId 的 append-only 完成事件合并。
   const bySeq = Object.create(null);
   events.forEach((e) => { bySeq[e.seq] = e; });
   const roots = events.filter((e) => {
+    if (e.kind === "status") return false;
     if (e.visibility === "private" || e.visibility === "admin") return false;
+    if (e.kind === "subagent") return true; // 子智能体总是独立一行
     if (e.parentSeq == null) return true;
     const parent = bySeq[e.parentSeq];
     if (!parent) return true; // 父事件被裁掉时，子事件当根处理，避免信息丢失
@@ -456,15 +465,21 @@ function stepReps(events) {
   });
   const map = Object.create(null);
   roots.forEach((e) => {
-    let m = map[e.stepId];
+    // 子智能体没有 stepId 时按 parentSeq 归并（派发/回报两条 → 一行）
+    const key = e.kind === "subagent" && !e.hasStepId
+      ? "sub@" + (e.parentSeq != null ? e.parentSeq : "r")
+      : e.stepId;
+    let m = map[key];
     if (!m) {
-      m = map[e.stepId] = {
+      m = map[key] = {
         latest: e,
         firstSeq: e.seq,
         eventCount: 1,
         maxAttempt: Number(e.attempt) || 1,
         retries: e.retryOfSeq != null ? 1 : 0,
         lastFailed: e.status === "failed" ? e : null,
+        subagent: e.kind === "subagent",
+        summary: e.summary || "",
       };
     } else {
       m.eventCount += 1;
@@ -473,6 +488,15 @@ function stepReps(events) {
       if (att > m.maxAttempt) m.maxAttempt = att;
       if (e.retryOfSeq != null) m.retries += 1;
       if (e.status === "failed" && (!m.lastFailed || e.seq > m.lastFailed.seq)) m.lastFailed = e;
+      if ((e.summary || "").length > (m.summary || "").length) m.summary = e.summary;
+    }
+    if (m.subagent) {
+      // 一行摘要：stepId 稳定为分组 key，summary 取组内最长（派发/回报都算）
+      m.latest = Object.assign({}, m.latest, {
+        stepId: key,
+        hasStepId: true,
+        summary: m.summary || m.latest.summary || "",
+      });
     }
   });
   return Object.keys(map).map(function (k) { return map[k]; });
@@ -504,16 +528,22 @@ function buildView(store, ui, ctx) {
     .sort((a, b) => b.e.seq - a.e.seq)[0] || null;
   const activeStepId = run.running && active ? active.e.stepId : "";
 
-  // 80 节点上限：失败/进行中优先，其余取最新
+  // 80 节点上限：失败/进行中优先，且每个阶段至少保留最早一步（长任务别把 5 阶段裁成 2 段）
   let shown = allSteps;
   let moreCount = 0;
   if (allSteps.length > MAX_STEPS) {
     const priority = allSteps.filter(
       (x) => x.e.status === "failed" || x.e.stepId === activeStepId
     );
-    const rest = allSteps.filter((x) => priority.indexOf(x) < 0);
-    const keepRest = Math.max(0, MAX_STEPS - priority.length);
-    const picked = priority.concat(rest.slice(-keepRest));
+    const phaseFirst = [];
+    PHASES.forEach(function (k) {
+      const first = allSteps.filter((x) => phaseMeta(x.e.phase).key === k)[0];
+      if (first && priority.indexOf(first) < 0) phaseFirst.push(first);
+    });
+    const keep = priority.concat(phaseFirst);
+    const rest = allSteps.filter((x) => keep.indexOf(x) < 0);
+    const keepRest = Math.max(0, MAX_STEPS - keep.length);
+    const picked = keep.concat(rest.slice(-keepRest));
     shown = picked.sort((a, b) => a.e.seq - b.e.seq);
     moreCount = allSteps.length - shown.length;
   }
