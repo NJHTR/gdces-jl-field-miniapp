@@ -14,7 +14,7 @@
         <text class="tr-h-title">{{run.title}}</text>
         <text class="tr-h-meta" wx:if="{{run.metaText}}">{{run.metaText}}</text>
       </view>
-      <text class="tr-h-sum" wx:if="{{run.summary && openRun}}">{{run.summary}}</text>
+      <text class="tr-h-sum" wx:if="{{run.summary && run.running}}">{{run.summary}}</text>
       <text class="tr-h-cur" wx:if="{{!openRun && run.currentStep}}">正在：{{run.currentStep}}</text>
     </view>
     <view class="tr-chev {{openRun ? 'up' : ''}}"></view>
