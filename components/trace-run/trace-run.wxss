@@ -1,0 +1,515 @@
+/* 最终态 trace：克制、固定行高、色+形+文三通道 */
+.tr {
+  width: 100%;
+  margin-top: 10rpx;
+  box-sizing: border-box;
+}
+
+/* ---------- L1 轮次行 ---------- */
+.tr-head {
+  min-height: 88rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 16rpx 18rpx;
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1rpx solid rgba(255, 255, 255, 0.9);
+}
+
+.tr-dot {
+  flex: none;
+  width: 14rpx;
+  height: 14rpx;
+  margin: 12rpx 14rpx 0 0;
+  border-radius: 50%;
+  background: #9aa4b5;
+}
+
+.tr-dot-run {
+  background: #0a6dff;
+}
+
+.tr-dot-retry {
+  background: #b26a00;
+}
+
+.tr-dot-fail {
+  background: #d92c20;
+}
+
+.tr-dot-idle {
+  background: #b9c1cd;
+}
+
+.tr-dot-done {
+  background: #8b97a9;
+}
+
+.tr-dot-skip {
+  background: #b9c1cd;
+}
+
+.tr-h-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tr-h-line {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.tr-h-title {
+  font-size: 26rpx;
+  line-height: 1.35;
+  font-weight: 600;
+  color: #11131a;
+}
+
+.tr-h-meta {
+  margin-left: 10rpx;
+  font-size: 21rpx;
+  line-height: 1.4;
+  color: #8a94a6;
+}
+
+.tr-h-sum {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  line-height: 1.4;
+  color: #5c6678;
+}
+
+.tr-h-cur {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  line-height: 1.4;
+  color: #0a6dff;
+}
+
+.tr-chev {
+  flex: none;
+  width: 20rpx;
+  height: 20rpx;
+  margin: 10rpx 0 0 12rpx;
+  border-right: 3rpx solid #9aa4b5;
+  border-bottom: 3rpx solid #9aa4b5;
+  transform: rotate(45deg);
+  transition: transform 180ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.tr-chev.up {
+  transform: rotate(-135deg);
+}
+
+/* ---------- L2 阶段/步骤 ---------- */
+.tr-body {
+  margin-top: 4rpx;
+  padding: 4rpx 6rpx 2rpx;
+}
+
+.tr-more {
+  display: block;
+  margin: 8rpx 8rpx 4rpx;
+  font-size: 20rpx;
+  line-height: 1.5;
+  color: #8a94a6;
+}
+
+.tr-ph-h {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 56rpx;
+  padding: 0 10rpx;
+}
+
+.tr-ph-t {
+  font-size: 21rpx;
+  font-weight: 600;
+  color: #5c6678;
+  letter-spacing: 1rpx;
+}
+
+.tr-ph-n {
+  margin-left: 8rpx;
+  font-size: 19rpx;
+  color: #9aa4b5;
+}
+
+.tr-step,
+.tr-fail {
+  min-height: 88rpx;
+  box-sizing: border-box;
+  padding: 14rpx 12rpx;
+  border-radius: 16rpx;
+}
+
+.tr-step:active,
+.tr-fail:active {
+  background: rgba(120, 134, 155, 0.08);
+}
+
+.tr-step-line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.tr-ic {
+  flex: none;
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 12rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.tr-ic-done {
+  background: #e9edf3;
+  color: #5c6678;
+}
+
+.tr-ic-run {
+  background: rgba(10, 109, 255, 0.12);
+  color: #0a6dff;
+}
+
+.tr-ic-retry {
+  background: rgba(178, 106, 0, 0.12);
+  color: #b26a00;
+}
+
+.tr-ic-fail {
+  background: rgba(217, 44, 32, 0.12);
+  color: #d92c20;
+}
+
+.tr-ic-idle,
+.tr-ic-skip {
+  background: #eef1f5;
+  color: #8b97a9;
+}
+
+.tr-step-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tr-step-name {
+  font-size: 25rpx;
+  line-height: 1.35;
+  color: #1c2430;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tr-step-meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 2rpx;
+}
+
+.tr-meta {
+  font-size: 20rpx;
+  line-height: 1.4;
+  color: #8a94a6;
+  margin-right: 2rpx;
+}
+
+.tr-meta-run {
+  color: #0a6dff;
+}
+
+.tr-meta-fail {
+  color: #d92c20;
+}
+
+.tr-meta-retry {
+  color: #b26a00;
+}
+
+.tr-caret {
+  flex: none;
+  width: 28rpx;
+  text-align: right;
+  font-size: 24rpx;
+  color: #9aa4b5;
+}
+
+/* 失败置顶块 */
+.tr-fail-group {
+  margin: 4rpx 0 10rpx;
+  padding: 6rpx 0 8rpx;
+  border-radius: 18rpx;
+  background: rgba(217, 44, 32, 0.05);
+  border: 1rpx solid rgba(217, 44, 32, 0.12);
+}
+
+.tr-fail {
+  background: transparent;
+}
+
+.tr-fail .tr-step-name {
+  color: #b3261e;
+}
+
+.tr-fail-more {
+  display: block;
+  margin: 2rpx 12rpx 6rpx;
+  font-size: 20rpx;
+  color: #b3261e;
+}
+
+/* ---------- L3 单步详情 ---------- */
+.tr-l3 {
+  margin: 10rpx 0 2rpx 52rpx;
+  padding: 12rpx 14rpx;
+  border-radius: 14rpx;
+  background: rgba(120, 134, 155, 0.06);
+  border: 1rpx solid rgba(120, 134, 155, 0.1);
+}
+
+.tr-l3-block {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8rpx;
+}
+
+.tr-l3-k {
+  font-size: 19rpx;
+  line-height: 1.5;
+  color: #8a94a6;
+  letter-spacing: 1rpx;
+}
+
+.tr-l3-k-err {
+  color: #d92c20;
+}
+
+.tr-l3-pre {
+  margin-top: 2rpx;
+  font-size: 22rpx;
+  line-height: 1.55;
+  color: #33405a;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.tr-l3-pre-err {
+  color: #b3261e;
+}
+
+.tr-trunc {
+  display: block;
+  margin-top: 2rpx;
+  font-size: 21rpx;
+  line-height: 1.6;
+  color: #0a6dff;
+}
+
+.tr-arts {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 8rpx;
+}
+
+.tr-art-img {
+  width: 112rpx;
+  height: 112rpx;
+  margin: 0 10rpx 8rpx 0;
+  border-radius: 12rpx;
+  background: rgba(120, 134, 155, 0.12);
+}
+
+.tr-art-chip {
+  margin: 0 10rpx 8rpx 0;
+  padding: 10rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 21rpx;
+  color: #0a6dff;
+  background: rgba(10, 109, 255, 0.08);
+}
+
+.tr-empty-detail,
+.tr-empty {
+  display: block;
+  padding: 16rpx 8rpx;
+  font-size: 21rpx;
+  line-height: 1.5;
+  color: #8a94a6;
+}
+
+.tr-wait {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  line-height: 1.5;
+  color: #8a94a6;
+}
+
+/* ---------- 完整输出弹层 ---------- */
+.tr-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 500;
+  background: rgba(17, 24, 39, 0.42);
+  display: flex;
+  align-items: flex-end;
+}
+
+.tr-modal {
+  width: 100%;
+  max-height: 72vh;
+  padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  border-radius: 28rpx 28rpx 0 0;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.tr-modal-h {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12rpx;
+}
+
+.tr-modal-t {
+  font-size: 27rpx;
+  font-weight: 600;
+  color: #11131a;
+}
+
+.tr-modal-x {
+  font-size: 24rpx;
+  color: #0a6dff;
+  padding: 8rpx 10rpx;
+}
+
+.tr-modal-scroll {
+  flex: 1;
+  min-height: 0;
+  max-height: 52vh;
+}
+
+.tr-modal-body {
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: #33405a;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.tr-modal-loading {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #8a94a6;
+}
+
+.tr-modal-f {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12rpx;
+  border-top: 1rpx solid rgba(17, 24, 39, 0.08);
+}
+
+.tr-modal-copy {
+  min-height: 72rpx;
+  line-height: 72rpx;
+  padding: 0 30rpx;
+  border-radius: 18rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #0a6dff;
+  background: rgba(10, 109, 255, 0.08);
+}
+
+.tr-modal-tip {
+  font-size: 20rpx;
+  color: #9aa4b5;
+}
+
+/* ---------- 深色模式：只换面，不动结构 ---------- */
+@media (prefers-color-scheme: dark) {
+  .tr-head {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .tr-h-title,
+  .tr-step-name,
+  .tr-modal-t {
+    color: #eaf1fb;
+  }
+
+  .tr-h-sum,
+  .tr-modal-body {
+    color: #c9d4e3;
+  }
+
+  .tr-step-name {
+    color: #dfe8f5;
+  }
+
+  .tr-fail .tr-step-name,
+  .tr-l3-pre-err {
+    color: #ff9c93;
+  }
+
+  .tr-l3 {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .tr-l3-pre {
+    color: #c9d4e3;
+  }
+
+  .tr-ic-done,
+  .tr-ic-idle,
+  .tr-ic-skip {
+    background: rgba(255, 255, 255, 0.08);
+    color: #a6b2c4;
+  }
+
+  .tr-fail-group {
+    background: rgba(217, 44, 32, 0.12);
+    border-color: rgba(217, 44, 32, 0.22);
+  }
+
+  .tr-modal {
+    background: #1b2330;
+  }
+
+  .tr-modal-f {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .tr-art-img {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}

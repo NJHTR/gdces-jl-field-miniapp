@@ -1,4 +1,6 @@
 {
   "navigationStyle": "custom",
-  "usingComponents": {}
+  "usingComponents": {
+    "trace-run": "/components/trace-run/trace-run"
+  }
 }

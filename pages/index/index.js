@@ -5,6 +5,7 @@ const uploader = require("../../utils/upload");
 const seed = require("../../utils/seed");
 const md = require("../../utils/md");
 const blocks = require("../../utils/blocks");
+const traceUtil = require("../../utils/trace");
 const { API_BASE } = require("../../utils/config");
 
 // 主界面只保留三个一级入口：现场 / 记录 / 我的。
@@ -95,6 +96,7 @@ Page({
     hapticOn: true,
     kbHeight: 0,
     tlAnchor: "",
+    traceNew: false,
     menuOpen: false,
     menuX: 0,
     menuY: 0,
@@ -160,6 +162,11 @@ Page({
 
   onLoad() {
     this._debug = true;   // 改成 false 就不打印手势日志
+    // 最终态 trace：事件流存纯 JS store（不进 data），组件按需 diff setData
+    this._traceStores = {};
+    this._pollFails = 0;
+    this._pollTries = 0;
+    this._atFieldBottom = true;
     // 资产本地持久缓存：重启后优先用已保存文件，不再依赖短签 URL。
     try {
       this._assetLocal = wx.getStorageSync("jl_asset_files") || {};
@@ -324,6 +331,7 @@ Page({
 
   onHide() {
     clearTimeout(this._assetRefreshTimer);
+    clearTimeout(this._pollTimer);
     this._stopVoice();
     this._unbindKeyboard();
     this.setData({ kbHeight: 0 });
@@ -332,8 +340,9 @@ Page({
   onShow() {
     if (this.data.kbHeight !== 0) this.setData({ kbHeight: 0 });
     this._applyDocStateFromStorage();
-    // 切走再回来：没跑完的任务继续盯着
+    // 切走再回来：没跑完的任务继续盯着；v2 trace 立即按 lastSeq 对账
     if (!this.data.busy) this._resumeInflight();
+    else this._resumeTracePoll();
     this._bindKeyboard();
     // 资产文件是持久的，展示 URL 是短签；停留/后台回来超时后静默重拉，
     // 换取新短签，避免图片看起来“消失”。
@@ -1153,11 +1162,22 @@ Page({
       } catch (e) {
         blocksView = null;
       }
+      // 最终态 trace：v2 事件流走 trace-run 组件；旧 message.trace 保持扁平渲染。
+      // 兼容：历史任务可能 traceVersion=2 但 lastSeq=0/events=[]（只有旧 trace），
+      // 这时不能显示空 trace，必须回退旧扁平渲染。
+      let traceStore = this._traceStores && this._traceStores[m.id];
+      if (!traceStore && traceUtil.hasV2Data(m)) {
+        traceStore = traceUtil.extractTracePayload(m);
+        if (traceStore) this._traceStores[m.id] = traceStore;
+      }
+      const traceV2 = !!(traceStore && traceStore.events.length) || traceUtil.hasV2Data(m);
       const transcriptText = String(m.transcript || (m.transcriptShown ? m.text : "") || "");
       return Object.assign({}, m, {
         photos: photos,
         artifact: artifact,
         blocksView: blocksView,
+        traceV2: traceV2,
+        taskId: m.taskId || (ans && ans.taskId) || "",
         assetOpen: !!((this._assetOpen || {})[m.id]),
         // 转写气泡宽度在 JS 里直接算，不依赖 CSS 百分比在 Skyline 下的表现。
         // 短文本按内容；超过 6 个字固定最多 620rpx，强制换行，绝不越出屏幕。
@@ -1394,9 +1414,121 @@ Page({
       emptySub,
     });
 
+    // trace-run 组件是 wx:if 挂载的：刷新完把纯 JS store 注入组件（不要塞进 data）
+    wx.nextTick(() => this._mountTraces());
+
     if (this.data.tab === "inbox") {
       wx.nextTick(() => this.measureSections());
     }
+  },
+
+  /* ---------------- 最终态 trace（v2 事件流） ---------------- */
+
+  /** 已挂载的 trace-run 组件逐个注入 store；组件自己 diff setData */
+  _mountTraces() {
+    const list = this.data.msgsView || [];
+    for (let i = 0; i < list.length; i++) {
+      const m = list[i];
+      if (!m || !m.traceV2) continue;
+      const store = this._traceStores[m.id];
+      if (!store) continue;
+      const c = this.selectComponent("#tr-" + m.id);
+      if (c && typeof c.loadStore === "function") c.loadStore(store);
+    }
+  },
+
+  _traceStoreFor(msgId) {
+    if (!this._traceStores) this._traceStores = {};
+    let store = this._traceStores[msgId];
+    if (!store) {
+      store = traceUtil.createStore();
+      this._traceStores[msgId] = store;
+    }
+    return store;
+  },
+
+  /** 把轮询返回合并进事件账本；只 setData 必要路径，不重建整段 msgs */
+  _ingestTrace(msgId, d) {
+    if (!msgId || !d) return false;
+    const isV2 = Number(d.traceVersion) >= 2 || Array.isArray(d.events);
+    if (!isV2) return false;
+    const store = this._traceStoreFor(msgId);
+    const res = traceUtil.mergeInto(store, {
+      traceVersion: d.traceVersion,
+      events: d.events || [],
+      run: d.run || null,
+      lastSeq: d.lastSeq || 0,
+    });
+    if (!store.events.length && !store.run) return false;
+
+    // 让 WXML 从 wx:else 切到 trace-run（只改这一条的标记，不动整段 msgs）
+    const view = this.data.msgsView || [];
+    let turnedV2 = false;
+    for (let i = 0; i < view.length; i++) {
+      if (view[i] && view[i].id === msgId && !view[i].traceV2) {
+        turnedV2 = true;
+        this.setData({ ["msgsView." + i + ".traceV2"]: true });
+        break;
+      }
+    }
+    if (turnedV2) {
+      // 首次从旧气泡切到组件：等 wx:if 真正挂载后重建视图并注入 store。
+      // 只发生一次，后续增量仍走单路径 setData/applyStore。
+      this.setData({}, () => {
+        this.refreshViews(this.data.query);
+      });
+      return true;
+    }
+
+    const comp = this.selectComponent("#tr-" + msgId);
+    if (comp && typeof comp.applyStore === "function") comp.applyStore(store);
+    else wx.nextTick(() => this._mountTraces());
+
+    // 有新步骤：在底部就跟着走；用户滚离底部则不抢滚动，只浮「有新步骤」
+    if (res.added && msgId === this._pendingId) {
+      if (this._atFieldBottom === false) {
+        if (!this.data.traceNew) this.setData({ traceNew: true });
+      } else {
+        this.scrollToBottom();
+      }
+    }
+    return true;
+  },
+
+  /** 全量对账：终态 / 断线恢复 / 长时间运行后，拉一次 /trace 补齐被原地更新的状态 */
+  _syncFullTrace(taskId, msgId) {
+    if (!taskId || !msgId) return;
+    api
+      .get("/api/v1/tasks/" + taskId + "/trace")
+      .then((d) => {
+        if (!d || !Array.isArray(d.events)) return;
+        this._ingestTrace(msgId, d);
+      })
+      .catch(() => {});
+  },
+
+  /** 现场列表滚动：判定用户是否离开了底部（不强制抢滚动） */
+  onFieldScroll(e) {
+    const top = e && e.detail ? Number(e.detail.scrollTop) : NaN;
+    if (isFinite(top)) {
+      if (this._lastFieldTop != null && top < this._lastFieldTop - 8) {
+        this._atFieldBottom = false;
+      }
+      this._lastFieldTop = top;
+    }
+  },
+
+  onFieldBottom() {
+    this._atFieldBottom = true;
+    this._lastFieldTop = null;
+    if (this.data.traceNew) this.setData({ traceNew: false });
+  },
+
+  jumpToNewSteps() {
+    fb.tap();
+    if (this.data.traceNew) this.setData({ traceNew: false });
+    this._atFieldBottom = true;
+    this.scrollToBottom();
   },
 
   /**
@@ -2237,6 +2369,10 @@ Page({
     } catch (e) {}
 
     this._traceOpen = {};
+    this._traceStores = {};
+    this._pollFails = 0;
+    this._pollTries = 0;
+    this._atFieldBottom = true;
     this.setData(
       {
         project: { id: proj.id, name: proj.name, sub: proj.builder || proj.sub || "" },
@@ -2250,6 +2386,7 @@ Page({
         query: "",
         quoting: null,
         busy: null,
+        traceNew: false,
       },
       () => {
         this.refreshViews("");
@@ -2512,6 +2649,9 @@ Page({
 
   /** 滚到时间线底部（键盘弹出、发完消息时） */
   scrollToBottom() {
+    this._atFieldBottom = true;
+    this._lastFieldTop = null;
+    if (this.data.traceNew) this.setData({ traceNew: false });
     this.setData({ tlAnchor: "" }, () => {
       wx.nextTick(() => this.setData({ tlAnchor: "tl-bottom" }));
     });
@@ -2643,10 +2783,22 @@ Page({
 
   _clearInflight() {
     clearInterval(this._busyTimer);
+    clearTimeout(this._pollTimer);
     try {
       wx.removeStorageSync("jl_inflight");
     } catch (e) {}
     this.setData({ busy: null });
+  },
+
+  /** 回到前台：清掉旧轮询链，立刻按 lastSeq 对账（断线/后台恢复） */
+  _resumeTracePoll() {
+    const b = this.data.busy;
+    if (!b || !b.taskId || !this._pendingId) return;
+    clearTimeout(this._pollTimer);
+    this._pollFails = 0;
+    this._pollTask(b.taskId, this._pendingId, this._pollTries || 0, 0);
+    // 切后台期间用原地 CAS 更新过的状态，after_seq 看不到；回来先全量对一次账
+    this._syncFullTrace(b.taskId, this._pendingId);
   },
 
   /** 从后台/别的页面回来：把没跑完的任务接上 */
@@ -2824,17 +2976,27 @@ Page({
     });
   },
 
-  /** 轮询任务：2 秒一次，最多 5 分钟 */
-  _pollTask(taskId, pendingId, tries) {
-    const MAX = 150;
+  /** 轮询任务：v2 事件流 700ms 增量；无 v2 时沿用 800ms 进度轮播；断线退避 */
+  _pollTask(taskId, pendingId, tries, delay) {
+    const MAX = 200;
+    this._pollTries = tries;
     if (tries >= MAX) {
       this._finishPending(pendingId, { text: "等太久了，任务还在后台跑，过会儿下拉刷新看看。" });
       return;
     }
-    setTimeout(() => {
+    const hasStore = !!(this._traceStores && this._traceStores[pendingId]);
+    const wait = delay == null ? (hasStore ? 700 : 800) : delay;
+    this._pollTimer = setTimeout(() => {
+      const store = this._traceStores && this._traceStores[pendingId];
+      // task-17 起账本 append-only：完成/失败是新 seq 事件，after_seq 纯增量即可，
+      // 不需要再回看窗口或周期性全量（断线恢复由 onShow 对账兜底）。
+      const after = store ? store.lastSeq || 0 : 0;
+      const url = "/api/v1/tasks/" + taskId + (after ? "?after_seq=" + after : "");
       api
-        .get("/api/v1/tasks/" + taskId)
+        .get(url)
         .then((d) => {
+          this._pollFails = 0;
+          const gotV2 = this._ingestTrace(pendingId, d);
           const st = (d && d.status) || "";
           const list = (d && d.messages) || [];
           const early = list.filter((m) => m.role === "assistant").pop();
@@ -2851,7 +3013,8 @@ Page({
               answer: this._answerForPatch(early, d),
             });
           }
-          if (st === "done") {
+          if (st === "done" || st === "succeeded" || st === "partial") {
+            if (!gotV2) this._ingestTrace(pendingId, d);
             const asst = list.filter((m) => m.role === "assistant").pop();
             const patch = {
               text: (asst && asst.text) || "这轮没有产出内容。",
@@ -2871,6 +3034,8 @@ Page({
               pending: false,
             };
             this._fillPending(pendingId, patch);
+            // 终态行也可能是原地 CAS 更新：收尾后再全量对一次账，保证落库视图一致
+            this._syncFullTrace(taskId, pendingId);
             this._pendingId = null;
             fb.success();
             wx.showToast({ title: "已完成", icon: "none", duration: 1200 });
@@ -2888,6 +3053,7 @@ Page({
             return;
           }
           if (st === "failed" || st === "cancelled") {
+            if (!gotV2) this._ingestTrace(pendingId, d);
             this._fillPending(pendingId, {
               text: "处理失败：" + ((d && d.error) || st),
               failed: true,
@@ -2897,25 +3063,40 @@ Page({
             this._clearInflight();
             return;
           }
-          // 还在跑：进度写到这条消息上（它就在答案将要出现的位置）
+          // 还在跑：v2 事件流由 trace-run 接管，只更新底部状态条；
+          // 旧接口继续把进度写到消息上（答案将要出现的位置）。
           const prog = (d && d.progress) || [];
           const qa = (d && d.queueAhead) || 0;
           console.log("[poll]", taskId, st, prog.length, "步");
-          this.setData(
-            {
-              msgs: this.data.msgs.map(function (m) {
-                return m.id === pendingId
-                  ? Object.assign({}, m, { progress: prog, queueAhead: qa })
-                  : m;
-              }),
-              busy: Object.assign({}, this.data.busy, { progress: prog }),
-            },
-            () => this.refreshViews(this.data.query)
-          );
+          if (gotV2) {
+            if (this.data.busy) {
+              this.setData({
+                busy: Object.assign({}, this.data.busy, { progress: prog, queueAhead: qa }),
+              });
+            }
+          } else {
+            this.setData(
+              {
+                msgs: this.data.msgs.map(function (m) {
+                  return m.id === pendingId
+                    ? Object.assign({}, m, { progress: prog, queueAhead: qa })
+                    : m;
+                }),
+                busy: Object.assign({}, this.data.busy, { progress: prog }),
+              },
+              () => this.refreshViews(this.data.query)
+            );
+          }
+          // 原地更新兜底：每 10 轮全量对一次账（约 7 秒），避免状态漂移
+          if (gotV2 && tries % 10 === 0) this._syncFullTrace(taskId, pendingId);
           this._pollTask(taskId, pendingId, tries + 1);
         })
-        .catch(() => this._pollTask(taskId, pendingId, tries + 1));
-    }, 800);
+        .catch(() => {
+          this._pollFails = (this._pollFails || 0) + 1;
+          const backoff = Math.min(5000, Math.round(800 * Math.pow(1.6, this._pollFails)));
+          this._pollTask(taskId, pendingId, tries + 1, backoff);
+        });
+    }, wait);
   },
 
   /**

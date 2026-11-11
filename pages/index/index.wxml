@@ -84,7 +84,7 @@
       </block>
 
       <block wx:else>
-      <scroll-view class="tl" scroll-y enable-flex show-scrollbar="{{false}}" scroll-into-view="{{tlAnchor}}" scroll-with-animation="{{true}}" style="padding-left:{{padX}}px;padding-right:{{padX}}px;" wx:if="{{tab === 'field'}}" refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
+      <scroll-view class="tl" scroll-y enable-flex show-scrollbar="{{false}}" scroll-into-view="{{tlAnchor}}" scroll-with-animation="{{true}}" style="padding-left:{{padX}}px;padding-right:{{padX}}px;" wx:if="{{tab === 'field'}}" refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" bindscroll="onFieldScroll" bindscrolltolower="onFieldBottom" lower-threshold="120">
         <block wx:for="{{msgsView}}" wx:key="id">
           <view wx:if="{{item.type === 'stamp' && !item.hidden}}" class="stamp">{{item.text}}</view>
 
@@ -158,8 +158,8 @@
 
           <view wx:elif="{{item.type === 'agent' && !item.hidden}}" class="row agent" style="width:{{rowW}}px;">
 
-            <!-- 执行中：这是一条状态，不是消息。小字、灰、不占气泡 -->
-            <view class="proc" wx:if="{{item.pending}}">
+            <!-- 执行中：v2 事件流未到前先显示状态轮播；到了由 trace-run 接管 -->
+            <view class="proc" wx:if="{{item.pending && !item.traceV2}}">
               <view class="proc-head">
                 <view class="proc-spin"></view>
                 <text class="proc-title">处理中 · {{item.elapsed || 0}} 秒</text>
@@ -177,8 +177,17 @@
             </view>
 
             <block wx:else>
-              <!-- 过程：两层折叠。外层是整轮，内层每条都能单独开 -->
-              <view class="trace" wx:if="{{item.trace && item.trace.length}}">
+              <!-- 最终态 trace：L1 轮次 / L2 阶段-步骤 / L3 单步详情 -->
+              <trace-run
+                wx:if="{{item.traceV2}}"
+                id="tr-{{item.id}}"
+                message-id="{{item.id}}"
+                task-id="{{item.taskId}}"
+                pending="{{item.pending}}"
+              ></trace-run>
+
+              <!-- 旧 message.trace（无 v2）：回退现有扁平渲染 -->
+              <view class="trace" id="trace-{{item.id}}" wx:elif="{{item.trace && item.trace.length}}">
                 <view class="trace-head" data-id="{{item.id}}" catchtap="onTraceToggle">
                   <view class="trace-badge">
                     <image class="trace-badge-i" src="/assets/icons/check-gray.png" mode="aspectFit" />
@@ -222,7 +231,7 @@
                 </view>
               </view>
 
-              <view class="bubble agent" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
+              <view class="bubble agent" wx:if="{{!item.pending}}" style="width:{{item.bw}}px;" data-id="{{item.id}}" bindlongpress="onMsgLong">
                 <view class="qblock" wx:if="{{item.quote}}">
                   <text class="qblock-who">{{item.quote.who}}</text>
                   <text class="qblock-t">{{item.quote.text}}</text>
@@ -786,6 +795,13 @@
         <view class="tb-pad"></view>
       </scroll-view>
       </block>
+    </view>
+
+    <!-- 用户滚离底部时，新步骤只浮一条提示，不抢滚动 -->
+    <view class="trace-new" wx:if="{{traceNew}}" bindtap="jumpToNewSteps" aria-role="button" aria-label="有新步骤，点一下回到底部">
+      <view class="trace-new-dot"></view>
+      <text class="trace-new-t">有新步骤</text>
+      <text class="trace-new-a">↓</text>
     </view>
 
     <!-- 首次使用：一次性提示（左滑 / 上拉） -->
