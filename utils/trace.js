@@ -411,8 +411,8 @@ function softWrapText(s) {
     .map(function (line) {
       let rest = line;
       let out = "";
-      while (rest.length > 28) {
-        const win = rest.slice(0, 28);
+      while (rest.length > 36) {
+        const win = rest.slice(0, 36);
         const at = Math.max(
           win.lastIndexOf(" "),
           win.lastIndexOf("，"),
@@ -422,7 +422,7 @@ function softWrapText(s) {
           win.lastIndexOf("、"),
           win.lastIndexOf(",")
         );
-        const cut = at >= 12 ? at + 1 : 28;
+        const cut = at >= 34 ? at + 1 : 36;
         out += rest.slice(0, cut) + "\n";
         rest = rest.slice(cut);
       }
@@ -477,20 +477,20 @@ function eventView(e, open, ctx, agg) {
     retryText: retryText,
     retried: !!retryText,
     hadFailure: hadFailure,
-    failureText: softWrapText(failureText),
+    failureText: failureText,
     failureLines: toLines(failureText),
     summary: e.summary || "",
     summaryLines: toLines(e.summary || ""),
     open: !!open,
-    inputText: softWrapText(clippedIn.text),
+    inputText: clippedIn.text,
     inputLines: toLines(clippedIn.text),
     inputMore: clippedIn.cut,
-    outputText: softWrapText(linesOut),
+    outputText: linesOut,
     outputLines: toLines(linesOut),
     outputMore: locallyCut,
     truncated: truncated,
     sizeText: truncated ? size : "",
-    errorText: softWrapText(e.error || ""),
+    errorText: e.error || "",
     errorLines: toLines(e.error || ""),
     artifacts: (e.artifacts || []).map(function (a) {
       return {
