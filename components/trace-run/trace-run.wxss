@@ -381,11 +381,14 @@
 .tr-l3-line {
   display: block;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   font-size: 21rpx;
   line-height: 1.55;
   color: #5c6776;
   word-break: break-all;
   white-space: pre-wrap;
+  overflow: hidden;
 }
 
 .tr-l3-pre-err .tr-l3-line {

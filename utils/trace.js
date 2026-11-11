@@ -411,8 +411,8 @@ function softWrapText(s) {
     .map(function (line) {
       let rest = line;
       let out = "";
-      while (rest.length > 36) {
-        const win = rest.slice(0, 36);
+      while (rest.length > 31) {
+        const win = rest.slice(0, 31);
         const at = Math.max(
           win.lastIndexOf(" "),
           win.lastIndexOf("，"),
@@ -422,7 +422,7 @@ function softWrapText(s) {
           win.lastIndexOf("、"),
           win.lastIndexOf(",")
         );
-        const cut = at >= 34 ? at + 1 : 36;
+        const cut = at >= 27 ? at + 1 : 31;
         out += rest.slice(0, cut) + "\n";
         rest = rest.slice(cut);
       }
