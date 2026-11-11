@@ -267,7 +267,7 @@ function extractTracePayload(m) {
   }
   const payload = {
     events: events || [],
-    run: (tObj && tObj.run) || m.traceRun || null,
+    run: (tObj && tObj.run) || m.traceRun || m.run || null,
     lastSeq: Number((tObj && tObj.lastSeq) || m.lastSeq || 0) || 0,
     traceVersion: Number((tObj && tObj.traceVersion) || m.traceVersion || 2) || 2,
   };
