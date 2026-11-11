@@ -151,11 +151,11 @@
 
 .tr-ic {
   flex: none;
-  width: 32rpx;
-  height: 32rpx;
+  width: 28rpx;
+  height: 28rpx;
   margin: 0 10rpx 0 0;
-  border-radius: 50%;
-  background: rgba(120, 134, 155, 0.07);
+  border-radius: 0;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -166,22 +166,22 @@
 
 .tr-kind-icon {
   display: block;
-  width: 18rpx;
-  height: 18rpx;
-  opacity: 0.62;
+  width: 26rpx;
+  height: 26rpx;
+  opacity: 0.82;
 }
 
 .tr-ic-fail {
-  background: rgba(207, 107, 98, 0.1);
+  background: transparent;
 }
 
 .tr-ic-fail .tr-kind-icon {
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 .tr-ic-run,
 .tr-ic-retry {
-  background: rgba(91, 141, 239, 0.09);
+  background: transparent;
 }
 
 .tr-spin {
@@ -201,28 +201,28 @@
 }
 
 .tr-ic-done {
-  background: rgba(120, 134, 155, 0.07);
+  background: transparent;
   color: #a4adb9;
 }
 
 .tr-ic-run {
-  background: rgba(91, 141, 239, 0.09);
+  background: transparent;
   color: #5b8def;
 }
 
 .tr-ic-retry {
-  background: rgba(185, 134, 69, 0.1);
+  background: transparent;
   color: #b98645;
 }
 
 .tr-ic-fail {
-  background: rgba(207, 107, 98, 0.1);
+  background: transparent;
   color: #cf6b62;
 }
 
 .tr-ic-idle,
 .tr-ic-skip {
-  background: rgba(120, 134, 155, 0.06);
+  background: transparent;
   color: #b9c1cb;
 }
 
@@ -594,7 +594,7 @@
   .tr-ic-done,
   .tr-ic-idle,
   .tr-ic-skip {
-    background: rgba(255, 255, 255, 0.06);
+    background: transparent;
     color: #8f9aa9;
   }
 

@@ -61,29 +61,29 @@ const KIND_LABEL = {
 };
 
 const KIND_ICON = {
-  plan: "/assets/icons/pen-gray.png",
-  tool: "/assets/icons/grid-gray.png",
-  file_read: "/assets/icons/doc-gray.png",
-  file_write: "/assets/icons/pen-gray.png",
-  image_read: "/assets/icons/cam-gray.png",
-  subagent: "/assets/icons/user-gray.png",
-  artifact: "/assets/icons/doc-gray.png",
-  validation: "/assets/icons/check-gray.png",
-  note: "/assets/icons/bubble-gray.png",
-  error: "/assets/icons/warn-gray.png",
-  status: "/assets/icons/grid-gray.png",
+  plan: "/assets/icons/trace/trace-plan.png",
+  tool: "/assets/icons/trace/trace-tool.png",
+  file_read: "/assets/icons/trace/trace-doc.png",
+  file_write: "/assets/icons/trace/trace-write.png",
+  image_read: "/assets/icons/trace/trace-image.png",
+  subagent: "/assets/icons/trace/trace-user.png",
+  artifact: "/assets/icons/trace/trace-doc.png",
+  validation: "/assets/icons/trace/trace-check.png",
+  note: "/assets/icons/trace/trace-note.png",
+  error: "/assets/icons/trace/trace-warn-red.png",
+  status: "/assets/icons/trace/trace-tool.png",
 };
 
 function iconFor(e, name) {
-  if (e.status === "failed") return "/assets/icons/warn-gray.png";
+  if (e.status === "failed") return "/assets/icons/trace/trace-warn-red.png";
   if (e.kind === "image_read") return KIND_ICON.image_read;
   if (e.kind !== "tool") return KIND_ICON[e.kind] || KIND_ICON.tool;
   const n = String(name || "").toLowerCase();
-  if (n.indexOf("search") >= 0) return "/assets/icons/search-gray.png";
-  if (n.indexOf("photo") >= 0 || n.indexOf("image") >= 0) return "/assets/icons/cam-gray.png";
-  if (n.indexOf("doc") >= 0 || n.indexOf("文书") >= 0) return "/assets/icons/doc-gray.png";
-  if (n.indexOf("context") >= 0) return "/assets/icons/bubble-gray.png";
-  if (n.indexOf("write") >= 0) return "/assets/icons/pen-gray.png";
+  if (n.indexOf("search") >= 0) return "/assets/icons/trace/trace-search.png";
+  if (n.indexOf("photo") >= 0 || n.indexOf("image") >= 0) return "/assets/icons/trace/trace-image.png";
+  if (n.indexOf("doc") >= 0 || n.indexOf("文书") >= 0) return "/assets/icons/trace/trace-doc.png";
+  if (n.indexOf("context") >= 0) return "/assets/icons/trace/trace-note.png";
+  if (n.indexOf("write") >= 0) return "/assets/icons/trace/trace-write.png";
   return KIND_ICON.tool;
 }
 
