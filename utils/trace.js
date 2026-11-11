@@ -60,6 +60,33 @@ const KIND_LABEL = {
   status: "状态",
 };
 
+const KIND_ICON = {
+  plan: "/assets/icons/pen-gray.png",
+  tool: "/assets/icons/grid-gray.png",
+  file_read: "/assets/icons/doc-gray.png",
+  file_write: "/assets/icons/pen-gray.png",
+  image_read: "/assets/icons/cam-gray.png",
+  subagent: "/assets/icons/user-gray.png",
+  artifact: "/assets/icons/doc-gray.png",
+  validation: "/assets/icons/check-gray.png",
+  note: "/assets/icons/bubble-gray.png",
+  error: "/assets/icons/warn-gray.png",
+  status: "/assets/icons/grid-gray.png",
+};
+
+function iconFor(e, name) {
+  if (e.status === "failed") return "/assets/icons/warn-gray.png";
+  if (e.kind === "image_read") return KIND_ICON.image_read;
+  if (e.kind !== "tool") return KIND_ICON[e.kind] || KIND_ICON.tool;
+  const n = String(name || "").toLowerCase();
+  if (n.indexOf("search") >= 0) return "/assets/icons/search-gray.png";
+  if (n.indexOf("photo") >= 0 || n.indexOf("image") >= 0) return "/assets/icons/cam-gray.png";
+  if (n.indexOf("doc") >= 0 || n.indexOf("文书") >= 0) return "/assets/icons/doc-gray.png";
+  if (n.indexOf("context") >= 0) return "/assets/icons/bubble-gray.png";
+  if (n.indexOf("write") >= 0) return "/assets/icons/pen-gray.png";
+  return KIND_ICON.tool;
+}
+
 const MAX_STEPS = 80;
 const MAX_FAIL_ROWS = 5;
 const MAX_OUTPUT_LINES = 6;
@@ -370,7 +397,7 @@ function mergeDetail(old, incoming) {
 function eventDuration(e, now) {
   const start = e.startsMs || 0;
   const end = e.endsMs || 0;
-  if (start && end && end >= start) return formatDuration(end - start);
+  if (start && end && end > start) return formatDuration(end - start);
   if (start && statusMeta(e.status).rank <= 2) return formatDuration((now || Date.now()) - start);
   return "";
 }
@@ -445,6 +472,7 @@ function eventView(e, open, ctx, agg) {
     statusLabel: meta.label,
     statusTone: meta.tone,
     statusGlyph: meta.glyph,
+    icon: iconFor(e, name),
     durText: dur,
     retryText: retryText,
     retried: !!retryText,
@@ -518,10 +546,14 @@ function stepReps(events) {
         lastFailed: e.status === "failed" ? e : null,
         subagent: e.kind === "subagent",
         summary: e.summary || "",
+        startMs: e.startsMs || 0,
+        endMs: e.endsMs || 0,
       };
     } else {
       m.eventCount += 1;
       if (e.seq > m.latest.seq) m.latest = e;
+      if (e.startsMs && (!m.startMs || e.startsMs < m.startMs)) m.startMs = e.startsMs;
+      if (e.endsMs && e.endsMs > m.endMs) m.endMs = e.endsMs;
       const att = Number(e.attempt) || 1;
       if (att > m.maxAttempt) m.maxAttempt = att;
       if (e.retryOfSeq != null) m.retries += 1;
@@ -536,6 +568,12 @@ function stepReps(events) {
         summary: m.summary || m.latest.summary || "",
       });
     }
+    // 起止事件是 append-only 两条：开始时间取最早、结束时间取最晚，
+    // 否则完成事件的 startedAt=endedAt 会让每一步都显示假 0ms。
+    m.latest = Object.assign({}, m.latest, {
+      startsMs: m.startMs || m.latest.startsMs || 0,
+      endsMs: m.endMs || m.latest.endsMs || 0,
+    });
   });
   return Object.keys(map).map(function (k) { return map[k]; });
 }

@@ -148,9 +148,9 @@
 
 .tr-ic {
   flex: none;
-  width: 22rpx;
-  height: 22rpx;
-  margin: 4rpx 10rpx 0 0;
+  width: 26rpx;
+  height: 26rpx;
+  margin: 2rpx 10rpx 0 0;
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -159,6 +159,33 @@
   font-weight: 400;
   line-height: 1;
   background: transparent;
+}
+
+.tr-kind-icon {
+  display: block;
+  width: 26rpx;
+  height: 26rpx;
+  opacity: 0.72;
+}
+
+.tr-ic-fail .tr-kind-icon {
+  opacity: 0.95;
+}
+
+.tr-spin {
+  width: 20rpx;
+  height: 20rpx;
+  box-sizing: border-box;
+  border: 2rpx solid rgba(91, 141, 239, 0.22);
+  border-top-color: #5b8def;
+  border-radius: 50%;
+  animation: tr-rotate 0.8s linear infinite;
+}
+
+@keyframes tr-rotate {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .tr-ic-done {

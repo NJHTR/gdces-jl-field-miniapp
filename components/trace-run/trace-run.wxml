@@ -36,7 +36,7 @@
         aria-label="{{item.aria}}"
       >
         <view class="tr-step-line">
-          <view class="tr-ic tr-ic-fail"><text>!</text></view>
+          <view class="tr-ic tr-ic-fail"><image class="tr-kind-icon" src="{{item.icon}}" mode="aspectFit" /></view>
           <view class="tr-step-main">
             <text class="tr-step-phase">{{item.phaseLabel}}</text>
             <text class="tr-step-sep">·</text>
@@ -99,7 +99,11 @@
         aria-label="{{st.aria}}"
       >
         <view class="tr-step-line">
-          <view class="tr-ic tr-ic-{{st.statusTone}}"><text>{{st.statusGlyph}}</text></view>
+          <view class="tr-ic tr-ic-{{st.statusTone}}">
+            <view wx:if="{{st.status === 'running' || st.status === 'retrying'}}" class="tr-spin"></view>
+            <image wx:elif="{{st.icon}}" class="tr-kind-icon" src="{{st.icon}}" mode="aspectFit" />
+            <text wx:else>{{st.statusGlyph}}</text>
+          </view>
           <view class="tr-step-main">
             <text class="tr-step-phase">{{st.phaseLabel}}</text>
             <text class="tr-step-sep">·</text>
