@@ -180,6 +180,8 @@
               <!-- 最终态 trace：L1 轮次 / L2 阶段-步骤 / L3 单步详情 -->
               <trace-run
                 wx:if="{{item.traceV2}}"
+                class="trace-v2"
+                style="display:block;width:100%;"
                 id="tr-{{item.id}}"
                 message-id="{{item.id}}"
                 task-id="{{item.taskId}}"

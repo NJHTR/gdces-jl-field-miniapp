@@ -4812,6 +4812,12 @@ page {
    折叠时一行，展开是步骤清单
    ============================================================ */
 
+.trace-v2 {
+  display: block;
+  width: 100%;
+  align-self: stretch;
+}
+
 .trace {
   width: 100%;
   margin-top: 10rpx;
