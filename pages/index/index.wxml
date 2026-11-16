@@ -514,7 +514,7 @@
           </view>
 
           </block>
-        <view class="tb-pad" id="tl-bottom"></view>
+        <view class="tb-pad" id="tl-bottom-{{bottomSeq}}"></view>
       </scroll-view>
 
       <view class="inboxwrap" wx:elif="{{tab === 'inbox'}}">

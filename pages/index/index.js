@@ -96,6 +96,7 @@ Page({
     hapticOn: true,
     kbHeight: 0,
     tlAnchor: "",
+    bottomSeq: 0,
     traceNew: false,
     menuOpen: false,
     menuX: 0,
@@ -2652,8 +2653,11 @@ Page({
     this._atFieldBottom = true;
     this._lastFieldTop = null;
     if (this.data.traceNew) this.setData({ traceNew: false });
-    this.setData({ tlAnchor: "" }, () => {
-      wx.nextTick(() => this.setData({ tlAnchor: "tl-bottom" }));
+    // 不要先清空 scroll-into-view 再设 tl-bottom：Skyline 会先跳到顶部。
+    // 每次给底部锚点一个新 id，强制 scroll-view 重新滚到底部。
+    const seq = (this.data.bottomSeq || 0) + 1;
+    this.setData({ bottomSeq: seq }, () => {
+      wx.nextTick(() => this.setData({ tlAnchor: "tl-bottom-" + seq }));
     });
   },
 
