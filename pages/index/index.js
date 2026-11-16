@@ -333,6 +333,7 @@ Page({
   onHide() {
     clearTimeout(this._assetRefreshTimer);
     clearTimeout(this._pollTimer);
+    clearTimeout(this._scrollBottomTimer);
     this._stopVoice();
     this._unbindKeyboard();
     this.setData({ kbHeight: 0 });
@@ -401,6 +402,7 @@ Page({
 
   onUnload() {
     clearTimeout(this._assetRefreshTimer);
+    clearTimeout(this._scrollBottomTimer);
     this._stopVoice();
     this._unbindKeyboard();
   },
@@ -2655,10 +2657,17 @@ Page({
     if (this.data.traceNew) this.setData({ traceNew: false });
     // 不要先清空 scroll-into-view 再设 tl-bottom：Skyline 会先跳到顶部。
     // 每次给底部锚点一个新 id，强制 scroll-view 重新滚到底部。
-    const seq = (this.data.bottomSeq || 0) + 1;
-    this.setData({ bottomSeq: seq }, () => {
-      wx.nextTick(() => this.setData({ tlAnchor: "tl-bottom-" + seq }));
-    });
+    // 发送时 refreshViews 的列表渲染还没完成，第一次锚点可能找不到；
+    // 渲染完成后再补一次，避免停在旧位置/顶部。
+    const jump = () => {
+      const seq = (this.data.bottomSeq || 0) + 1;
+      this.setData({ bottomSeq: seq }, () => {
+        wx.nextTick(() => this.setData({ tlAnchor: "tl-bottom-" + seq }));
+      });
+    };
+    clearTimeout(this._scrollBottomTimer);
+    jump();
+    this._scrollBottomTimer = setTimeout(jump, 120);
   },
 
   /** 失焦 = 键盘一定收起了，这里强制归零（heightchange 不一定发 0） */
