@@ -1415,10 +1415,15 @@ Page({
       listEmpty,
       emptyText,
       emptySub,
+    }, () => {
+      // 列表真正渲染完后再定位一次；只依赖 setData 前的 scroll-into-view，
+      // Skyline 可能短暂找不到新锚点，表现为白屏后跳回顶部。
+      if (this._scrollAfterRender) {
+        this._scrollAfterRender = false;
+        this.scrollToBottom();
+      }
+      wx.nextTick(() => this._mountTraces());
     });
-
-    // trace-run 组件是 wx:if 挂载的：刷新完把纯 JS store 注入组件（不要塞进 data）
-    wx.nextTick(() => this._mountTraces());
 
     if (this.data.tab === "inbox") {
       wx.nextTick(() => this.measureSections());
@@ -2751,13 +2756,21 @@ Page({
     this.setData({ quoting: null });
     const myId = msgs[msgs.length - 1].id;
     this.setData({ msgs }, () => {
+      this._scrollAfterRender = true;
       this.refreshViews(this.data.query);
       this.scrollToBottom();
 
       // 上传完成（接后端后换成真实结果回调）
       setTimeout(() => {
-        const next = this.data.msgs.map((m) => (m.id === myId ? Object.assign({}, m, { sync: true }) : m));
-        this.setData({ msgs: next }, () => this.refreshViews(this.data.query));
+        // 只改这一条的 sync 标记：不要再 refreshViews 全量重建列表，
+        // 否则 Skyline 会白一下并把 scroll-view 位置重置到顶部。
+        const view = this.data.msgsView || [];
+        for (let i = 0; i < view.length; i++) {
+          if (view[i] && view[i].id === myId) {
+            this.setData({ ["msgsView." + i + ".sync"]: true });
+            break;
+          }
+        }
       }, 900);
     });
 
@@ -2888,6 +2901,7 @@ Page({
         busy: { taskId: null, startedAt, elapsed: 0, progress: [] },
       },
       () => {
+        this._scrollAfterRender = true;
         this.refreshViews(this.data.query);
         this.scrollToBottom();
         this._startBusyTicker();
