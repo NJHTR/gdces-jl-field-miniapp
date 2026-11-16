@@ -2756,14 +2756,12 @@ Page({
     this.setData({ quoting: null });
     const myId = msgs[msgs.length - 1].id;
     this.setData({ msgs }, () => {
-      this._scrollAfterRender = true;
-      this.refreshViews(this.data.query);
+      // 不在 onSend 里先 refresh 一次：紧接着 _sendToServer 会插入
+      // “处理中”气泡并统一 refresh，少一次全列表重建。
       this.scrollToBottom();
 
-      // 上传完成（接后端后换成真实结果回调）
+      // 上传完成后只改这一条的 sync 标记，不重建整个列表。
       setTimeout(() => {
-        // 只改这一条的 sync 标记：不要再 refreshViews 全量重建列表，
-        // 否则 Skyline 会白一下并把 scroll-view 位置重置到顶部。
         const view = this.data.msgsView || [];
         for (let i = 0; i < view.length; i++) {
           if (view[i] && view[i].id === myId) {
@@ -2789,13 +2787,15 @@ Page({
       }
       const sec = Math.floor((Date.now() - b.startedAt) / 1000);
       const patch = { busy: Object.assign({}, b, { elapsed: sec }) };
-      // 注意：这里必须先把 id 取出来。写在 function(m) 里的话 this 不是页面对象，
-      // 匹配永远失败，秒数就一直是 0。
+      // 只更新正在处理那一条的 elapsed，绝不每秒重发整个 msgs 数组。
       const pid = this._pendingId;
       if (pid) {
-        patch.msgs = this.data.msgs.map(function (m) {
-          return m.id === pid ? Object.assign({}, m, { elapsed: sec }) : m;
-        });
+        const msgs = this.data.msgs || [];
+        const mi = msgs.findIndex((m) => m && m.id === pid);
+        if (mi >= 0) patch["msgs." + mi + ".elapsed"] = sec;
+        const view = this.data.msgsView || [];
+        const vi = view.findIndex((m) => m && m.id === pid);
+        if (vi >= 0) patch["msgsView." + vi + ".elapsed"] = sec;
       }
       this.setData(patch);
     }, 1000);
